@@ -1,0 +1,15 @@
+{% extends "comics/base.html" %}
+
+{% block page-title %}{{ creator.name }}{% endblock page-title %}
+
+{% block content %}
+
+<img src="/{{ creator.image }}" >
+
+<div class="description">
+	<p>{{ creator.desc }}</p>
+</div>
+
+{% include "comics/related_issues.html" %}
+
+{% endblock content %}

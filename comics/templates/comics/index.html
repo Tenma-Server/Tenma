@@ -1,0 +1,18 @@
+{% extends "comics/base.html" %}
+
+{% block page-title %}{{ series.name }}{% endblock page-title %}
+
+{% block content %}
+
+{% if all_series %}
+	{% for series in all_series %}
+	<div>
+		<a href="{% url 'comics:series' series.id %}"><img src="/{{ series.issue_numerical_order_set.first.cover }}" alt = "{{ series.name }}" ></a>
+		<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
+	</div>
+	{% endfor %}
+{% else %}
+	<p>No series currently available.</p>
+{% endif %}
+
+{% endblock content %}

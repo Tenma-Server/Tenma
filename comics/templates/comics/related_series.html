@@ -1,0 +1,10 @@
+<div class="series">
+	<h3>Series</h3>
+	<ul>
+	{% for series in allseries %}
+		<li>
+			<a href="{% url 'comics:series' series.id %}">{{ series.name }}</a>
+		</li>
+	{% endfor %}
+	</ul>
+</div>

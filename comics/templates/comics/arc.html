@@ -1,0 +1,13 @@
+{% extends "comics/base.html" %}
+
+{% block page-title %}{{ arc.name }}{% endblock page-title %}
+
+{% block content %}
+
+<div class="description">
+	<p>{{ arc.desc }}</p>
+</div>
+
+{% include "comics/related_issues.html" %}
+
+{% endblock content %}

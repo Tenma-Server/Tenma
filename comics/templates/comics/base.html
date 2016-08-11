@@ -1,0 +1,23 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Tenma</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'comics/style.css' %}" />
+    </head>
+
+    <body class="{% block page-type %}{% endblock %}">
+        <header>
+            <a href="/">Tenma</a>
+        </header>
+
+        <div id="page-title">
+            <h2>{% block page-title %}{% endblock %}</h2>
+        </div>
+
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

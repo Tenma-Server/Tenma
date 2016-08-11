@@ -1,0 +1,11 @@
+{% extends "comics/base.html" %}
+
+{% block content %}
+
+{% for item in issue.page_set.pages %}
+	{% with mediaurl=issue.page_set.mediaurl %}
+	<div class="page page-{{ forloop.counter }}" style="background-image: url('{{ mediaurl }}{{ item }}')"></div>
+	{% endwith %}
+{% endfor %}
+
+{% endblock content %}

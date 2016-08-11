@@ -1,0 +1,23 @@
+{% extends "comics/base.html" %}
+
+{% block page-title %}{{ character.name }}{% endblock page-title %}
+
+{% block content %}
+
+<img src="/{{ character.image }}" >
+
+<div class="description">
+	<p>{{ character.desc }}</p>
+</div>
+<div class="teams">
+	<h3>Teams</h3>
+	<ul>
+	{% for team in character.teams.all %}
+		<li><a href="/team/{{ team.id }}">{{ team.name }}</a></li>
+	{% endfor %}
+	</ul>
+</div>
+
+{% include "comics/related_issues.html" %}
+
+{% endblock content %}
