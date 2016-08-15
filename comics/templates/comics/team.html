@@ -7,14 +7,8 @@
 <div class="description">
 	<p>{{ team.desc }}</p>
 </div>
-<div class="characters">
-	<h3>Characters</h3>
-	<ul>
-	{% for character in team.character_set.all %}
-		<li><a href="{% url 'comics:character' character.id %}">{{ character.name }}</a></li>
-	{% endfor %}
-	</ul>
-</div>
+
+{% include "comics/related_characters.html" with character_list=team.character_set.all %}
 
 {% include "comics/related_issues.html" %}
 

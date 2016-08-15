@@ -16,11 +16,7 @@
 </div>
 {% endif %}
 
-{% if issue.series.publisher %}
-<div class="publisher">
-	<p><a href="{% url 'comics:publisher' issue.series.publisher.id %}">{{ issue.series.publisher.name }}</a></p>
-</div>
-{% endif %}
+{% include "comics/related_publisher.html" with publisher=issue.series.publisher %}
 
 {% if issue.date %}
 <div class="release-date">
@@ -34,44 +30,12 @@
 </div>
 {% endif %}
 
-{% if issue.arc %}
-<div class="arc">
-	<h3>Arc</h3>
-	<p><a href="{% url 'comics:arc' issue.arc.id %}">{{ issue.arc.name }}</a></p>
-</div>
-{% endif %}
+{% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
 
-{% if issue.characters %}
-<div class="characters">
-	<h3>Characters</h3>
-	<ul>
-	{% for character in issue.characters.all %}
-		<li><a href="{% url 'comics:character' character.id %}">{{ character.name }}</a></li>
-	{% endfor %}
-	</ul>
-</div>
-{% endif %}
+{% include "comics/related_characters.html" with character_list=issue.characters.all %}
 
-{% if issue.creators %}
-<div class="creators">
-	<h3>Creators</h3>
-	<ul>
-	{% for creator in issue.creators.all %}
-		<li><a href="{% url 'comics:creator' creator.id %}">{{ creator.name }}</a></li>
-	{% endfor %}
-	</ul>
-</div>
-{% endif %}
+{% include "comics/related_creators.html" with creator_list=issue.creators.all %}
 
-{% if issue.teams %}
-<div class="teams">
-	<h3>Teams</h3>
-	<ul>
-	{% for team in issue.teams.all %}
-		<li><a href="{% url 'comics:team' team.id %}">{{ team.name }}</a></li>
-	{% endfor %}
-	</ul>
-</div>
-{% endif %}
+{% include "comics/related_teams.html" with team_list=issue.teams.all %}
 
 {% endblock content %}

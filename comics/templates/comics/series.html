@@ -10,13 +10,7 @@
 </div>
 {% endif %}
 
-{% if series.publisher %}
-<div class="publisher">
-	<a href="{% url 'comics:publisher' series.publisher.id %}">
-		<img src="/{{ series.publisher.logo }}" alt="{{ series.publisher.name }}">
-	</a>
-</div>
-{% endif %}
+{% include "comics/related_publisher.html" with publisher=series.publisher %}
 
 {% if series.year %}
 <div class="year">

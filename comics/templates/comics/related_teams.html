@@ -1,0 +1,11 @@
+{% if team_list %}
+<div class="related-teams">
+	<h3>Teams</h3>
+	{% for team in team_list %}
+	<div class="related-team">
+		<a href="{% url 'comics:team' team.id %}"><img src="/{{ team.image }}" alt = "{{ team.name }}" ></a>
+		<a href="{% url 'comics:team' team.id %}"><p>{{ team.name }}</p></a>
+	</div>
+	{% endfor %}
+</div>
+{% endif %}

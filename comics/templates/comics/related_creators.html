@@ -1,0 +1,11 @@
+{% if creator_list %}
+<div class="related-creators">
+	<h3>Creators</h3>
+	{% for creator in creator_list %}
+	<div class="related-creator">
+		<a href="{% url 'comics:creator' creator.id %}"><img src="/{{ creator.image }}" alt = "{{ creator.name }}" ></a>
+		<a href="{% url 'comics:creator' creator.id %}"><p>{{ creator.name }}</p></a>
+	</div>
+	{% endfor %}
+</div>
+{% endif %}

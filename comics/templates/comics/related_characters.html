@@ -1,0 +1,11 @@
+{% if character_list %}
+<div class="related-characters">
+	<h3>Characters</h3>
+	{% for character in character_list %}
+	<div class="related-character">
+		<a href="{% url 'comics:character' character.id %}"><img src="/{{ character.image }}" alt = "{{ character.name }}" ></a>
+		<a href="{% url 'comics:character' character.id %}"><p>{{ character.name }}</p></a>
+	</div>
+	{% endfor %}
+</div>
+{% endif %}
