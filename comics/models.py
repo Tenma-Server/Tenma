@@ -112,7 +112,7 @@ class Issue(models.Model):
 		if os.path.isdir(temppath):
 			# Check if directory is not empty
 			if not os.listdir(temppath) == []:
-				pages = os.listdir(temppath)
+				pages = self._get_file_list(temppath)
 				return {'mediaurl': mediaurl, 'pages': pages}
 			else:
 				# Check if file does not exists
@@ -144,7 +144,7 @@ class Issue(models.Model):
 				rf = rarfile.RarFile(newext)
 			else:
 				rf = rarfile.RarFile(tempfile)
-			rf.extractall(path=mediaroot)
+			rf.extractall(path=temppath)
 		# Check for CBZ or ZIP
 		elif extension == '.cbz' or extension == '.zip':
 			if extension == '.cbz':
@@ -153,7 +153,7 @@ class Issue(models.Model):
 				z = zipfile.ZipFile(newext)
 			else:
 				z = zipfile.ZipFile(tempfile)	
-			z.extractall(path=mediaroot + dirname)
+			z.extractall(path=temppath)
 		# Check for CBT or TAR
 		elif extension == '.cbt' or extension == '.tar':
 			if extension == '.cbt':
@@ -162,8 +162,28 @@ class Issue(models.Model):
 				t = tarfile.TarFile(newext)
 			else:
 				t =tarfile.TarFile(tempfile)
-			t.extractall(path=mediaroot)
+			t.extractall(path=temppath)
 
-		pages = os.listdir(temppath)
+		# Delete the file after extraction so that space isn't wasted.
+		if os.path.isfile(tempfile):
+			os.remove(tempfile)
+		elif os.path.isfile(newext):
+			os.remove(newext)
+
+		# Get a list of pages
+		pages = self._get_file_list(temppath)
 
 		return {'mediaurl': mediaurl, 'pages': pages}
+
+	def _get_file_list(self, filepath):
+
+		pages = []
+
+		for root, dirs, files in os.walk(filepath):
+			for file in files:
+				if os.path.splitext(file)[1].lower() == '.jpg' or os.path.splitext(file)[1].lower() == '.jpeg':
+					path = os.path.join(root,file)
+					newpath = path.replace(filepath + '/', '')
+					pages.append(newpath)
+
+		return pages
