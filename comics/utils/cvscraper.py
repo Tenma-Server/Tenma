@@ -50,7 +50,8 @@ class CVScraper(object):
 
 							print 'DONE!'
 
-							pff.write("%s\n" % file)
+							if not cvid == '':
+								pff.write("%s\n" % file)
 
 	#==================================================================================================
 
