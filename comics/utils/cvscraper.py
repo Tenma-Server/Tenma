@@ -56,7 +56,7 @@ class CVScraper(object):
 
 		# Query Settings
 		query_fields = '&field_list=cover_date,id,issue_number,name,volume'
-		query_limit = '&limit=20'
+		query_limit = '&limit=100'
 
 		# Attempt to extract series name, issue number, and year
 		extracted = fnameparser.extract(filename)
@@ -78,39 +78,28 @@ class CVScraper(object):
 			query_request = Request(query_url)
 			query_response = json.loads(urlopen(query_request).read())
 
+		best_option_list = []
+
 		# Try to find the closest match.
 		for issue in query_response['results']:
-			# Extract year from cover date
-			if issue['cover_date']:
-				item_year = issue['cover_date'][0:4]
-			else:
-				item_year = ''
-			if issue['issue_number']:
-				item_number = issue['issue_number']
-			else:
-				item_number = ''
-			if issue['volume']['name']:
-				item_name = issue['volume']['name']
-			else:
-				item_name = ''
+			item_year = issue['cover_date'][0:4] if issue['cover_date'] else ''
+			item_number = issue['issue_number'] if issue['issue_number'] else ''
+			item_name = issue['volume']['name'] if issue['volume']['name'] else ''
 
 			if series_name and issue_number and issue_year:
 				if item_name == series_name and item_number == issue_number and item_year == issue_year:
-					cvid = issue['id']
+					best_option_list.insert(0, issue['id'])
 					break
 				elif item_name == series_name and item_number == issue_number:
-					cvid = issue['id']
-					break
+					best_option_list.insert(0, issue['id'])
 			elif series_name and issue_number:
 				if item_name == series_name and item_number == issue_number:
-					cvid = issue['id']
-					break
+					best_option_list.insert(0, issue['id'])
 			elif series_name and issue_year:
 				if item_name == series_name and item_year == issue_year:
-					cvid = issue['id']
-					break
+					best_option_list.append(issue['id'])
 
-		return cvid
+		return best_option_list[0]
 
 	#==================================================================================================
 
@@ -288,7 +277,7 @@ class CVScraper(object):
 					cvid=response_creator['results']['id'],
 					cvurl=response_creator['results']['site_detail_url'],
 					name=response_creator['results']['name'],
-					desc=response_creator['results']['deck'],
+					desc=response_creator['results']['deck'] if response_creator['results']['deck'] else '',
 					image=creator_image_filepath
 				)
 
