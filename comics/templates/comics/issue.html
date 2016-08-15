@@ -12,7 +12,7 @@
 
 {% if issue.cover|length %}
 <div class="issue-cover">
-	<img src="/{{ issue.cover }}" >
+	<a href="{% url 'comics:read' issue.id %}"><img src="/{{ issue.cover }}" ></a>
 </div>
 {% endif %}
 
