@@ -41,16 +41,11 @@ class CVScraper(object):
 						if file.endswith(".cbz") or file.endswith(".zip") or file.endswith(".cbr") or file.endswith(".rar") or file.endswith(".cbt") or file.endswith(".tar"): 
 							# Attempt to find match
 							cvid = self._find_match(file)
-							
-							print file + ' - ' + str(cvid) + '.....'
-
-							if cvid:
-								# Scrape the issue
-								self._scrape_issue(file, cvid)
-
-							print 'DONE!'
 
 							if not cvid == '':
+								# Scrape the issue
+								self._scrape_issue(file, cvid)
+								# Write to the .processed file
 								pff.write("%s\n" % file)
 
 	#==================================================================================================
