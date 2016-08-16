@@ -145,7 +145,7 @@ class CVScraper(object):
 			series.cvid = response_series['results']['id']
 			series.cvurl = response_series['results']['site_detail_url']
 			series.name = response_series['results']['name']
-			series.desc = response_series['results']['deck'] if response_series['results']['deck'] else ''
+			series.desc = response_series['results']['description'] if response_series['results']['description'] else ''
 
 			# 3. Set Publisher info:
 			matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
@@ -165,10 +165,10 @@ class CVScraper(object):
 				else:
 					publisher_logo_filepath = ''
 
-				publisher.cvid = response_publisher['results']['id'],
-				publisher.cvurl = response_publisher['results']['site_detail_url'],
-				publisher.name = response_publisher['results']['name'],
-				publisher.desc = response_publisher['results']['deck'],
+				publisher.cvid = response_publisher['results']['id']
+				publisher.cvurl = response_publisher['results']['site_detail_url']
+				publisher.name = response_publisher['results']['name']
+				publisher.desc = response_publisher['results']['deck']
 				publisher.logo = publisher_logo_filepath
 
 				publisher.save()
