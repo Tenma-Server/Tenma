@@ -78,6 +78,47 @@ body {
 	background: rgba(0, 0, 0, 0.5) !important;
 }
 
+.flex-direction-nav {
+	position: absolute;
+	top: -51px;
+	right: 30px;
+}
+
+.flex-direction-nav a {
+	position: relative;
+}
+
+.flex-direction-nav a:before {
+	color: #ececec;
+	text-shadow: none;
+	font-size: 30px;
+}
+
+.flex-nav-prev,
+.flex-nav-next {
+	display: inline-block;
+	width: 30px;
+	height:30px;
+	text-shadow: none;
+}
+
+.flex-direction-nav .flex-prev,
+.flex-direction-nav .flex-next {
+	left: 0 !important;
+	top: 0;
+	right: 0 !important;
+	margin: 0;
+	opacity: 1;
+	text-align: center;
+	width: 30px;
+	height: 30px;
+}
+
+.flexslider:hover .flex-direction-nav .flex-prev,
+.flexslider:hover .flex-direction-nav .flex-next {
+	opacity: 1;
+}
+
 /*
  *	Homepage Series Listing
  */
@@ -370,7 +411,14 @@ body {
  *	Related blocks
  */
 
-.related h2 {
+.related {
+	position: relative;
+}
+
+
+
+.related h2,
+.related h3 {
 	margin-left: 30px;
 }
 
