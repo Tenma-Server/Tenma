@@ -15,3 +15,8 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Sublime Project Files #
+#########################
+*.sublime-project
+*.sublime-workspace
