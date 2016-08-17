@@ -13,6 +13,7 @@ Storing, organizing, and reading comics.
 1. Install python
 2. Install Django: https://www.djangoproject.com/download/
 3. Install the rarfile python library: https://pypi.python.org/pypi/rarfile/2.2
+4. Install Pillow: https://pillow.readthedocs.io/en/latest/installation.html
 
 ### Create your database: ###
 
