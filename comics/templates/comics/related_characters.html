@@ -1,11 +1,21 @@
+{% load simple_crop %}
+
 {% if character_list %}
-<div class="related-characters">
-	<h3>Characters</h3>
-	{% for character in character_list %}
-	<div class="related-character">
-		<a href="{% url 'comics:character' character.id %}"><img src="/{{ character.image }}" alt = "{{ character.name }}" ></a>
-		<a href="{% url 'comics:character' character.id %}"><p>{{ character.name }}</p></a>
+<div class="related related-characters">
+	<h2>Characters</h2>
+	<div class="flexslider related-slider">
+		<ul class="slides">
+			{% for character in character_list %}
+			<li>
+				<a href="{% url 'comics:character' character.id %}">
+					<div class="image">
+						<img src="{{ character.image|smartcrop:"200x305" }}" alt = "{{ character.name }}" >
+					</div>
+				</a>
+				<a href="{% url 'comics:character' character.id %}"><p>{{ character.name }}</p></a>
+			</li>
+			{% endfor %}
+		</ul>
 	</div>
-	{% endfor %}
 </div>
 {% endif %}

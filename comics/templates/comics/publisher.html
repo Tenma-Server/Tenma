@@ -1,20 +1,28 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ publisher.name }}{% endblock page-title %}
-
 {% block content %}
 
-{% if publisher.logo|length %}
-<div class="publisher-logo">
-	<img src="/{{ publisher.logo }}" >
+<div class="publisher-info-wrapper">
+	{% if publisher.logo|length %}
+	<div class="publisher-logo">
+		<img src="/{{ publisher.logo }}" >
+	</div>
+	{% endif %}
+	<div class="publisher-info">
+		<div class="publisher-name">
+			{% if publisher.name %}
+			<h1>{{ publisher.name }}</h1>
+			{% endif %}
+		</div>
+		{% if publisher.desc %}
+		{% autoescape off %}
+		<div class="publisher-description">
+			<p>{{ publisher.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
-{% endif %}
-
-{% if publisher.desc %}
-<div class="description">
-	<p>{{ publisher.desc }}</p>
-</div>
-{% endif %}
 
 {% include "comics/related_series.html" with allseries=publisher.series_set.all %}
 

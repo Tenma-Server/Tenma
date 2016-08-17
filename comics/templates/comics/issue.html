@@ -1,34 +1,39 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ issue.series.name }}{% endblock page-title %}
-
 {% block content %}
 
-{% if issue.name %}
-<h2>{{ issue.name }}</h2>
-{% endif %}
-
-<h2>Issue #{{ issue.number }}</h2>
-
-{% if issue.cover|length %}
-<div class="issue-cover">
-	<a href="{% url 'comics:read' issue.id %}"><img src="/{{ issue.cover }}" ></a>
+<div class="issue-info-wrapper">
+	{% if issue.cover|length %}
+	<div class="issue-cover">
+		<a href="{% url 'comics:read' issue.id %}">
+			<i class="fa fa-eye"></i>
+			<div class="issue-cover-image">
+				<img src="/{{ issue.cover }}" >
+			</div>
+		</a>
+	</div>
+	{% endif %}
+	<div class="issue-info">
+		<div class="issue-title">
+			{% if issue.series.name %}
+			<h1>{{ issue.series.name }}</h1>
+			{% endif %}
+			<h3>Issue #{{ issue.number }}{% if issue.name %} - <i>{{ issue.name }}</i>{% endif %}</h3>
+			{% if issue.date %}
+			<p>Released: {{ issue.date }}</p>
+			{% endif %}
+		</div>
+		{% if issue.desc %}
+		{% autoescape off %}
+		<div class="issue-description">
+			<p>{{ issue.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
-{% endif %}
 
 {% include "comics/related_publisher.html" with publisher=issue.series.publisher %}
-
-{% if issue.date %}
-<div class="release-date">
-	<p>Released: {{ issue.date }}</p>
-</div>
-{% endif %}
-
-{% if issue.desc %}
-<div class="description">
-	<p>{{ issue.desc }}</p>
-</div>
-{% endif %}
 
 {% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
 

@@ -1,37 +1,35 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ series.name }}{% endblock page-title %}
-
 {% block content %}
 
-{% if series.issue_numerical_order_set.first.cover|length %}
-<div class="series-image">
-	<img src="/{{ series.issue_numerical_order_set.first.cover }}" >
+<div class="series-info-wrapper">
+	{% if series.issue_numerical_order_set.first.cover|length %}
+	<div class="series-cover-image">
+		<img src="/{{ series.issue_numerical_order_set.first.cover }}" >
+	</div>
+	{% endif %}
+	<div class="series-info">
+		<div class="series-title">
+			{% if series.name %}
+			<h1>{{ series.name }}</h1>
+			{% endif %}
+			{% if series.year %}
+			<p>{{ series.year }}</p>
+			{% endif %}
+		</div>
+		{% if series.desc %}
+		{% autoescape off %}
+		<div class="series-description">
+			<p>{{ series.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
-{% endif %}
+
 
 {% include "comics/related_publisher.html" with publisher=series.publisher %}
 
-{% if series.year %}
-<div class="year">
-	<p>{{ series.year }}</p>
-</div>
-{% endif %}
-
-{% if series.desc %}
-<div class="description">
-	<p>{{ series.desc }}</p>
-</div>
-{% endif %}
-
-<div class="issues">
-	<h3>Issues</h3>
-	{% for issue in series.issue_numerical_order_set %}
-	<div>
-		<a href="{% url 'comics:issue' issue.id %}"><img src="/{{ issue.cover }}" alt = "{{ series.name }}" ></a>
-		<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>
-	</div>
-	{% endfor %}
-</div>
+{% include "comics/related_issues.html" with issue_list=series.issue_numerical_order_set %}
 
 {% endblock content %}

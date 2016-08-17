@@ -1,17 +1,31 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ character.name }}{% endblock page-title %}
-
 {% block content %}
 
-<img src="/{{ character.image }}" >
-
-<div class="description">
-	<p>{{ character.desc }}</p>
+<div class="character-info-wrapper">
+	{% if character.image|length %}
+	<div class="character-image">
+		<img src="/{{ character.image }}" >
+	</div>
+	{% endif %}
+	<div class="character-info">
+		<div class="character-name">
+			{% if character.name %}
+			<h1>{{ character.name }}</h1>
+			{% endif %}
+		</div>
+		{% if character.desc %}
+		{% autoescape off %}
+		<div class="character-description">
+			<p>{{ character.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
 
 {% include "comics/related_teams.html" with team_list=character.teams.all %}
 
-{% include "comics/related_issues.html" %}
+{% include "comics/related_issues_by_series.html" %}
 
 {% endblock content %}

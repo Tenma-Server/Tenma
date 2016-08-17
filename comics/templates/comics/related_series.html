@@ -1,10 +1,19 @@
-<div class="related-series">
-	<h3>Series</h3>
-	<ul>
-	{% for series in allseries %}
-		<li>
-			<a href="{% url 'comics:series' series.id %}">{{ series.name }}</a>
-		</li>
-	{% endfor %}
-	</ul>
+{% load simple_crop %}
+
+<div class="related related-series">
+	<h2>Series</h2>
+	<div class="flexslider related-slider">
+		<ul class="slides">
+			{% for series in allseries %}
+			<li>
+				<a href="{% url 'comics:series' series.id %}">
+					<div class="image">
+						<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"200x305" }}" alt = "{{ seriesname }}" >
+					</div>
+				</a>
+				<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
 </div>

@@ -1,11 +1,19 @@
 {% extends "comics/base.html" %}
 
+{% block page-type %}reader{% endblock %}
+
 {% block content %}
 
-{% for item in issue.page_set.pages %}
-	{% with mediaurl=issue.page_set.mediaurl %}
-	<div class="page page-{{ forloop.counter }}" style="background-image: url('{{ mediaurl }}{{ item }}')"></div>
-	{% endwith %}
-{% endfor %}
+<div class="reader-slider">
+	<ul class="slides">
+		{% for item in issue.page_set.pages %}
+		{% with mediaurl=issue.page_set.mediaurl %}
+		<li class="page page-{{ forloop.counter }}">
+			<img src="{{ mediaurl }}{{ item }}">
+		</li>
+		{% endwith %}
+		{% endfor %}
+	</ul>
+</div>
 
 {% endblock content %}

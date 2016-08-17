@@ -4,12 +4,19 @@
 <html lang="en">
     <head>
         <title>Tenma</title>
+        <link rel="stylesheet" href="{% static 'comics/flexslider/flexslider.css' %}" type="text/css">
         <link rel="stylesheet" type="text/css" href="{% static 'comics/style.css' %}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script src="https://use.fontawesome.com/d3455c4c52.js"></script>
+        <script src="{% static 'comics/flexslider/jquery.flexslider.js' %}"></script>
+        <script src="{% static 'comics/script.js' %}"></script>
     </head>
 
     <body class="{% block page-type %}{% endblock %}">
         <header>
-            <a href="/">Tenma</a>
+            <div id="navbar">
+                <a href="/">Tenma</a>
+            </div>
         </header>
 
         <div id="page-title">

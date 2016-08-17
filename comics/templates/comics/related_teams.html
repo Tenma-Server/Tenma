@@ -1,11 +1,21 @@
+{% load simple_crop %}
+
 {% if team_list %}
-<div class="related-teams">
-	<h3>Teams</h3>
-	{% for team in team_list %}
-	<div class="related-team">
-		<a href="{% url 'comics:team' team.id %}"><img src="/{{ team.image }}" alt = "{{ team.name }}" ></a>
-		<a href="{% url 'comics:team' team.id %}"><p>{{ team.name }}</p></a>
+<div class="related related-teams">
+	<h2>Teams</h2>
+	<div class="flexslider related-slider">
+		<ul class="slides">
+			{% for team in team_list %}
+			<li>
+				<a href="{% url 'comics:team' team.id %}">
+					<div class="image">
+						<img src="{{ team.image|smartcrop:"200x305" }}" alt = "{{ team.name }}" >
+					</div>
+				</a>
+				<a href="{% url 'comics:team' team.id %}"><p>{{ team.name }}</p></a>
+			</li>
+			{% endfor %}
+		</ul>
 	</div>
-	{% endfor %}
 </div>
 {% endif %}

@@ -1,15 +1,29 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ creator.name }}{% endblock page-title %}
-
 {% block content %}
 
-<img src="/{{ creator.image }}" >
-
-<div class="description">
-	<p>{{ creator.desc }}</p>
+<div class="creator-info-wrapper">
+	{% if creator.image|length %}
+	<div class="creator-image">
+		<img src="/{{ creator.image }}" >
+	</div>
+	{% endif %}
+	<div class="creator-info">
+		<div class="creator-name">
+			{% if creator.name %}
+			<h1>{{ creator.name }}</h1>
+			{% endif %}
+		</div>
+		{% if creator.desc %}
+		{% autoescape off %}
+		<div class="creator-description">
+			<p>{{ creator.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
 
-{% include "comics/related_issues.html" %}
+{% include "comics/related_issues_by_series.html" %}
 
 {% endblock content %}

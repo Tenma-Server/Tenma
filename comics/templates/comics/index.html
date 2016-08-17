@@ -1,18 +1,26 @@
 {% extends "comics/base.html" %}
 
+{% load simple_crop %}
+
 {% block page-title %}{{ series.name }}{% endblock page-title %}
 
 {% block content %}
 
+<div class="all-series">
 {% if all_series %}
-	{% for series in all_series %}
-	<div>
-		<a href="{% url 'comics:series' series.id %}"><img src="/{{ series.issue_numerical_order_set.first.cover }}" alt = "{{ series.name }}" ></a>
-		<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
-	</div>
-	{% endfor %}
+	<ul>
+		{% for series in all_series %}
+		<li>
+			<a href="{% url 'comics:series' series.id %}">
+				<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"1280x1950" }}" alt = "{{ series.name }}" >
+			</a>
+			<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
+		</li>
+		{% endfor %}
+	</ul>
 {% else %}
 	<p>No series currently available.</p>
 {% endif %}
+</div>
 
 {% endblock content %}

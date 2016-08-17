@@ -1,13 +1,29 @@
 {% extends "comics/base.html" %}
 
-{% block page-title %}{{ arc.name }}{% endblock page-title %}
-
 {% block content %}
 
-<div class="description">
-	<p>{{ arc.desc }}</p>
+<div class="arc-info-wrapper">
+	{% if arc.image|length %}
+	<div class="arc-image">
+		<img src="/{{ arc.image }}" >
+	</div>
+	{% endif %}
+	<div class="arc-info">
+		<div class="arc-title">
+			{% if arc.name %}
+			<h1>{{ arc.name }}</h1>
+			{% endif %}
+		</div>
+		{% if arc.desc %}
+		{% autoescape off %}
+		<div class="arc-description">
+			<p>{{ arc.desc }}</p>
+		</div>
+		{% endautoescape %}
+		{% endif %}
+	</div>
 </div>
 
-{% include "comics/related_issues.html" %}
+{% include "comics/related_issues_by_series.html" %}
 
 {% endblock content %}

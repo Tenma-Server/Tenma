@@ -1,19 +1,21 @@
+{% load simple_crop %}
+
 {% if issue_list %}
-<div class="related-issues">
-	<h3>Issues</h3>
-	<div>
-	{% for issue in issue_list %}
-
-		{% ifchanged issue.series.id %}
-		<a href="{% url 'comics:series' issue.series.id %}"><h3>{{ issue.series.name }}</h3></a>
-		{% endifchanged %}
-
-		<div class="issue">
-			<a href="{% url 'comics:issue' issue.id %}"><img src="/{{ issue.cover }}" alt = "{{ series.name }}" ></a>
-			<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>
-		</div>
-		
-	{% endfor %}
+<div class="related related-issues">
+	<h2>Issues</h2>
+	<div class="flexslider related-slider">
+		<ul class="slides">
+			{% for issue in issue_list %}
+			<li>
+				<a href="{% url 'comics:issue' issue.id %}">
+					<div class="image">
+						<img src="{{ issue.cover|smartcrop:"200x305" }}" alt = "{{ series.name }}" >
+					</div>
+				</a>
+				<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>
+			</li>
+			{% endfor %}
+		</ul>
 	</div>
 </div>
 {% endif %}

@@ -1,11 +1,21 @@
+{% load simple_crop %}
+
 {% if arc_list %}
-<div class="related-arcs">
-	<h3>Arcs</h3>
-	{% for arc in arc_list %}
-	<div class="related-arc">
-		<a href="{% url 'comics:arc' arc.id %}"><img src="/{{ arc.image }}" alt = "{{ arc.name }}" ></a>
-		<a href="{% url 'comics:arc' arc.id %}"><p>{{ arc.name }}</p></a>
+<div class="related related-arcs">
+	<h2>Arcs</h2>
+	<div class="flexslider related-slider">
+		<ul class="slides">
+			{% for arc in arc_list %}
+			<li>
+				<a href="{% url 'comics:arc' arc.id %}">
+					<div class="image">
+						<img src="{{ arc.image|smartcrop:"200x305" }}" alt = "{{ arc.name }}" >
+					</div>
+				</a>
+				<a href="{% url 'comics:arc' arc.id %}"><p>{{ arc.name }}</p></a>
+			</li>
+			{% endfor %}
+		</ul>
 	</div>
-	{% endfor %}
 </div>
 {% endif %}
