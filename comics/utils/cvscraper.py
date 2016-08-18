@@ -58,6 +58,13 @@ class CVScraper(object):
 		issue_number = extracted[1]
 		issue_year = extracted[2]
 
+		# First check if there's already a series locally
+		matching_series = Series.objects.filter(name=series_name)
+
+		if matching_series:
+			cvid = self._find_match_with_series(matching_series[0].cvid, issue_number)
+			return cvid
+
 		# Attempt to find issue based on extracted Series Name and Issue Number
 		query_url = 'http://comicvine.gamespot.com/api/search?format=json&resources=issue' + '&api_key=' + self._api_key + query_fields + query_limit + '&query='
 
@@ -96,13 +103,37 @@ class CVScraper(object):
 
 	#==================================================================================================
 
+	def _find_match_with_series(self, series_cvid, issue_number):
+
+		# Initialize response
+		cvid = series_cvid
+
+		# Query Settings
+		query_fields = '&field_list=issues'
+
+		# Attempt to find issue based on extracted Series Name and Issue Number
+		query_request = Request('http://comicvine.gamespot.com/api/volume/4050-' + cvid + '?format=json&api_key=' + self._api_key + query_fields)
+		query_response = json.loads(urlopen(query_request).read())
+
+		# Try to find the closest match.
+		for issue in query_response['results']['issues']:
+			item_number = issue['issue_number'] if issue['issue_number'] else ''
+
+			if issue_number:
+				if item_number == issue_number:
+					issue_cvid = issue['id']
+
+		return issue_cvid
+
+	#==================================================================================================
+
 	def _scrape_issue(self, filename, cvid):
 		# Set fields to grab when calling the API.
 		# This helps increase performance per call.
 		arc_fields = '&field_list=deck,description,id,image,name,site_detail_url'
 		character_fields = '&field_list=deck,description,id,image,name,site_detail_url'
 		creator_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		team_fields = '&field_list=deck,descriptionid,image,name,site_detail_url'
+		team_fields = '&field_list=characters,deck,description,id,image,name,site_detail_url'
 		publisher_fields = '&field_list=deck,description,id,image,name,site_detail_url'
 		series_fields = '&field_list=deck,description,id,name,publisher,site_detail_url,start_year'
 		issue_fields = '&field_list=character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
