@@ -7,7 +7,8 @@ from shutil import copyfile
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
-from django.conf.urls.static import static
+
+from utils.comicfilehandler import ComicFileHandler
 
 """
 Create a choice for years
@@ -99,91 +100,8 @@ class Issue(models.Model):
 		return self.name
 
 	def page_set(self):
-		f = self.file
-		filename = os.path.basename(f)
-		dirname = os.path.splitext(filename)[0]
-		extension = os.path.splitext(filename)[1].lower()
-		mediaroot = settings.MEDIA_ROOT + '/temp/'
-		mediaurl = settings.MEDIA_URL + 'temp/' + dirname + '/'
-		temppath = mediaroot + dirname
-		tempfile = mediaroot + filename
 
-		# Check if directory exists
-		if os.path.isdir(temppath):
-			# Check if directory is not empty
-			if not os.listdir(temppath) == []:
-				pages = self._get_file_list(temppath)
-				return {'mediaurl': mediaurl, 'pages': pages}
-			else:
-				# Check if file does not exists
-				if not os.path.isdir(tempfile):
-					copyfile(f, tempfile)
-		else:
-			# Check if file exists
-			if os.path.isdir(tempfile):
-				os.mkdir(temppath)
-			else:
-				copyfile(f, tempfile)
-				os.mkdir(temppath)
+		comicfilehandler = ComicFileHandler()
+		comic = comicfilehandler.extract_comic(self.file)
 
-		########
-		# Process File
-		# Support TODO:
-		# - CB7
-		# - 7Z
-		# - PDF (?)
-		# - DJVU (?)
-		########
-
-		# Check for CBR or RAR
-		if extension == '.cbr' or extension == '.rar':
-			# Change CBR to RAR
-			if extension == '.cbr':
-				newext = tempfile.replace('.cbr', '.rar')
-				os.rename(tempfile, newext)
-				rf = rarfile.RarFile(newext)
-			else:
-				rf = rarfile.RarFile(tempfile)
-			rf.extractall(path=temppath)
-		# Check for CBZ or ZIP
-		elif extension == '.cbz' or extension == '.zip':
-			if extension == '.cbz':
-				newext = tempfile.replace('.cbz', '.zip')
-				os.rename(tempfile, newext)
-				z = zipfile.ZipFile(newext)
-			else:
-				z = zipfile.ZipFile(tempfile)	
-			z.extractall(path=temppath)
-		# Check for CBT or TAR
-		elif extension == '.cbt' or extension == '.tar':
-			if extension == '.cbt':
-				newext = tempfile.replace('.cbt', '.tar')
-				os.rename(tempfile, newext)
-				t = tarfile.TarFile(newext)
-			else:
-				t =tarfile.TarFile(tempfile)
-			t.extractall(path=temppath)
-
-		# Delete the file after extraction so that space isn't wasted.
-		if os.path.isfile(tempfile):
-			os.remove(tempfile)
-		elif os.path.isfile(newext):
-			os.remove(newext)
-
-		# Get a list of pages
-		pages = self._get_file_list(temppath)
-
-		return {'mediaurl': mediaurl, 'pages': pages}
-
-	def _get_file_list(self, filepath):
-
-		pages = []
-
-		for root, dirs, files in os.walk(filepath):
-			for file in files:
-				if os.path.splitext(file)[1].lower() == '.jpg' or os.path.splitext(file)[1].lower() == '.jpeg':
-					path = os.path.join(root,file)
-					newpath = path.replace(filepath + '/', '')
-					pages.append(newpath)
-
-		return pages
+		return comic
