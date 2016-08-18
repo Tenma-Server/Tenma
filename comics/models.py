@@ -6,6 +6,7 @@ from shutil import copyfile
 
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 
 from utils.comicfilehandler import ComicFileHandler
@@ -15,6 +16,8 @@ Create a choice for years
 """
 YEAR_CHOICES = [(r,r) for r in range(1837, datetime.date.today().year+1)]
 
+
+@python_2_unicode_compatible
 class Arc(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -25,6 +28,7 @@ class Arc(models.Model):
 	def __str__(self):
 		return self.name
 
+@python_2_unicode_compatible
 class Team(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -35,6 +39,7 @@ class Team(models.Model):
 	def __str__(self):
 		return self.name
 
+@python_2_unicode_compatible
 class Character(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -46,7 +51,7 @@ class Character(models.Model):
 	def __str__(self):
 		return self.name
 
-
+@python_2_unicode_compatible
 class Creator(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -57,6 +62,7 @@ class Creator(models.Model):
 	def __str__(self):
 		return self.name
 
+@python_2_unicode_compatible
 class Publisher(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -67,6 +73,7 @@ class Publisher(models.Model):
 	def __str__(self):
 		return self.name
 
+@python_2_unicode_compatible
 class Series(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -81,6 +88,7 @@ class Series(models.Model):
 	def issue_numerical_order_set(self):
 		return self.issue_set.all().order_by('number')
 
+@python_2_unicode_compatible
 class Issue(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
