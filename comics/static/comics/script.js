@@ -19,7 +19,7 @@ $(window).load(function(){
 		slideshow: false,
 		controlNav: false,
 		itemWidth: 200,
-		itemMargin: 10
+		itemMargin: 15
 	});
 
 	/* hiding navbar for Reader */
