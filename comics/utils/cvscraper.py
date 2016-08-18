@@ -4,13 +4,6 @@ from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issu
 import fnameparser
 import json, os, time
 
-#############
-#
-# TODO:
-# - Fix logic for Publsher and Series scraping
-#
-#############
-
 class CVScraper(object):
 
 	#==================================================================================================
@@ -99,18 +92,18 @@ class CVScraper(object):
 				if item_name == series_name and item_year == issue_year:
 					best_option_list.append(issue['id'])
 
-		return best_option_list[0]
+		return best_option_list[0] if best_option_list else ''
 
 	#==================================================================================================
 
 	def _scrape_issue(self, filename, cvid):
 		# Set fields to grab when calling the API.
 		# This helps increase performance per call.
-		arc_fields = '&field_list=deck,id,image,name,site_detail_url'
-		character_fields = '&field_list=deck,id,image,name,site_detail_url'
-		creator_fields = '&field_list=deck,id,image,name,site_detail_url'
-		team_fields = '&field_list=deck,id,image,name,site_detail_url'
-		publisher_fields = '&field_list=deck,id,image,name,site_detail_url'
+		arc_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		character_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		creator_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		team_fields = '&field_list=deck,descriptionid,image,name,site_detail_url'
+		publisher_fields = '&field_list=deck,description,id,image,name,site_detail_url'
 		series_fields = '&field_list=deck,description,id,name,publisher,site_detail_url,start_year'
 		issue_fields = '&field_list=character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
 
@@ -127,7 +120,14 @@ class CVScraper(object):
 		issue.name = response_issue['results']['name'] if response_issue['results']['name'] else ''
 		issue.number = response_issue['results']['issue_number']
 		issue.date = response_issue['results']['cover_date']
-		issue.desc = response_issue['results']['description'] if response_issue['results']['description'] else ''
+
+		if response_issue['results']['deck']:
+			issue.desc = response_issue['results']['deck']
+		elif response_issue['results']['description']:
+			issue.desc = response_issue['results']['description']
+		else:
+			issue.desc = ''
+
 		issue_cover_url = response_issue['results']['image']['super_url']
 		issue_cover_filename = unquote_plus(issue_cover_url.split('/')[-1])
 		issue.cover = urlretrieve(issue_cover_url, 'media/images/covers/' + issue_cover_filename)[0]
@@ -145,7 +145,13 @@ class CVScraper(object):
 			series.cvid = response_series['results']['id']
 			series.cvurl = response_series['results']['site_detail_url']
 			series.name = response_series['results']['name']
-			series.desc = response_series['results']['description'] if response_series['results']['description'] else ''
+
+			if response_series['results']['deck']:
+				series.desc = response_series['results']['deck']
+			elif response_series['results']['description']:
+				series.desc = response_series['results']['description']
+			else:
+				series.desc = ''
 
 			# 3. Set Publisher info:
 			matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
@@ -168,7 +174,14 @@ class CVScraper(object):
 				publisher.cvid = response_publisher['results']['id']
 				publisher.cvurl = response_publisher['results']['site_detail_url']
 				publisher.name = response_publisher['results']['name']
-				publisher.desc = response_publisher['results']['deck']
+
+				if response_publisher['results']['deck']:
+					publisher.desc = response_publisher['results']['deck']
+				elif response_publisher['results']['description']:
+					publisher.desc = response_publisher['results']['description']
+				else:
+					publisher.desc = ''
+
 				publisher.logo = publisher_logo_filepath
 
 				publisher.save()
@@ -206,12 +219,19 @@ class CVScraper(object):
 				else:
 					arc_image_filepath = ''
 
+				if response_arc['results']['deck']:
+					arc_desc = response_arc['results']['deck']
+				elif response_arc['results']['description']:
+					arc_desc = response_arc['results']['description']
+				else:
+					arc_desc = ''
+
 				# Create Arc
 				issue.arcs.create(
 					cvid=response_arc['results']['id'],
 					cvurl=response_arc['results']['site_detail_url'],
 					name=response_arc['results']['name'],
-					desc=response_arc['results']['deck'],
+					desc=arc_desc,
 					image=arc_image_filepath
 				)
 
@@ -239,12 +259,19 @@ class CVScraper(object):
 				else:
 					character_image_filepath = ''
 
+				if response_character['results']['deck']:
+					character_desc = response_character['results']['deck']
+				elif response_character['results']['description']:
+					character_desc = response_character['results']['description']
+				else:
+					character_desc = ''
+
 				# Create Character
 				issue.characters.create(
 					cvid=response_character['results']['id'],
 					cvurl=response_character['results']['site_detail_url'],
 					name=response_character['results']['name'],
-					desc=response_character['results']['deck'] if response_character['results']['deck'] else '',
+					desc=character_desc,
 					image=character_image_filepath
 				)
 
@@ -272,12 +299,19 @@ class CVScraper(object):
 				else:
 					creator_image_filepath = ''
 
+				if response_creator['results']['deck']:
+					creator_desc = response_creator['results']['deck']
+				elif response_creator['results']['description']:
+					creator_desc = response_creator['results']['description']
+				else:
+					creator_desc = ''
+
 				# Create Character
 				issue.creators.create(
 					cvid=response_creator['results']['id'],
 					cvurl=response_creator['results']['site_detail_url'],
 					name=response_creator['results']['name'],
-					desc=response_creator['results']['deck'] if response_creator['results']['deck'] else '',
+					desc=creator_desc,
 					image=creator_image_filepath
 				)
 
@@ -303,11 +337,18 @@ class CVScraper(object):
 				else:
 					team_image_filepath = ''
 
+				if response_team['results']['deck']:
+					team_desc = response_team['results']['deck']
+				elif response_team['results']['description']:
+					team_desc = response_team['results']['description']
+				else:
+					team_desc = ''
+
 				issue.teams.create(
 					cvid=response_team['results']['id'],
 					cvurl=response_team['results']['site_detail_url'],
 					name=response_team['results']['name'],
-					desc=response_team['results']['deck'],
+					desc=team_desc,
 					image=team_image_filepath
 				)
 
