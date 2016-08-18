@@ -6,29 +6,32 @@ register = template.Library()
 
 @register.filter(name='smartcrop')
 def smartcrop(value, arg):
-	# Get image
-	img = Image.open(value)
-
-	# Split width and height
-	crop_size = arg.split('x')
-	crop_width = int(crop_size[0])
-	crop_height = int(crop_size[1])
-
 	cache_url = ''
 
-	# Check Aspect ratio and resize acordingly
-	if crop_width * img.height < crop_height * img.width:
-		height_percent = (float(crop_height)/float(img.size[1]))
-		width_size = int(float(img.size[0])*float(height_percent))
-		img = img.resize((width_size,crop_height), Image.BICUBIC)
+	if value:	
+		# Get image
+		img = Image.open(value)
 
-	else:
-		width_percent = (float(crop_width)/float(img.size[0]))
-		height_size = int(float(img.size[1])*float(width_percent))
-		img = img.resize((crop_width,height_size), Image.BICUBIC)
+		# Split width and height
+		crop_size = arg.split('x')
+		crop_width = int(crop_size[0])
+		crop_height = int(crop_size[1])
 
-	cropped = _crop_from_center(img, crop_width, crop_height)
-	cache_url = _save_image(value, cropped)
+		cache_url = ''
+
+		# Check Aspect ratio and resize acordingly
+		if crop_width * img.height < crop_height * img.width:
+			height_percent = (float(crop_height)/float(img.size[1]))
+			width_size = int(float(img.size[0])*float(height_percent))
+			img = img.resize((width_size,crop_height), Image.BICUBIC)
+
+		else:
+			width_percent = (float(crop_width)/float(img.size[0]))
+			height_size = int(float(img.size[1])*float(width_percent))
+			img = img.resize((crop_width,height_size), Image.BICUBIC)
+
+		cropped = _crop_from_center(img, crop_width, crop_height)
+		cache_url = _save_image(value, cropped)
 
 	return cache_url
 
