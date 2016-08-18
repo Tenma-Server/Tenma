@@ -320,7 +320,6 @@ class CVScraper(object):
 				issue.creators.add(matching_creator[0])
 
 		# 8. Set Teams info
-		# Make sure to add only characters that are associated with existing comics
 		for team in response_issue['results']['team_credits']:
 			time.sleep(1)
 
@@ -351,6 +350,12 @@ class CVScraper(object):
 					desc=team_desc,
 					image=team_image_filepath
 				)
+
+				for character in response_team['results']['characters']:
+					matching_character = Character.objects.filter(cvid=character['id'])
+					if matching_character:
+						team_item = Team.objects.filter(cvid=team['id'])
+						matching_character[0].teams.add(team_item[0])
 
 			else:
 				issue.teams.add(matching_team[0])
