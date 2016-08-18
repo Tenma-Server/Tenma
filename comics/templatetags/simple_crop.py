@@ -1,3 +1,5 @@
+import os
+
 from django import template
 from django.conf import settings
 from PIL import Image
@@ -56,7 +58,7 @@ def _crop_from_center(image, width, height):
 def _save_image(filepath, image):
 
 	filename = filepath.split('/')[-1]
-	extension = '.' + filename.split('.')[1] if len(filename.split('.')) > 1 else '.jpg'
+	extension = os.path.splitext(filename)[1].lower() if os.path.splitext(filename)[1] else '.jpg'
 	cache = 'CACHE/' + filename.split('.')[0] + '-' + str(image.size[0]) + 'x' + str(image.size[1]) + extension
 	image.save(settings.MEDIA_ROOT + '/' + cache)
 	cache_url = settings.MEDIA_URL + cache
