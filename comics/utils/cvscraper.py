@@ -98,6 +98,9 @@ class CVScraper(object):
 			elif series_name and issue_year:
 				if item_name == series_name and item_year == issue_year:
 					best_option_list.append(issue['id'])
+			elif series_name:
+				if item_name == series_name and item_number == '1':
+					best_option_list.append(issue['id'])
 
 		return best_option_list[0] if best_option_list else ''
 
