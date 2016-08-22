@@ -1,5 +1,5 @@
-from urllib import urlretrieve, quote_plus, unquote_plus
-from urllib2 import Request, urlopen
+from urllib.request import urlretrieve, urlopen, Request
+from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue
 from . import fnameparser
 import json, os, time
