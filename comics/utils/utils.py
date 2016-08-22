@@ -22,7 +22,7 @@ def is_string(object):
    
    if object is None:
       return False
-   return isinstance(object, basestring)
+   return isinstance(object, str)
 
 
 #==============================================================================

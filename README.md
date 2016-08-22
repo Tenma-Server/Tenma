@@ -8,12 +8,25 @@ Storing, organizing, and reading comics.
 
 ## How do I get set up? ##
 
+So far this has been tested only in a Mac environment. Theoretically it should work fine in a Linux environment as well.
+
+### Virtual Environment ###
+
+It is recommended to run Tenma in a Python Virtual Environment. 
+
+1. Install Python 3.4 or greater
+2. In Terminal, run `pip install virtualenv`
+3. Change to the directory you want install Tenma.
+3. Create virtual environment: `virtualenv -p python3 tenma`
+4. Activate virtual environment: `source tenma/bin/activate`
+5. Copy the Tenma files to a directory in the virtualenv.
+6. Install dependencies.
+
 ### Dependencies: ###
 
-1. Install python
-2. Install Django: https://www.djangoproject.com/download/
-3. Install the rarfile python library: https://pypi.python.org/pypi/rarfile/2.2
-4. Install Pillow: https://pillow.readthedocs.io/en/latest/installation.html
+1. Install Django: `pip install django`
+2. Install the rarfile python library: `pip install rarfile`
+3. Install Pillow: `pip install Pillow`
 
 ### Create your database: ###
 

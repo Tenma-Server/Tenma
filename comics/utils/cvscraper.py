@@ -1,7 +1,7 @@
-from urllib import urlretrieve, quote_plus, unquote_plus
-from urllib2 import Request, urlopen
+from urllib.request import urlretrieve, urlopen, Request
+from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue
-import fnameparser
+from . import fnameparser
 import json, os, time
 
 class CVScraper(object):
@@ -72,11 +72,11 @@ class CVScraper(object):
 		if series_name and issue_number:
 			query_url = query_url + series_name_url + '%20%23' + issue_number
 			query_request = Request(query_url)
-			query_response = json.loads(urlopen(query_request).read())
+			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
 		elif series_name:
 			query_url = query_url + series_name_url
 			query_request = Request(query_url)
-			query_response = json.loads(urlopen(query_request).read())
+			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
 
 		best_option_list = []
 
@@ -116,7 +116,7 @@ class CVScraper(object):
 
 		# Attempt to find issue based on extracted Series Name and Issue Number
 		query_request = Request('http://comicvine.gamespot.com/api/volume/4050-' + cvid + '?format=json&api_key=' + self._api_key + query_fields)
-		query_response = json.loads(urlopen(query_request).read())
+		query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
 
 		# Try to find the closest match.
 		for issue in query_response['results']['issues']:
@@ -143,7 +143,7 @@ class CVScraper(object):
 
 		# Make API call and store issue response
 		request_issue = Request('http://comicvine.gamespot.com/api/issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + issue_fields)
-		response_issue = json.loads(urlopen(request_issue).read())
+		response_issue = json.loads(urlopen(request_issue).read().decode('utf-8'))
 		time.sleep(1)
 
 		# 1. Set basic issue information:
@@ -173,7 +173,7 @@ class CVScraper(object):
 			series = Series()
 
 			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + series_fields)
-			response_series = json.loads(urlopen(request_series).read())
+			response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
 			time.sleep(1)
 
 			series.cvid = response_series['results']['id']
@@ -195,7 +195,7 @@ class CVScraper(object):
 
 				# Store publisher response
 				request_publisher = Request(response_series['results']['publisher']['api_detail_url'] + '?format=json&api_key=' + self._api_key + publisher_fields)
-				response_publisher = json.loads(urlopen(request_publisher).read())
+				response_publisher = json.loads(urlopen(request_publisher).read().decode('utf-8'))
 				time.sleep(1)
 
 				if response_publisher['results']['image']:
@@ -243,7 +243,7 @@ class CVScraper(object):
 			if not matching_arc:
 				# Store Arc response
 				request_arc = Request(story_arc['api_detail_url'] + '?format=json&api_key=' + self._api_key + arc_fields)
-				response_arc = json.loads(urlopen(request_arc).read())
+				response_arc = json.loads(urlopen(request_arc).read().decode('utf-8'))
 
 				# Get Arc image
 				if response_arc['results']['image']:
@@ -283,7 +283,7 @@ class CVScraper(object):
 			if not matching_character:
 				# Store Character response
 				request_character = Request(character['api_detail_url'] + '?format=json&api_key=' + self._api_key + character_fields)
-				response_character = json.loads(urlopen(request_character).read())
+				response_character = json.loads(urlopen(request_character).read().decode('utf-8'))
 
 				# Get character image
 				if response_character['results']['image']:
@@ -323,7 +323,7 @@ class CVScraper(object):
 			if not matching_creator:
 				# Store Character response
 				request_creator = Request(person['api_detail_url'] + '?format=json&api_key=' + self._api_key + creator_fields)
-				response_creator = json.loads(urlopen(request_creator).read())
+				response_creator = json.loads(urlopen(request_creator).read().decode('utf-8'))
 
 				# Get character image
 				if response_creator['results']['image']:
@@ -361,7 +361,7 @@ class CVScraper(object):
 
 			if not matching_team:
 				request_team = Request(team['api_detail_url'] + '?format=json&api_key=' + self._api_key + team_fields)
-				response_team = json.loads(urlopen(request_team).read())
+				response_team = json.loads(urlopen(request_team).read().decode('utf-8'))
 
 				if response_team['results']['image']:
 					team_image_url = response_team['results']['image']['super_url']
