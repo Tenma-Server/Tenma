@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator
-from utils.cvscraper import CVScraper
+from .utils.cvscraper import CVScraper
 
 class IndexView(generic.ListView):
 	template_name = 'comics/index.html'

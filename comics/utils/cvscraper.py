@@ -1,7 +1,7 @@
 from urllib import urlretrieve, quote_plus, unquote_plus
 from urllib2 import Request, urlopen
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue
-import fnameparser
+from . import fnameparser
 import json, os, time
 
 class CVScraper(object):

@@ -12,7 +12,7 @@ Originally modified on Aug 10, 2016
 @author: hmhrex
 '''
 import re,os
-import utils
+from . import utils
 
 
 #==============================================================================
