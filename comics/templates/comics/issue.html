@@ -23,6 +23,9 @@
 			<p>Released: {{ issue.date }}</p>
 			{% endif %}
 		</div>
+
+		{% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
+
 		{% if issue.desc %}
 		{% autoescape off %}
 		<div class="issue-description">
@@ -37,8 +40,6 @@
 </div>
 
 {% include "comics/related_publisher.html" with publisher=issue.series.publisher %}
-
-{% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
 
 {% include "comics/related_characters.html" with character_list=issue.characters.all %}
 
