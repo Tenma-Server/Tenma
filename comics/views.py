@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
+from django.http import HttpResponseRedirect
 
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator
 from .utils.cvscraper import CVScraper
@@ -67,7 +68,7 @@ def read(request, issue_id):
 	issue = get_object_or_404(Issue, pk=issue_id)
 	return render(request, 'comics/read.html', {'issue': issue})
 
-def cvscraper(request):
+def importer(request):
 	cvscraper = CVScraper()
 	cvscraper.process_issues()
-	return render(request, 'comics/index.html')
+	return HttpResponseRedirect('/')

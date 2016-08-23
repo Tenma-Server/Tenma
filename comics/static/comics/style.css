@@ -39,6 +39,28 @@ body {
 }
 
 /*
+ *	Header
+ */
+
+header .import-comics {
+    float: right;
+    font-size: 14px;
+    padding: 5px 10px;
+    margin: 10px;
+    background: #ececec;
+    color: #252525;
+    border-radius: 5px;
+    transition: 0.5s all;
+    -moz-transition: 0.5s all;
+    -webkit-transition: 0.5s all;
+    -ms-transition: all 0.5s linear;
+}
+
+header .import-comics:hover {
+	background: #929292;
+}
+
+/*
  *	Footer
  */
 
