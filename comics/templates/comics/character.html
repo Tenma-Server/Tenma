@@ -19,7 +19,7 @@
 		{% if character.desc %}
 		{% autoescape off %}
 		<div class="character-description">
-			<p>{{ character.desc }}</p>
+			<p>{{ character.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

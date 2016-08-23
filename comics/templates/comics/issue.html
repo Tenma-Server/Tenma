@@ -26,7 +26,7 @@
 		{% if issue.desc %}
 		{% autoescape off %}
 		<div class="issue-description">
-			<p>{{ issue.desc }}</p>
+			<p>{{ issue.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

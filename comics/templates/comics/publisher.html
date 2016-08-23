@@ -17,7 +17,7 @@
 		{% if publisher.desc %}
 		{% autoescape off %}
 		<div class="publisher-description">
-			<p>{{ publisher.desc }}</p>
+			<p>{{ publisher.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

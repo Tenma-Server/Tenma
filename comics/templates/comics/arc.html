@@ -17,7 +17,7 @@
 		{% if arc.desc %}
 		{% autoescape off %}
 		<div class="arc-description">
-			<p>{{ arc.desc }}</p>
+			<p>{{ arc.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

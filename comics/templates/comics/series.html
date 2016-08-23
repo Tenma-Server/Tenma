@@ -20,7 +20,7 @@
 		{% if series.desc %}
 		{% autoescape off %}
 		<div class="series-description">
-			<p>{{ series.desc }}</p>
+			<p>{{ series.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

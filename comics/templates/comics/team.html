@@ -17,7 +17,7 @@
 		{% if team.desc %}
 		{% autoescape off %}
 		<div class="team-description">
-			<p>{{ team.desc }}</p>
+			<p>{{ team.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}

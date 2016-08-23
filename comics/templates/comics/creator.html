@@ -17,7 +17,7 @@
 		{% if creator.desc %}
 		{% autoescape off %}
 		<div class="creator-description">
-			<p>{{ creator.desc }}</p>
+			<p>{{ creator.desc|truncatewords:180 }}</p>
 		</div>
 		{% endautoescape %}
 		{% endif %}
