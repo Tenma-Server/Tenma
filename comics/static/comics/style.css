@@ -53,7 +53,7 @@ header {
 }
 
 header .logo {
-	margin: 14px 0;
+	margin: 14px 20px 14px 0;
 	float: left;
 }
 
@@ -100,10 +100,10 @@ footer .metadata-disclaimer img {
 }
 
 /*
- *	Flexslider
+ *	Flexslider - Related Sliders
  */
 
-.flexslider {
+.flexslider.related-slider {
 	background: #151515;
     border: none;
     border-radius: 0;
@@ -111,16 +111,16 @@ footer .metadata-disclaimer img {
     margin-bottom: 20px;
 }
 
-.flexslider p {
+.flexslider.related-slider p {
 	text-align: center;
 	margin-bottom: 0;
 }
 
-.flexslider li .image {
+.flexslider.related-slider li .image {
 	position: relative;
 }
 
-.flexslider li .image:after {
+.flexslider.related-slider li .image:after {
 	content: '.';
 	font-size: 0;
 	width: 100%;
@@ -135,36 +135,36 @@ footer .metadata-disclaimer img {
     -ms-transition: all 0.5s linear;
 }
 
-.flexslider li a:hover .image:after {
+.flexslider.related-slider li a:hover .image:after {
 	background: rgba(0, 0, 0, 0.5) !important;
 }
 
-.flex-direction-nav {
+.related-slider .flex-direction-nav {
 	position: absolute;
 	top: -51px;
 	right: 30px;
 }
 
-.flex-direction-nav a {
+.related-slider .flex-direction-nav a {
 	position: relative;
 }
 
-.flex-direction-nav a:before {
+.related-slider .flex-direction-nav a:before {
 	color: #ececec;
 	text-shadow: none;
 	font-size: 30px;
 }
 
-.flex-nav-prev,
-.flex-nav-next {
+.related-slider .flex-nav-prev,
+.related-slider .flex-nav-next {
 	display: inline-block;
 	width: 30px;
 	height:30px;
 	text-shadow: none;
 }
 
-.flex-direction-nav .flex-prev,
-.flex-direction-nav .flex-next {
+.related-slider .flex-direction-nav .flex-prev,
+.related-slider .flex-direction-nav .flex-next {
 	left: 0 !important;
 	top: 0;
 	right: 0 !important;
@@ -175,8 +175,8 @@ footer .metadata-disclaimer img {
 	height: 30px;
 }
 
-.flexslider:hover .flex-direction-nav .flex-prev,
-.flexslider:hover .flex-direction-nav .flex-next {
+.related-slider .flexslider:hover .flex-direction-nav .flex-prev,
+.related-slider .flexslider:hover .flex-direction-nav .flex-next {
 	opacity: 1;
 }
 
@@ -512,16 +512,115 @@ footer .metadata-disclaimer img {
 	display: none;
 }
 
+.reader .reader-controls {
+	padding: 16px;
+	display: inline-block;
+}
+
+.reader .reader-controls > div {
+	display: inline-block;
+	margin-right: 5px;
+	cursor: pointer;
+}
+
+.reader .reader-controls > div:hover i,
+.reader .reader-controls > div:hover p {
+	color: #929292;
+}
+
+.reader .reader-controls i {
+	color: #ececec;
+	margin: 0 5px;
+	transition: 0.5s all;
+    -moz-transition: 0.5s all;
+    -webkit-transition: 0.5s all;
+    -ms-transition: all 0.5s linear;
+}
+
+.reader .reader-controls p {
+	font-size: 14px;
+	display: inline-block;
+	margin: 0;
+	transition: 0.25s all;
+    -moz-transition: 0.25s all;
+    -webkit-transition: 0.25s all;
+    -ms-transition: all 0.25s linear;
+}
+
+.reader footer {
+	display: none;
+}
+
 .reader #content {
 	padding: 0;
 }
 
-.reader li {
+.flexslider.reader-slider {
+    background: #000000;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+.flexslider.reader-slider .slides li {
 	text-align: center;
 }
 
-.reader li img {
+.flexslider.reader-slider .slides img {
+	width: initial;
+	height: initial;
 	max-width: 100%;
 	max-height: 100%;
-	background: black;
+	background: #000000;
+	display: inline;
+}
+
+.flexslider.reader-slider .slides li.full-width {
+	height: 100%;
+}
+
+.flexslider.reader-slider .slides li.full-width img {
+	max-width: 100vw;
+	width: 100%;
+    max-height: initial;
+}
+
+.reader-slider .flex-direction-nav {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.reader-slider .flex-direction-nav a:before {
+	color: #ececec;
+	text-shadow: none;
+	font-size: 50px;
+}
+
+.reader-slider .flex-nav-prev,
+.reader-slider .flex-nav-next {
+	width: 50px;
+	height: 50px;
+	display: inline-block;
+	width: 50%;
+}
+
+.reader-slider .flex-direction-nav .flex-prev,
+.reader-slider .flex-direction-nav .flex-next {
+	position: relative;
+	width: 50px;
+	height: 50px;
+	left: 0 !important;
+	right: 0 !important;
+}
+
+.reader-slider .flex-nav-prev a {
+	margin-left: 10px;
+}
+
+.reader-slider .flex-nav-next a {
+	float: right;
+	margin-right: 10px;
 }

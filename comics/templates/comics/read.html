@@ -1,10 +1,21 @@
 {% extends "comics/base.html" %}
 
+{% block menu %}
+	<div class="reader-controls">
+		<div class="fit-vertically">
+			<i class="fa fa-arrows-v"></i><p>Fit Vertically</p>
+		</div>
+		<div class="fit-horizontally">
+			<i class="fa fa-arrows-h"></i><p>Fit Horizontally</p>
+		</div>
+	</div>
+{% endblock %}
+
 {% block page-type %}reader{% endblock %}
 
 {% block content %}
 
-<div class="reader-slider">
+<div class="flexslider reader-slider">
 	<ul class="slides">
 		{% for item in issue.page_set.pages %}
 		{% with mediaurl=issue.page_set.mediaurl %}
