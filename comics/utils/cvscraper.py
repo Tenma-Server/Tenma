@@ -1,16 +1,30 @@
 from urllib.request import urlretrieve, urlopen, Request
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue
+from .comicfilehandler import ComicFileHandler
 from . import fnameparser
-import json, os, time
+import json, os, time, datetime
 
 class CVScraper(object):
 
 	#==================================================================================================
 
 	def __init__(self):
+		# Set basic reusable strings
 		self._api_key = 'd1fe390344414d5bfdd36060fd8f7e3efa074c19'
 		self.directory_path = 'files/'
+		self.baseurl = 'http://comicvine.gamespot.com/api/'
+
+		# Set fields to grab when calling the API.
+		# This helps increase performance per call.
+		self.arc_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		self.character_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		self.creator_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		self.team_fields = '&field_list=characters,deck,description,id,image,name,site_detail_url'
+		self.publisher_fields = '&field_list=deck,description,id,image,name,site_detail_url'
+		self.series_fields = '&field_list=deck,description,id,name,publisher,site_detail_url,start_year'
+		self.issue_fields = '&field_list=character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
+
 
 	#==================================================================================================
 
@@ -31,7 +45,10 @@ class CVScraper(object):
 					time.sleep(1)
 					if file not in processed_files:
 						# Make sure the file is valid
-						if file.endswith(".cbz") or file.endswith(".zip") or file.endswith(".cbr") or file.endswith(".rar") or file.endswith(".cbt") or file.endswith(".tar"): 
+						if file.endswith(".cbz") or file.endswith(".zip") or \
+						   file.endswith(".cbr") or file.endswith(".rar") or \
+						   file.endswith(".cbt") or file.endswith(".tar"): 
+
 							# Attempt to find match
 							cvid = self._find_match(file)
 
@@ -40,6 +57,10 @@ class CVScraper(object):
 								self._scrape_issue(file, cvid)
 								# Write to the .processed file
 								pff.write("%s\n" % file)
+							else:
+								# Create issue without cvid
+								self._create_issue_without_cvid(file)
+
 
 	#==================================================================================================
 
@@ -62,11 +83,13 @@ class CVScraper(object):
 		matching_series = Series.objects.filter(name=series_name)
 
 		if matching_series:
-			cvid = self._find_match_with_series(matching_series[0].cvid, issue_number)
-			return cvid
+			if not matching_series[0].cvid == '':
+				cvid = self._find_match_with_series(matching_series[0].cvid, issue_number)
+				return cvid
 
 		# Attempt to find issue based on extracted Series Name and Issue Number
-		query_url = 'http://comicvine.gamespot.com/api/search?format=json&resources=issue' + '&api_key=' + self._api_key + query_fields + query_limit + '&query='
+		query_url = self.baseurl + 'search?format=json&resources=issue' + '&api_key=' + self._api_key + query_fields + query_limit + '&query='
+
 
 		# Check for series name and issue number, or just series name
 		if series_name and issue_number:
@@ -115,7 +138,7 @@ class CVScraper(object):
 		query_fields = '&field_list=issues'
 
 		# Attempt to find issue based on extracted Series Name and Issue Number
-		query_request = Request('http://comicvine.gamespot.com/api/volume/4050-' + cvid + '?format=json&api_key=' + self._api_key + query_fields)
+		query_request = Request(self.baseurl + 'volume/4050-' + cvid + '?format=json&api_key=' + self._api_key + query_fields)
 		query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
 
 		# Try to find the closest match.
@@ -130,19 +153,65 @@ class CVScraper(object):
 
 	#==================================================================================================
 
-	def _scrape_issue(self, filename, cvid):
-		# Set fields to grab when calling the API.
-		# This helps increase performance per call.
-		arc_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		character_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		creator_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		team_fields = '&field_list=characters,deck,description,id,image,name,site_detail_url'
-		publisher_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		series_fields = '&field_list=deck,description,id,name,publisher,site_detail_url,start_year'
-		issue_fields = '&field_list=character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
+	def _create_issue_without_cvid(self, filename):
 
+		# Make sure the issue hadn't already been added
+		matching_issue = Issue.objects.filter(file=self.directory_path + filename)
+
+		if not matching_issue:
+			# Attempt to extract series name, issue number, and year
+			extracted = fnameparser.extract(filename)
+			series_name = extracted[0]
+			issue_number = extracted[1]
+			issue_year = extracted[2]
+
+			# 1. Set basic issue information:
+			issue = Issue()
+			issue.file = self.directory_path + filename
+			issue.cvid = ''
+			issue.cvurl = ''
+			issue.name = ''
+			issue.desc = ''
+
+			if issue_number:
+				issue.number = issue_number
+			else:
+				issue.number = 1
+
+			if issue_year:
+				issue.date = issue_year + '-01-01'
+			else:
+				issue.date = datetime.date.today()
+
+			cfh = ComicFileHandler()
+			issue.cover = cfh.extract_cover(self.directory_path + filename)
+
+			# 2. Set Series info:
+			matching_series = Series.objects.filter(name=series_name)
+
+			if not matching_series:
+				series = Series()
+
+				series.cvid = ''
+				series.cvurl = ''
+				series.name = series_name
+				series.desc = ''
+
+				# 4. Save Series
+				series.save()
+				issue.series = series
+
+			else:
+				issue.series = matching_series[0]
+
+			# 5. Save issue.
+			issue.save()
+
+	#==================================================================================================
+
+	def _scrape_issue(self, filename, cvid):
 		# Make API call and store issue response
-		request_issue = Request('http://comicvine.gamespot.com/api/issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + issue_fields)
+		request_issue = Request(self.baseurl + 'issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + self.issue_fields)
 		response_issue = json.loads(urlopen(request_issue).read().decode('utf-8'))
 		time.sleep(1)
 
@@ -171,8 +240,8 @@ class CVScraper(object):
 
 		if not matching_series:
 			series = Series()
-
-			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + series_fields)
+		
+			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.series_fields)
 			response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
 			time.sleep(1)
 
@@ -194,7 +263,7 @@ class CVScraper(object):
 				publisher = Publisher()
 
 				# Store publisher response
-				request_publisher = Request(response_series['results']['publisher']['api_detail_url'] + '?format=json&api_key=' + self._api_key + publisher_fields)
+				request_publisher = Request(response_series['results']['publisher']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.publisher_fields)
 				response_publisher = json.loads(urlopen(request_publisher).read().decode('utf-8'))
 				time.sleep(1)
 
@@ -242,7 +311,7 @@ class CVScraper(object):
 
 			if not matching_arc:
 				# Store Arc response
-				request_arc = Request(story_arc['api_detail_url'] + '?format=json&api_key=' + self._api_key + arc_fields)
+				request_arc = Request(story_arc['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.arc_fields)
 				response_arc = json.loads(urlopen(request_arc).read().decode('utf-8'))
 
 				# Get Arc image
@@ -282,7 +351,7 @@ class CVScraper(object):
 
 			if not matching_character:
 				# Store Character response
-				request_character = Request(character['api_detail_url'] + '?format=json&api_key=' + self._api_key + character_fields)
+				request_character = Request(character['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.character_fields)
 				response_character = json.loads(urlopen(request_character).read().decode('utf-8'))
 
 				# Get character image
@@ -322,7 +391,7 @@ class CVScraper(object):
 
 			if not matching_creator:
 				# Store Character response
-				request_creator = Request(person['api_detail_url'] + '?format=json&api_key=' + self._api_key + creator_fields)
+				request_creator = Request(person['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.creator_fields)
 				response_creator = json.loads(urlopen(request_creator).read().decode('utf-8'))
 
 				# Get character image
@@ -360,7 +429,7 @@ class CVScraper(object):
 			matching_team = Team.objects.filter(cvid=team['id'])
 
 			if not matching_team:
-				request_team = Request(team['api_detail_url'] + '?format=json&api_key=' + self._api_key + team_fields)
+				request_team = Request(team['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.team_fields)
 				response_team = json.loads(urlopen(request_team).read().decode('utf-8'))
 
 				if response_team['results']['image']:

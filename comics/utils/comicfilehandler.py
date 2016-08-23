@@ -85,8 +85,8 @@ class ComicFileHandler(object):
 		filename = os.path.basename(file)
 		covername = os.path.splitext(filename)[0]
 		extension = os.path.splitext(filename)[1].lower()
-		mediaroot = settings.MEDIA_ROOT + '/images/covers'
-		mediaurl = settings.MEDIA_URL + 'images/covers/'
+		mediaroot = settings.MEDIA_ROOT + '/images/covers/'
+		mediaurl = 'media/images/covers/'
 		tempfile = mediaroot + filename
 		extracted = mediaroot + covername
 
@@ -103,7 +103,7 @@ class ComicFileHandler(object):
 			else:
 				rf = rarfile.RarFile(file)
 
-			cover_filename = rf.infolist()[0].filename
+			cover_filename = sorted(rf.namelist())[0]
 			rf.extract(cover_filename, path=mediaroot)
 
 		# Check for CBZ or ZIP
@@ -116,7 +116,7 @@ class ComicFileHandler(object):
 			else:
 				z = zipfile.ZipFile(file)	
 
-			cover_filename = z.infolist()[0].filename
+			cover_filename = sorted(z.namelist())[0]
 			z.extract(cover_filename, path=mediaroot)
 
 		# Check for CBT or TAR
@@ -129,7 +129,7 @@ class ComicFileHandler(object):
 			else:
 				t =tarfile.TarFile(file)
 
-			cover_filename = t.infolist()[0].filename
+			cover_filename = sorted(t.getnames())[0]
 			t.extract(cover_filename, path=mediaroot)
 
 		# Delete the file after extraction so that space isn't wasted.
@@ -138,7 +138,7 @@ class ComicFileHandler(object):
 		elif os.path.isfile(newext):
 			os.remove(newext)
 
-		return mediaurl + '/' + cover_filename
+		return mediaurl + cover_filename
 		
 	#==================================================================================================
 
