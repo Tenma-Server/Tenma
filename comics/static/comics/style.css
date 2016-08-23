@@ -29,13 +29,10 @@ body {
 
 #content {
 	width: 100%;
+	padding-top: 60px;
 	margin: 0 auto;
 	box-sizing: border-box;
 	position: relative;
-}
-
-.reader #navbar {
-	display: none;
 }
 
 /*
@@ -43,14 +40,28 @@ body {
  */
 
 header {
-	height: 30px;
+	position: fixed;
+	width: 100%;
+	height: 50px;
+	z-index: 10;
+    background: #151515;
+}
+
+#navbar {
+	height: 100%;
+	padding: 0 30px;
+}
+
+header .logo {
+	margin: 14px 0;
+	float: left;
 }
 
 header .import-comics {
     float: right;
     font-size: 14px;
     padding: 5px 10px;
-    margin: 10px;
+    margin: 10px 0;
     background: #ececec;
     color: #252525;
     border-radius: 5px;
@@ -450,7 +461,7 @@ footer .metadata-disclaimer img {
 .related-publisher {
 	position: absolute;
 	right: 30px;
-	top: 0;
+	top: 60px;
 }
 
 .related-publisher img {
@@ -496,6 +507,14 @@ footer .metadata-disclaimer img {
 /*
  *	Reader
  */
+
+.reader header {
+	display: none;
+}
+
+.reader #content {
+	padding: 0;
+}
 
 .reader li {
 	text-align: center;

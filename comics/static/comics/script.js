@@ -26,11 +26,11 @@ $(window).load(function(){
 	var i=null
 	$("body.reader").mousemove(function() {
 		clearTimeout(i);
-		$("#navbar").fadeIn();
-		i = setTimeout('$("#navbar").fadeOut();', 1000);
+		$("header").fadeIn();
+		i = setTimeout('$("header").fadeOut();', 1000);
 	}).mouseleave(function() {
 		clearTimeout(i);
-		$("#navbar").hide();  
+		$("header").hide();  
 	});
 });
 

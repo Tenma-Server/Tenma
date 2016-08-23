@@ -15,14 +15,10 @@
     <body class="{% block page-type %}{% endblock %}">
         <header>
             <div id="navbar">
-                <a href="/">Tenma</a>
+                <a class="logo" href="/">Tenma</a>
                 <a class="import-comics" href="{% url 'comics:importer' %}">Import Comics</a>
             </div>
         </header>
-
-        <div id="page-title">
-            <h2>{% block page-title %}{% endblock %}</h2>
-        </div>
 
         <div id="content">
             {% block content %}{% endblock %}
