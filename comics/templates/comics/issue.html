@@ -8,7 +8,10 @@
 		<a href="{% url 'comics:read' issue.id %}">
 			<i class="fa fa-eye"></i>
 			<div class="issue-cover-image">
-				<img src="/{{ issue.cover }}" >
+				{% autoescape off %}
+				<img src="/{{ issue.cover|urlencode }}" >
+				{% endautoescape %}
+				}
 			</div>
 		</a>
 	</div>

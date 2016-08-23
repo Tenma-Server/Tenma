@@ -5,7 +5,7 @@
 <div class="team-info-wrapper">
 	{% if team.image|length %}
 	<div class="team-image">
-		<img src="/{{ team.image }}" >
+		<img src="/{{ team.image|urlencode }}" >
 	</div>
 	{% endif %}
 	<div class="team-info">

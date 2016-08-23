@@ -7,7 +7,7 @@
 <div class="character-info-wrapper">
 	{% if character.image|length %}
 	<div class="character-image">
-		<img src="/{{ character.image }}" >
+		<img src="/{{ character.image|urlencode }}" >
 	</div>
 	{% endif %}
 	<div class="character-info">

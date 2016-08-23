@@ -12,7 +12,7 @@
 		{% for series in all_series %}
 		<li>
 			<a href="{% url 'comics:series' series.id %}">
-				<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"1280x1950" }}" alt = "{{ series.name }}" >
+				<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"1280x1950"|urlencode }}" alt = "{{ series.name }}" >
 			</a>
 			<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
 		</li>

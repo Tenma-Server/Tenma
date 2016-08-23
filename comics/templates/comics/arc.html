@@ -5,7 +5,7 @@
 <div class="arc-info-wrapper">
 	{% if arc.image|length %}
 	<div class="arc-image">
-		<img src="/{{ arc.image }}" >
+		<img src="/{{ arc.image|urlencode }}" >
 	</div>
 	{% endif %}
 	<div class="arc-info">

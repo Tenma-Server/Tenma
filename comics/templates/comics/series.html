@@ -5,7 +5,7 @@
 <div class="series-info-wrapper">
 	{% if series.issue_numerical_order_set.first.cover|length %}
 	<div class="series-cover-image">
-		<img src="/{{ series.issue_numerical_order_set.first.cover }}" >
+		<img src="/{{ series.issue_numerical_order_set.first.cover|urlencode }}" >
 	</div>
 	{% endif %}
 	<div class="series-info">

@@ -5,7 +5,7 @@
 <div class="creator-info-wrapper">
 	{% if creator.image|length %}
 	<div class="creator-image">
-		<img src="/{{ creator.image }}" >
+		<img src="/{{ creator.image|urlencode }}" >
 	</div>
 	{% endif %}
 	<div class="creator-info">

@@ -9,7 +9,7 @@
 			<li>
 				<a href="{% url 'comics:team' team.id %}">
 					<div class="image">
-						<img src="{{ team.image|smartcrop:"200x305" }}" alt = "{{ team.name }}" >
+						<img src="{{ team.image|smartcrop:"200x305"|urlencode }}" alt = "{{ team.name }}" >
 					</div>
 				</a>
 				<a href="{% url 'comics:team' team.id %}"><p>{{ team.name }}</p></a>
