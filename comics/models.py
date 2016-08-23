@@ -6,7 +6,6 @@ from shutil import copyfile
 
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 
 from .utils.comicfilehandler import ComicFileHandler
@@ -17,7 +16,6 @@ Create a choice for years
 YEAR_CHOICES = [(r,r) for r in range(1837, datetime.date.today().year+1)]
 
 
-@python_2_unicode_compatible
 class Arc(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -28,7 +26,6 @@ class Arc(models.Model):
 	def __str__(self):
 		return self.name
 
-@python_2_unicode_compatible
 class Team(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -39,7 +36,6 @@ class Team(models.Model):
 	def __str__(self):
 		return self.name
 
-@python_2_unicode_compatible
 class Character(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -51,7 +47,6 @@ class Character(models.Model):
 	def __str__(self):
 		return self.name
 
-@python_2_unicode_compatible
 class Creator(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -62,7 +57,6 @@ class Creator(models.Model):
 	def __str__(self):
 		return self.name
 
-@python_2_unicode_compatible
 class Publisher(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
@@ -73,12 +67,11 @@ class Publisher(models.Model):
 	def __str__(self):
 		return self.name
 
-@python_2_unicode_compatible
 class Series(models.Model):
-	cvid = models.CharField(max_length=15)
-	cvurl = models.URLField(max_length=200)
+	cvid = models.CharField(max_length=15, blank=True)
+	cvurl = models.URLField(max_length=200, blank=True)
 	name = models.CharField('Series name', max_length=200)
-	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, blank=True)
+	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True, blank=True)
 	year = models.PositiveSmallIntegerField('year', choices=YEAR_CHOICES, default=datetime.datetime.now().year, blank=True)
 	desc = models.TextField('Description', max_length=500, blank=True)
 
@@ -88,10 +81,9 @@ class Series(models.Model):
 	def issue_numerical_order_set(self):
 		return self.issue_set.all().order_by('number')
 
-@python_2_unicode_compatible
 class Issue(models.Model):
-	cvid = models.CharField(max_length=15)
-	cvurl = models.URLField(max_length=200)
+	cvid = models.CharField(max_length=15, blank=True)
+	cvurl = models.URLField(max_length=200, blank=True)
 	series = models.ForeignKey(Series, on_delete=models.CASCADE, blank=True)
 	name = models.CharField('Issue name', max_length=200, blank=True)
 	number = models.PositiveSmallIntegerField('Issue number')
