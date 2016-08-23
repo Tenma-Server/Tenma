@@ -42,6 +42,10 @@ body {
  *	Header
  */
 
+header {
+	height: 30px;
+}
+
 header .import-comics {
     float: right;
     font-size: 14px;
