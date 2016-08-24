@@ -41,16 +41,14 @@ It is recommended to run Tenma in a Python Virtual Environment.
 ### Get your comics into the system: ###
 
 1. Add your comics to the tenma/files directory (if it doesn't exist, create it)
-2. Go to 127.0.0.1:8000/testing_cvscraper
-3. Once the page is loaded, go to 127.0.0.1:8000 and your comics will be loaded!
+2. In Tenma, click the "Import Comics" button in the top-right corner.
+3. Wait for the page to reload, and your comics will show.
 
-## Contribution guidelines ##
+## Supported filetypes ##
 
-* Writing tests
-* Code review
-* Other guidelines
-
-## Who do I talk to? ##
-
-* Repo owner or admin
-* Other community or team contact
+* CBZ
+* ZIP
+* CBR
+* RAR
+* CBT
+* TAR
