@@ -158,7 +158,7 @@ class ComicFileHandler(object):
 					newpath = path.replace(filepath + '/', '')
 					pages.append(newpath)
 
-		return pages
+		return sorted(pages)
 
 	#==================================================================================================
 
