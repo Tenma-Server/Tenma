@@ -1,6 +1,7 @@
-import os,rarfile,zipfile,tarfile
+import os,rarfile,zipfile,tarfile,re
 from shutil import copyfile
 from django.conf import settings
+from operator import attrgetter
 
 from . import fnameparser
 
@@ -103,7 +104,8 @@ class ComicFileHandler(object):
 			else:
 				rf = rarfile.RarFile(file)
 
-			cover_filename = sorted(rf.namelist())[0]
+			cover_filename = self._get_first_image(rf.namelist())
+
 			rf.extract(cover_filename, path=mediaroot)
 
 		# Check for CBZ or ZIP
@@ -116,7 +118,8 @@ class ComicFileHandler(object):
 			else:
 				z = zipfile.ZipFile(file)	
 
-			cover_filename = sorted(z.namelist())[0]
+			cover_filename = self._get_first_image(z.namelist())
+
 			z.extract(cover_filename, path=mediaroot)
 
 		# Check for CBT or TAR
@@ -129,7 +132,8 @@ class ComicFileHandler(object):
 			else:
 				t =tarfile.TarFile(file)
 
-			cover_filename = sorted(t.getnames())[0]
+			cover_filename = self._get_first_image(t.namelist())
+
 			t.extract(cover_filename, path=mediaroot)
 
 		# Delete the file after extraction so that space isn't wasted.
@@ -138,7 +142,7 @@ class ComicFileHandler(object):
 		elif os.path.isfile(newext):
 			os.remove(newext)
 
-		return mediaurl + cover_filename
+		return mediaurl + self._normalise_imagepath(cover_filename)
 		
 	#==================================================================================================
 
@@ -148,9 +152,36 @@ class ComicFileHandler(object):
 
 		for root, dirs, files in os.walk(filepath):
 			for file in files:
-				if os.path.splitext(file)[1].lower() == '.jpg' or os.path.splitext(file)[1].lower() == '.jpeg':
+				file_ext = os.path.splitext(file)[1].lower()
+				if file_ext == '.jpg' or file_ext == '.jpeg':
 					path = os.path.join(root,file)
 					newpath = path.replace(filepath + '/', '')
 					pages.append(newpath)
 
 		return pages
+
+	#==================================================================================================
+
+	def _get_first_image(self, filelist):
+
+		sorted_list = sorted(filelist)
+
+		for f in sorted_list:
+			f_ext = os.path.splitext(f)[1].lower()
+			if f_ext == '.jpg' or f_ext == '.jpeg':
+				return f
+
+	#==================================================================================================
+
+	def _normalise_imagepath(self, filepath):
+
+		path_normalise = re.compile(r"[/\\]")
+
+		filepath_parts = path_normalise.sub("#", filepath).split('#')
+
+		path = ''
+
+		for part in filepath_parts:
+			path = os.path.join(path, part)
+
+		return path
