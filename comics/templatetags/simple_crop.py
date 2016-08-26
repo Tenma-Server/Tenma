@@ -9,6 +9,7 @@ register = template.Library()
 @register.filter(name='smartcrop')
 def smartcrop(value, arg):
 	cache_url = ''
+	cache_paths = ('','')
 
 	if value:
 
