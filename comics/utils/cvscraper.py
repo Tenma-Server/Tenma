@@ -132,23 +132,19 @@ class CVScraper(object):
 
 	def _find_match_with_series(self, series_cvid, issue_number):
 
-		# Initialize response
-		cvid = series_cvid
-
-		# Query Settings
-		query_fields = '&field_list=issues'
-
-		# Attempt to find issue based on extracted Series Name and Issue Number
-		query_request = Request(self.baseurl + 'volume/4050-' + cvid + '?format=json&api_key=' + self._api_key + query_fields)
-		query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
-
 		issue_cvid = ''
 
-		# Try to find the closest match.
-		for issue in query_response['results']['issues']:
-			item_number = issue['issue_number'] if issue['issue_number'] else ''
+		if issue_number:
+			# Query Settings
+			query_fields = '&field_list=issues'
 
-			if issue_number:
+			# Attempt to find issue based on extracted Series Name and Issue Number
+			query_request = Request(self.baseurl + 'volume/4050-' + series_cvid + '?format=json&api_key=' + self._api_key + query_fields)
+			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
+
+			# Try to find the closest match.
+			for issue in query_response['results']['issues']:
+				item_number = issue['issue_number'] if issue['issue_number'] else ''
 				if item_number == issue_number:
 					issue_cvid = issue['id']
 
