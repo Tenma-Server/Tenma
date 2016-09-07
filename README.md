@@ -1,48 +1,52 @@
 # README #
 
-Tenma is a comic server based on Django. This is highly beta right now, and needs a lot of work. Much of the below will be automated so that setup is quick and painless. 
-
 ## What is this repository for? ##
 
-Storing, organizing, and reading comics.
+Tenma is a comic server built on Django that allows you to store, organize, and read comics. It also leverages the [ComicVine API](http://comicvine.gamespot.com) to retrieve metadata on your comics. 
 
 ## How do I get set up? ##
 
-So far this has been tested only in a Mac environment. Theoretically it should work fine in a Linux environment as well.
+Tenma is currently in alpha. Much of the instructions below will be automated so that setup is quick and painless.
 
-### Virtual Environment ###
+This has been tested on Mac OSX 10.11 and Ubuntu 12.04.
+
+#### Create the Virtual Environment ####
 
 It is recommended to run Tenma in a Python Virtual Environment. 
 
-1. Install Python 3.4 or greater
-2. In Terminal, run `pip install virtualenv`
+1. Install Python 3.4 or greater: https://www.python.org/
+2. Install Virtual Environment: `pip install virtualenv`
 3. Change to the directory you want install Tenma.
-3. Create virtual environment: `virtualenv -p python3 tenma`
-4. Activate virtual environment: `source tenma/bin/activate`
-5. Copy the Tenma files to a directory in the virtualenv.
-6. Install dependencies.
+4. Create your virtual environment: `virtualenv -p python3 venv`
+5. Activate virtual environment: `source venv/bin/activate`
 
-### Dependencies: ###
+#### Install Tenma ####
 
-1. Install Django: `pip install django`
-2. Install the rarfile python library: `pip install rarfile`
-3. Install Pillow: `pip install Pillow`
+6. Download the repository, unarchive it, and rename it to `tenmaserver`.
+7. Copy `tenmaserver` to the `venv` directory.
+8. Change into the `tenmaserver` directory.
+9. Install dependencies: `pip install -r requirements.txt`
 
-### Create your database: ###
+#### Create your database: ####
 
-1. In the tenma root directory, type `python manage.py migrate`
+1. In the tenma root directory (`tenmaserver` in the example above), type `python manage.py migrate`
 2. Create your user: `python manage.py createsuperuser`
 
-### Get running: ###
+#### Get running locally: ####
 
-1. Then start your local server: python manage.py runserver
-2. Access from 127.0.0.1:8000
+1. Then start your local server: `python manage.py runserver`
+2. In your browser, go to `127.0.0.1:8000`
 
-### Get your comics into the system: ###
+#### Getting your comics into the system: ####
 
-1. Add your comics to the tenma/files directory (if it doesn't exist, create it)
-2. In Tenma, click the "Import Comics" button in the top-right corner.
-3. Wait for the page to reload, and your comics will show.
+1. Add your comics to the `tenmaserver/files` directory.
+2. If you're using the ComicVine API:
+	1. In your browser, go to `127.0.0.1:8000/admin`.
+	2. Under "Comics", click "Settings".
+	3. Enter in your ComicVine API Key, and click "Save".
+	4. Click "View Site" in the top right-corner.
+3. In Tenma, click the "Import Comics" button in the top-right corner.
+3. Wait for the page to reload, and your comics will be showing. If you're using the ComicVine API, this can take some time. The more metadata gathered, the faster it will be over time.
 
 ## Supported filetypes ##
 
