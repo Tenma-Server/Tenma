@@ -1,6 +1,6 @@
 from urllib.request import urlretrieve, urlopen, Request
 from urllib.parse import quote_plus, unquote_plus
-from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue
+from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser
 import json, os, time, datetime
@@ -11,7 +11,7 @@ class CVScraper(object):
 
 	def __init__(self):
 		# Set basic reusable strings
-		self._api_key = 'd1fe390344414d5bfdd36060fd8f7e3efa074c19'
+		self._api_key = Settings.get_solo().api_key
 		self.directory_path = 'files/'
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
 
@@ -50,7 +50,10 @@ class CVScraper(object):
 						   file.endswith(".cbt") or file.endswith(".tar"): 
 
 							# Attempt to find match
-							cvid = self._find_match(file)
+							if not self._api_key == '':
+								cvid = self._find_match(file)
+							else:
+								cvid = ''
 
 							if not cvid == '':
 								# Scrape the issue

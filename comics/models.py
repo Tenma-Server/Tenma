@@ -5,8 +5,10 @@ import datetime,os,rarfile,zipfile,tarfile
 from shutil import copyfile
 
 from django.db import models
+from solo.models import SingletonModel
 from django.utils import timezone
 from django.conf import settings
+from django.core.validators import RegexValidator
 
 from .utils.comicfilehandler import ComicFileHandler
 
@@ -15,6 +17,21 @@ Create a choice for years
 """
 YEAR_CHOICES = [(r,r) for r in range(1837, datetime.date.today().year+1)]
 
+class Settings(SingletonModel):
+	api_key = models.CharField(
+		'ComicVine API Key',
+		help_text="A 40-character key provided by ComicVine. This is used to retrieve metadata about your comics. You can create a ComicVine API Key at <a target=\"_blank\" href=\"http://comicvine.gamespot.com/api/\">ComicVine's API Page</a> (ComicVine account is required).",
+		validators=[RegexValidator(
+			regex='^.{40}$', 
+			message='Length must be 40 characters.', 
+			code='nomatch'
+		)],
+		max_length=40,
+		blank=True
+	)
+
+	def __str__(self):
+		return "Settings"
 
 class Arc(models.Model):
 	cvid = models.CharField(max_length=15)
