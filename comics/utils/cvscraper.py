@@ -245,6 +245,7 @@ class CVScraper(object):
 			series.cvid = response_series['results']['id']
 			series.cvurl = response_series['results']['site_detail_url']
 			series.name = response_series['results']['name']
+			series.year = response_series['results']['start_year']
 
 			if response_series['results']['deck']:
 				series.desc = response_series['results']['deck']
