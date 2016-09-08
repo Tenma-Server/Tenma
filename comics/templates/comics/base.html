@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="{% static 'comics/flexslider/flexslider.css' %}" type="text/css">
         <link rel="stylesheet" type="text/css" href="{% static 'comics/style.css' %}" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script src="http://malsup.github.com/jquery.form.js"></script>
         <script src="https://use.fontawesome.com/d3455c4c52.js"></script>
         <script src="{% static 'comics/flexslider/jquery.flexslider.js' %}"></script>
         <script src="{% static 'comics/script.js' %}"></script>
@@ -38,6 +39,18 @@
         </div>
     </footer>
 
-    {% include "comics/settings.html" %}
-
+    <div id="settings-overlay">
+        <div class="settings-container">
+            <div class="settings-title">
+                <h3>Settings</h3>
+                <i class="close-settings fa fa-times-circle"></i>
+            </div>
+            <div class="settings-body">
+                <a class="import-comics" href="{% url 'comics:importer' %}">Import Comics</a>
+                <div class="settings-form">
+                    {% include "comics/settings.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
 </html>

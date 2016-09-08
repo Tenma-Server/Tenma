@@ -125,6 +125,14 @@ footer .metadata-disclaimer img {
 .settings-title h3 {
 	margin: 0;
 	padding: 10px 20px;
+	float: left;
+}
+
+.settings-title .close-settings {
+	float: right;
+	cursor: pointer;
+    padding: 13px 20px;
+    font-size: 24px;
 }
 
 .settings-body {
@@ -149,6 +157,16 @@ footer .metadata-disclaimer img {
 
 .import-comics:hover {
 	background: #929292;
+}
+
+#settings-overlay form input[type=text] {
+	width: 250px;
+}
+
+#settings-overlay form .helptext {
+	display: block;
+	font-style: italic;
+	font-size: 12px;
 }
 
 /*

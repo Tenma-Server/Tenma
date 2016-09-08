@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponseRedirect
 
-from .models import Series, Issue, Character, Arc, Team, Publisher, Creator
+from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
 from .utils.cvscraper import CVScraper
 
 class IndexView(generic.ListView):
@@ -63,6 +63,19 @@ class CreatorView(generic.DetailView):
 		creator = self.get_object()
 		context['issue_list'] = creator.issue_set.all().order_by('series__name', 'number')
 		return context
+
+class SettingsView(generic.edit.UpdateView):
+	model = Settings
+	fields = ['api_key']
+	template_name = 'comics/settings.html'
+
+	def get_object(self, *args, **kwargs):
+		return Settings.get_solo()
+
+	def form_valid(self, form):
+		self.object = form.save()
+		return render(self.request, 'comics/settings.html', {'settings': self.object})
+
 
 def read(request, issue_id):
 	issue = get_object_or_404(Issue, pk=issue_id)

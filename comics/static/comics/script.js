@@ -14,13 +14,20 @@ $(window).load(function(){
 		itemMargin: 15
 	});
 
-	/* Settings Button */
+	/* Settings Overlay */
+
+	// Open/Close Overlay
 	$('#navbar .settings-button').click(function(){
 		if ($('#settings-overlay').hasClass('open')) {
 			$('#settings-overlay').removeClass('open');
 		} else {
 			$('#settings-overlay').addClass('open');
+			loadSettings();
 		}
+	});
+
+	$('.close-settings').click(function(){
+		$('#settings-overlay').removeClass('open');
 	});
 
 	/*
@@ -64,4 +71,12 @@ $(window).load(function(){
 
 });
 
-
+// Ajax call for settings
+function loadSettings() {
+	$.ajax({
+		url: "/settings",
+		context: document.body
+	}).done(function(response) {
+		$('.settings-form').html(response);
+	});
+}
