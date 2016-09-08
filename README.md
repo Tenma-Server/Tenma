@@ -41,12 +41,11 @@ It is recommended to run Tenma in a Python Virtual Environment.
 
 1. Add your comics to the `tenmaserver/files` directory.
 2. If you're using the ComicVine API:
-	1. In your browser, go to `127.0.0.1:8000/admin`.
-	2. Under "Comics", click "Settings".
-	3. Enter in your ComicVine API Key, and click "Save".
-	4. Click "View Site" in the top right-corner.
-3. In Tenma, click the "Import Comics" button in the top-right corner.
-3. Wait for the page to reload, and your comics will be showing. If you're using the ComicVine API, this can take some time. The more metadata gathered, the faster it will be over time.
+	1. In Tenma, click the Settings button in the top-right corner.
+	2. Enter in your ComicVine API Key, and click "Save".
+3. In Tenma, click the settings button in the top-right corner.
+4. Click the "Import Comics" button.
+5. Wait for the page to reload, and your comics will be showing. If you're using the ComicVine API, this can take some time. The more metadata gathered, the faster it will be over time.
 
 ## Supported filetypes ##
 
