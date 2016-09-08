@@ -14,6 +14,15 @@ $(window).load(function(){
 		itemMargin: 15
 	});
 
+	/* Settings Button */
+	$('#navbar .settings-button').click(function(){
+		if ($('#settings-overlay').hasClass('open')) {
+			$('#settings-overlay').removeClass('open');
+		} else {
+			$('#settings-overlay').addClass('open');
+		}
+	});
+
 	/*
 	 *	Reader Functions
 	 */

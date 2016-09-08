@@ -17,7 +17,7 @@
             <div id="navbar">
                 <a class="logo" href="/">Tenma</a>
                 {% block menu %}
-                    <a class="import-comics" href="{% url 'comics:importer' %}">Import Comics</a>
+                    <i class="settings-button fa fa-cog"></i>
                 {% endblock %}
             </div>
         </header>
@@ -37,5 +37,7 @@
             </div>
         </div>
     </footer>
+
+    {% include "comics/settings.html" %}
 
 </html>
