@@ -16,8 +16,9 @@
         <header>
             <div id="navbar">
                 <a class="logo" href="/">Tenma</a>
-                {% block menu %}{% endblock %}
-                <a class="import-comics" href="{% url 'comics:importer' %}">Import Comics</a>
+                {% block menu %}
+                    <a class="import-comics" href="{% url 'comics:importer' %}">Import Comics</a>
+                {% endblock %}
             </div>
         </header>
 
