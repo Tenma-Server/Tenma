@@ -169,6 +169,10 @@ footer .metadata-disclaimer img {
 	font-size: 12px;
 }
 
+#settings-overlay form .helptext a {
+	text-decoration: underline;
+}
+
 /*
  *	Flexslider - Related Sliders
  */
