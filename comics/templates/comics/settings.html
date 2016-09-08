@@ -4,6 +4,6 @@
 </form>
 
 <script>
-	var form_options = { target: '#settings-form', success: function(response) { loadSettings(); } };
+	var form_options = { target: '.settings-form', success: function(response) { loadSettings(); } };
 	$('#settings-update').ajaxForm(form_options);
 </script>
