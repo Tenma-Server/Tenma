@@ -1,8 +1,5 @@
 # Tenma #
 
-![homepage](./screenshots/issue.png)
-*For more screenshots, check out the screenshots directory*
-
 **Tenma is currently in alpha. I can not claim that this application is secure to run over the internet.**
 
 Tenma is a comic server built on Django that allows you to store, organize, and read comics. It focuses heavily on creating relationships between issues spanning different series based on Characters, Creators, Teams, Story Arcs and Publishers. To do this, it leverages the [ComicVine](http://comicvine.gamespot.com) [API](http://comicvine.gamespot.com/api) to retrieve metadata on your comics (ComicVine account required). 
@@ -69,6 +66,11 @@ To navigate, you can use the arrow buttons, or your keyboard arrows.
 
 #### View Modes ####
 From the top menu (visible when you move your mouse), you can change the view mode from fit horizontally to fit vertically.
+
+# Screenshots #
+
+![homepage](./screenshots/issue.png)
+*For more screenshots, check out the screenshots directory*
 
 # Contributing #
 Since this is my first Django project, I appreciate any contributions to Tenma.
