@@ -1,12 +1,15 @@
-# README #
+# Tenma #
 
-## What is this repository for? ##
+![homepage](./screenshots/issue.png)
+*For more screenshots, check out the screenshots directory*
 
-Tenma is a comic server built on Django that allows you to store, organize, and read comics. It also leverages the [ComicVine API](http://comicvine.gamespot.com) to retrieve metadata on your comics. 
+**Tenma is currently in alpha. I can not claim that this application is secure to run over the internet.**
 
-## How do I get set up? ##
+Tenma is a comic server built on Django that allows you to store, organize, and read comics. It focuses heavily on creating relationships between issues spanning different series based on Characters, Creators, Teams, Story Arcs and Publishers. To do this, it leverages the [ComicVine](http://comicvine.gamespot.com) [API](http://comicvine.gamespot.com/api) to retrieve metadata on your comics (ComicVine account required). 
 
-Tenma is currently in alpha. Much of the instructions below will be automated so that setup is quick and painless.
+## Installation and Configuration ##
+
+In the future, much of the instructions below will be automated so that setup is quick and painless. 
 
 This has been tested on Mac OSX 10.11 and Ubuntu 12.04.
 
@@ -47,7 +50,7 @@ It is recommended to run Tenma in a Python Virtual Environment.
 4. Click the "Import Comics" button.
 5. Wait for the page to reload, and your comics will be showing. If you're using the ComicVine API, this can take some time. The more metadata gathered, the faster it will be over time.
 
-## Supported filetypes ##
+#### Current supported filetypes ####
 
 * CBZ
 * ZIP
@@ -55,3 +58,17 @@ It is recommended to run Tenma in a Python Virtual Environment.
 * RAR
 * CBT
 * TAR
+
+## Using The Reader ##
+
+#### Reading ####
+To read a comic click the comic image on an issue page. 
+
+#### Navigating ####
+To navigate, you can use the arrow buttons, or your keyboard arrows.
+
+#### View Modes ####
+From the top menu (visible when you move your mouse), you can change the view mode from fit horizontally to fit vertically.
+
+# Contributing #
+Since this is my first Django project, I appreciate any contributions to Tenma.
