@@ -34,8 +34,10 @@ It is recommended to run Tenma in a Python Virtual Environment.
 
 #### Get running locally: ####
 
-1. Then start your local server: `python manage.py runserver`
-2. In your browser, go to `127.0.0.1:8000`
+1. Then start your local server: `python manage.py runserver [YOUR IP ADDRESS]:8000`
+	* For example: `python manage.py runserver 192.168.1.30:8000`
+2. In your browser, go to `[YOUR IP ADDRESS]:8000`
+	* For example: `http://192.168.1.30:8000` 
 
 #### Getting your comics into the system: ####
 
