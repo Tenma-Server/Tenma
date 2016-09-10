@@ -97,6 +97,9 @@ class Series(models.Model):
 
 	def issue_numerical_order_set(self):
 		return self.issue_set.all().order_by('number')
+		
+	class Meta:
+		verbose_name_plural = "Series"
 
 class Issue(models.Model):
 	cvid = models.CharField(max_length=15, blank=True)
