@@ -14,6 +14,7 @@ class CVScraper(object):
 		self._api_key = Settings.get_solo().api_key
 		self.directory_path = 'files/'
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
+		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
 
 		# Set fields to grab when calling the API.
 		# This helps increase performance per call.
@@ -231,7 +232,7 @@ class CVScraper(object):
 		else:
 			issue.desc = ''
 
-		issue_cover_url = response_issue['results']['image']['super_url']
+		issue_cover_url = self.imageurl + response_issue['results']['image']['super_url'].rsplit('/', 1)[-1]
 		issue_cover_filename = unquote_plus(issue_cover_url.split('/')[-1])
 		issue.cover = urlretrieve(issue_cover_url, 'media/images/covers/' + issue_cover_filename)[0]
 
@@ -269,7 +270,7 @@ class CVScraper(object):
 				time.sleep(1)
 
 				if response_publisher['results']['image']:
-					publisher_logo_url = response_publisher['results']['image']['super_url']
+					publisher_logo_url = self.imageurl + response_publisher['results']['image']['super_url'].rsplit('/', 1)[-1]
 					publisher_logo_filename = unquote_plus(publisher_logo_url.split('/')[-1])
 					publisher_logo_filepath = urlretrieve(publisher_logo_url, 'media/images/publishers/' + publisher_logo_filename)[0]
 				else:
@@ -317,7 +318,7 @@ class CVScraper(object):
 
 				# Get Arc image
 				if response_arc['results']['image']:
-					arc_image_url = response_arc['results']['image']['super_url']
+					arc_image_url = self.imageurl + response_arc['results']['image']['super_url'].rsplit('/', 1)[-1]
 					arc_image_filename = unquote_plus(arc_image_url.split('/')[-1])
 					arc_image_filepath = urlretrieve(arc_image_url, 'media/images/arcs/' + arc_image_filename)[0]
 				else:
@@ -357,7 +358,7 @@ class CVScraper(object):
 
 				# Get character image
 				if response_character['results']['image']:
-					character_image_url = response_character['results']['image']['super_url']
+					character_image_url = self.imageurl + response_character['results']['image']['super_url'].rsplit('/', 1)[-1]
 					character_image_filename = unquote_plus(character_image_url.split('/')[-1])
 					character_image_filepath = urlretrieve(character_image_url, 'media/images/characters/' + character_image_filename)[0]
 				else:
@@ -397,7 +398,7 @@ class CVScraper(object):
 
 				# Get character image
 				if response_creator['results']['image']:
-					creator_image_url = response_creator['results']['image']['super_url']
+					creator_image_url = self.imageurl + response_creator['results']['image']['super_url'].rsplit('/', 1)[-1]
 					creator_image_filename = unquote_plus(creator_image_url.split('/')[-1])
 					creator_image_filepath = urlretrieve(creator_image_url, 'media/images/creators/' + creator_image_filename)[0]
 				else:
@@ -434,7 +435,7 @@ class CVScraper(object):
 				response_team = json.loads(urlopen(request_team).read().decode('utf-8'))
 
 				if response_team['results']['image']:
-					team_image_url = response_team['results']['image']['super_url']
+					team_image_url = self.imageurl + response_team['results']['image']['super_url'].rsplit('/', 1)[-1]
 					team_image_filename = unquote_plus(team_image_url.split('/')[-1])
 					team_image_filepath = urlretrieve(team_image_url, 'media/images/teams/' + team_image_filename)[0]
 				else:
