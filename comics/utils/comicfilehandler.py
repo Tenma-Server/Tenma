@@ -4,6 +4,7 @@ from shutil import copyfile
 from django.conf import settings
 from operator import attrgetter
 from . import fnameparser
+from urllib.parse import quote
 
 class ComicFileHandler(object):
 
@@ -163,8 +164,9 @@ class ComicFileHandler(object):
 				if file_ext == '.jpg' or file_ext == '.jpeg':
 					path = os.path.join(root,file)
 					newpath = path.replace(filepath + '/', '')
-					newpath = path.replace(filepath + '\\', '')
-					pages.append(newpath)
+					if os.name == 'nt':
+						newpath = path.replace(filepath + '\\', '')
+					pages.append(quote(newpath, safe='\\\\'))
 
 		return sorted(pages)
 

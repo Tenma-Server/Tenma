@@ -20,7 +20,7 @@
 		{% for item in issue.page_set.pages %}
 		{% with mediaurl=issue.page_set.mediaurl %}
 		<li class="page page-{{ forloop.counter }}">
-			<img src="{{ mediaurl }}{{ item|urlencode }}">
+			<img src="{{ mediaurl }}{{ item }}">
 		</li>
 		{% endwith %}
 		{% endfor %}
