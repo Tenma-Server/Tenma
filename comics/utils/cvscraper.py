@@ -2,7 +2,7 @@ from urllib.request import urlretrieve, urlopen, Request
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
 from .comicfilehandler import ComicFileHandler
-from . import fnameparser
+from . import fnameparser, utils
 import json, os, time, datetime
 
 class CVScraper(object):
@@ -234,7 +234,8 @@ class CVScraper(object):
 
 		issue_cover_url = self.imageurl + response_issue['results']['image']['super_url'].rsplit('/', 1)[-1]
 		issue_cover_filename = unquote_plus(issue_cover_url.split('/')[-1])
-		issue.cover = urlretrieve(issue_cover_url, 'media/images/covers/' + issue_cover_filename)[0]
+		issue_image_filepath = urlretrieve(issue_cover_url, 'media/images/covers/' + issue_cover_filename)[0]
+		issue.cover = utils.test_image(issue_image_filepath)
 
 		# 2. Set Series info:
 		matching_series = Series.objects.filter(cvid=response_issue['results']['volume']['id'])
@@ -272,7 +273,7 @@ class CVScraper(object):
 				if response_publisher['results']['image']:
 					publisher_logo_url = self.imageurl + response_publisher['results']['image']['super_url'].rsplit('/', 1)[-1]
 					publisher_logo_filename = unquote_plus(publisher_logo_url.split('/')[-1])
-					publisher_logo_filepath = urlretrieve(publisher_logo_url, 'media/images/publishers/' + publisher_logo_filename)[0]
+					publisher_logo_filepath = utils.test_image(urlretrieve(publisher_logo_url, 'media/images/publishers/' + publisher_logo_filename)[0])
 				else:
 					publisher_logo_filepath = ''
 
@@ -320,7 +321,7 @@ class CVScraper(object):
 				if response_arc['results']['image']:
 					arc_image_url = self.imageurl + response_arc['results']['image']['super_url'].rsplit('/', 1)[-1]
 					arc_image_filename = unquote_plus(arc_image_url.split('/')[-1])
-					arc_image_filepath = urlretrieve(arc_image_url, 'media/images/arcs/' + arc_image_filename)[0]
+					arc_image_filepath = utils.test_image(urlretrieve(arc_image_url, 'media/images/arcs/' + arc_image_filename)[0])
 				else:
 					arc_image_filepath = ''
 
@@ -360,7 +361,7 @@ class CVScraper(object):
 				if response_character['results']['image']:
 					character_image_url = self.imageurl + response_character['results']['image']['super_url'].rsplit('/', 1)[-1]
 					character_image_filename = unquote_plus(character_image_url.split('/')[-1])
-					character_image_filepath = urlretrieve(character_image_url, 'media/images/characters/' + character_image_filename)[0]
+					character_image_filepath = utils.test_image(urlretrieve(character_image_url, 'media/images/characters/' + character_image_filename)[0])
 				else:
 					character_image_filepath = ''
 
@@ -400,7 +401,7 @@ class CVScraper(object):
 				if response_creator['results']['image']:
 					creator_image_url = self.imageurl + response_creator['results']['image']['super_url'].rsplit('/', 1)[-1]
 					creator_image_filename = unquote_plus(creator_image_url.split('/')[-1])
-					creator_image_filepath = urlretrieve(creator_image_url, 'media/images/creators/' + creator_image_filename)[0]
+					creator_image_filepath = utils.test_image(urlretrieve(creator_image_url, 'media/images/creators/' + creator_image_filename)[0])
 				else:
 					creator_image_filepath = ''
 
@@ -437,7 +438,7 @@ class CVScraper(object):
 				if response_team['results']['image']:
 					team_image_url = self.imageurl + response_team['results']['image']['super_url'].rsplit('/', 1)[-1]
 					team_image_filename = unquote_plus(team_image_url.split('/')[-1])
-					team_image_filepath = urlretrieve(team_image_url, 'media/images/teams/' + team_image_filename)[0]
+					team_image_filepath = utils.test_image(urlretrieve(team_image_url, 'media/images/teams/' + team_image_filename)[0])
 				else:
 					team_image_filepath = ''
 
