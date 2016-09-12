@@ -1,8 +1,8 @@
 import os,rarfile,zipfile,tarfile,re
+import comics
 from shutil import copyfile
 from django.conf import settings
 from operator import attrgetter
-
 from . import fnameparser
 
 class ComicFileHandler(object):
@@ -11,6 +11,11 @@ class ComicFileHandler(object):
 
 	def __init__(self):
 		f = ''
+		if os.name == 'nt':
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
+		else:
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar"
+			
 	#==================================================================================================
 
 	def extract_comic(self, file):
