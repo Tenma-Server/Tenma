@@ -64,6 +64,7 @@ class ComicFileHandler(object):
 			else:
 				z = zipfile.ZipFile(tempfile)	
 			z.extractall(path=temppath)
+			z.close()
 		# Check for CBT or TAR
 		elif extension == '.cbt' or extension == '.tar':
 			if extension == '.cbt':
@@ -126,6 +127,7 @@ class ComicFileHandler(object):
 			cover_filename = self._get_first_image(z.namelist())
 
 			z.extract(cover_filename, path=mediaroot)
+			z.close()
 
 		# Check for CBT or TAR
 		elif extension == '.cbt' or extension == '.tar':
