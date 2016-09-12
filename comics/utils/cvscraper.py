@@ -12,7 +12,7 @@ class CVScraper(object):
 	def __init__(self):
 		# Set basic reusable strings
 		self._api_key = Settings.get_solo().api_key
-		self.directory_path = 'files/'
+		self.directory_path = 'files'
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
 		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
 
@@ -31,7 +31,7 @@ class CVScraper(object):
 
 	def process_issues(self):
 		# Settings for comics directory
-		processed_files_file = self.directory_path + '.processed'
+		processed_files_file = os.path.join(self.directory_path, '.processed')
 
 		# Create processed files file
 		if not os.path.isfile(processed_files_file):
@@ -157,7 +157,7 @@ class CVScraper(object):
 	def _create_issue_without_cvid(self, filename):
 
 		# Make sure the issue hadn't already been added
-		matching_issue = Issue.objects.filter(file=self.directory_path + filename)
+		matching_issue = Issue.objects.filter(file=os.path.join(self.directory_path, filename))
 
 		if not matching_issue:
 			# Attempt to extract series name, issue number, and year
@@ -168,7 +168,7 @@ class CVScraper(object):
 
 			# 1. Set basic issue information:
 			issue = Issue()
-			issue.file = self.directory_path + filename
+			issue.file = os.path.join(self.directory_path, filename)
 			issue.cvid = ''
 			issue.cvurl = ''
 			issue.name = ''
@@ -185,7 +185,7 @@ class CVScraper(object):
 				issue.date = datetime.date.today()
 
 			cfh = ComicFileHandler()
-			issue.cover = cfh.extract_cover(self.directory_path + filename)
+			issue.cover = cfh.extract_cover(os.path.join(self.directory_path, filename))
 
 			# 2. Set Series info:
 			matching_series = Series.objects.filter(name=series_name)
@@ -218,7 +218,7 @@ class CVScraper(object):
 
 		# 1. Set basic issue information:
 		issue = Issue()
-		issue.file = self.directory_path + filename
+		issue.file = os.path.join(self.directory_path, filename)
 		issue.cvid = response_issue['results']['id']
 		issue.cvurl = response_issue['results']['site_detail_url']
 		issue.name = response_issue['results']['name'] if response_issue['results']['name'] else ''
