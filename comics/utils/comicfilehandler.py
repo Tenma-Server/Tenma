@@ -161,6 +161,7 @@ class ComicFileHandler(object):
 				if file_ext == '.jpg' or file_ext == '.jpeg':
 					path = os.path.join(root,file)
 					newpath = path.replace(filepath + '/', '')
+					newpath = path.replace(filepath + '\\', '')
 					pages.append(newpath)
 
 		return sorted(pages)
