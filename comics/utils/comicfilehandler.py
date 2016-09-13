@@ -154,20 +154,28 @@ class ComicFileHandler(object):
 	#==================================================================================================
 
 	def _get_file_list(self, filepath):
-
+		'''
+		Returns a sorted list of image files for a comic. Filenames are changed
+		to numbers so filepaths stay short.
+		'''
 		pages = []
 
 		for root, dirs, files in os.walk(filepath):
-			for file in files:
+			sorted_files = sorted(files)
+			i = 0
+			for file in sorted_files:
 				file_ext = os.path.splitext(file)[1].lower()
 				if file_ext == '.jpg' or file_ext == '.jpeg':
 					path = os.path.join(root,file)
-					newpath = path.replace(filepath + '/', '')
+					numbered_file = "%03d" % (i,) + file_ext
+					os.rename(path, filepath + '/' + numbered_file)
+					i += 1
+					newpath = numbered_file.replace(filepath + '/', '')
 					if os.name == 'nt':
-						newpath = path.replace(filepath + '\\', '')
-					pages.append(quote(newpath, safe='\\\\'))
+						newpath = numbered_file.replace(filepath + '\\', '')
+					pages.append(quote(newpath))
 
-		return sorted(pages)
+		return pages
 
 	#==================================================================================================
 
