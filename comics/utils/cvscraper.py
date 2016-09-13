@@ -30,6 +30,8 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def process_issues(self):
+		''' Main function to process issues in the comics directories. '''
+
 		# Settings for comics directory
 		processed_files_file = os.path.join(self.directory_path, '.processed')
 
@@ -69,6 +71,12 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def _find_match(self, filename):
+		'''
+		Try to find a match in ComicVine for an issue.
+
+		Returns a ComicVine ID.
+		'''
+
 		# Initialize response
 		cvid = ''
 
@@ -134,6 +142,11 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def _find_match_with_series(self, series_cvid, issue_number):
+		'''
+		Try to retrieve a match based on an existing series name.
+		
+		Returns a ComicVine ID.
+		'''
 
 		issue_cvid = ''
 
@@ -157,6 +170,7 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def _create_issue_without_cvid(self, filename):
+		'''	Create an issue without a ComicVine ID.	'''
 
 		# Make sure the issue hadn't already been added
 		matching_issue = Issue.objects.filter(file=os.path.join(self.directory_path, filename))
@@ -206,6 +220,8 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def _scrape_issue(self, filename, cvid):
+		'''	Gets metadata from ComicVine for a newly imported issue. '''
+
 		# Make API call and store issue response
 		time.sleep(1)
 		request_issue = Request(self.baseurl + 'issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + self.issue_fields)

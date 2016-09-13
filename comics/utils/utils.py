@@ -17,6 +17,7 @@ from PIL import Image
 # unmodifiable cache for speeding up calls to natural_compare 
 __keys_cache = None 
 
+
 #==============================================================================
 def is_string(object):
    ''' returns a boolean indicating whether the given object is a string '''
@@ -171,6 +172,7 @@ def convert_number_words(phrase_s, expand_b):
       phrase_s = re.sub(r'\btwelfth\b', '12th', phrase_s);
       phrase_s = re.sub(r'\beightteenth\b', '18th', phrase_s);
    return phrase_s
+
 
 #==============================================================================
 def test_image(image_path):

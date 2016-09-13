@@ -11,14 +11,21 @@ class ComicFileHandler(object):
 	#==================================================================================================
 
 	def __init__(self):
+		# Set the unrar tool based on filesystem
 		if os.name == 'nt':
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
 		else:
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar"
 			
+
 	#==================================================================================================
 
 	def extract_comic(self, file, id):
+		'''
+		Extract all the pages from a comic book file.
+
+		Returns a dictionary containing the mediaurl and a list of files.
+		'''
 		filename = os.path.basename(file)
 		dirname = os.path.splitext(filename)[0]
 		extension = os.path.splitext(filename)[1].lower()
@@ -86,9 +93,15 @@ class ComicFileHandler(object):
 
 		return {'mediaurl': mediaurl, 'pages': pages}
 
+
 	#==================================================================================================
 
 	def extract_cover(self,file):
+		'''
+		Extract the cover image from a comic file.
+
+		Returns a path to the cover image.
+		'''
 		filename = os.path.basename(file)
 		covername = os.path.splitext(filename)[0]
 		extension = os.path.splitext(filename)[1].lower()
@@ -151,6 +164,7 @@ class ComicFileHandler(object):
 
 		return mediaurl + self._normalise_imagepath(cover_filename)
 		
+
 	#==================================================================================================
 
 	def _get_file_list(self, filepath):
@@ -177,9 +191,11 @@ class ComicFileHandler(object):
 
 		return pages
 
+
 	#==================================================================================================
 
 	def _get_first_image(self, filelist):
+		''' Returns the name of the first file from a sorted list. '''
 
 		sorted_list = sorted(filelist)
 
@@ -188,10 +204,12 @@ class ComicFileHandler(object):
 			if f_ext == '.jpg' or f_ext == '.jpeg':
 				return f
 
+
 	#==================================================================================================
 
 	def _normalise_imagepath(self, filepath):
-
+		'''	Returns a normalised image path. '''
+		
 		path_normalise = re.compile(r"[/\\]")
 
 		filepath_parts = path_normalise.sub("#", filepath).split('#')
