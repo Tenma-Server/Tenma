@@ -38,7 +38,7 @@ class Arc(models.Model):
 	cvurl = models.URLField(max_length=200)
 	name = models.CharField('Arc name', max_length=200)
 	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images/arcs", blank=True)
+	image = models.FilePathField('Image file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -48,7 +48,7 @@ class Team(models.Model):
 	cvurl = models.URLField(max_length=200)
 	name = models.CharField('Team name', max_length=200)
 	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images/teams", blank=True)
+	image = models.FilePathField('Image file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -59,7 +59,7 @@ class Character(models.Model):
 	name = models.CharField('Character name', max_length=200)
 	desc = models.TextField('Description', max_length=500, blank=True)
 	teams = models.ManyToManyField(Team, blank=True)
-	image = models.FilePathField('Image file path', path="media/images/characters", blank=True)
+	image = models.FilePathField('Image file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -69,7 +69,7 @@ class Creator(models.Model):
 	cvurl = models.URLField(max_length=200)
 	name = models.CharField('Creator name', max_length=200)
 	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images/creators", blank=True)
+	image = models.FilePathField('Image file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -79,7 +79,7 @@ class Publisher(models.Model):
 	cvurl = models.URLField(max_length=200)
 	name = models.CharField('Series name', max_length=200)
 	desc = models.TextField('Description', max_length=500, blank=True)
-	logo = models.FilePathField('Logo file path', path="media/images/publishers", blank=True)
+	logo = models.FilePathField('Logo file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -114,7 +114,7 @@ class Issue(models.Model):
 	creators = models.ManyToManyField(Creator, blank=True)
 	teams = models.ManyToManyField(Team, blank=True)
 	file = models.FilePathField('File path', path="files/", recursive=True)
-	cover = models.FilePathField('Cover file path', path="media/images/covers", blank=True)
+	cover = models.FilePathField('Cover file path', path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
