@@ -23,22 +23,25 @@ def smartcrop(value, arg):
 		if os.path.isfile(cache_paths[0]):
 			return cache_paths[1]
 		else:
-			# Get image
-			img = Image.open(value)
+			try:
+				# Get image
+				img = Image.open(value)
 
-			# Check Aspect ratio and resize acordingly
-			if crop_width * img.height < crop_height * img.width:
-				height_percent = (float(crop_height)/float(img.size[1]))
-				width_size = int(float(img.size[0])*float(height_percent))
-				img = img.resize((width_size,crop_height), Image.BICUBIC)
+				# Check Aspect ratio and resize acordingly
+				if crop_width * img.height < crop_height * img.width:
+					height_percent = (float(crop_height)/float(img.size[1]))
+					width_size = int(float(img.size[0])*float(height_percent))
+					img = img.resize((width_size,crop_height), Image.BICUBIC)
 
-			else:
-				width_percent = (float(crop_width)/float(img.size[0]))
-				height_size = int(float(img.size[1])*float(width_percent))
-				img = img.resize((crop_width,height_size), Image.BICUBIC)
+				else:
+					width_percent = (float(crop_width)/float(img.size[0]))
+					height_size = int(float(img.size[1])*float(width_percent))
+					img = img.resize((crop_width,height_size), Image.BICUBIC)
 
-			cropped = _crop_from_center(img, crop_width, crop_height)
-			cropped.save(cache_paths[0])
+				cropped = _crop_from_center(img, crop_width, crop_height)
+				cropped.save(cache_paths[0])
+			except Exception:
+				pass
 
 	return cache_paths[1]
 
