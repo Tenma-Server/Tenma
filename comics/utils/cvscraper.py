@@ -130,6 +130,7 @@ class CVScraper(object):
 
 		return best_option_list[0] if best_option_list else ''
 
+
 	#==================================================================================================
 
 	def _find_match_with_series(self, series_cvid, issue_number):
@@ -151,6 +152,7 @@ class CVScraper(object):
 					issue_cvid = issue['id']
 
 		return issue_cvid
+
 
 	#==================================================================================================
 
@@ -199,6 +201,7 @@ class CVScraper(object):
 
 			# 5. Save issue.
 			issue.save()
+
 
 	#==================================================================================================
 
@@ -380,11 +383,12 @@ class CVScraper(object):
 			else:
 				issue.teams.add(matching_team[0])
 
+
 	#==================================================================================================
 
 	def _get_object_data(self, response):
 		''' 
-		Gathers object data from a response. Tests each value to make sure 
+		Gathers object data from a response and tests each value to make sure 
 		it exists in the response before trying to set it. 
 
 		CVID and CVURL will always exist in a ComicVine response, so there
