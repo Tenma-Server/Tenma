@@ -641,7 +641,7 @@ footer .metadata-disclaimer img {
 }
 
 .flexslider.reader-slider .slides img {
-	width: initial;
+	width: auto;
 	height: initial;
 	max-width: 100%;
 	max-height: 100%;
