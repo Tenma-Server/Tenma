@@ -169,10 +169,6 @@ class CVScraper(object):
 			# 1. Set basic issue information:
 			issue = Issue()
 			issue.file = os.path.join(self.directory_path, filename)
-			issue.cvid = ''
-			issue.cvurl = ''
-			issue.name = ''
-			issue.desc = ''
 
 			if issue_number:
 				issue.number = issue_number
@@ -192,11 +188,7 @@ class CVScraper(object):
 
 			if not matching_series:
 				series = Series()
-
-				series.cvid = ''
-				series.cvurl = ''
 				series.name = series_name
-				series.desc = ''
 
 				# 4. Save Series
 				series.save()
@@ -212,83 +204,59 @@ class CVScraper(object):
 
 	def _scrape_issue(self, filename, cvid):
 		# Make API call and store issue response
+		time.sleep(1)
 		request_issue = Request(self.baseurl + 'issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + self.issue_fields)
 		response_issue = json.loads(urlopen(request_issue).read().decode('utf-8'))
-		time.sleep(1)
+		issue_data = self._get_object_data(response_issue['results'])
 
 		# 1. Set basic issue information:
 		issue = Issue()
+
 		issue.file = os.path.join(self.directory_path, filename)
-		issue.cvid = response_issue['results']['id']
-		issue.cvurl = response_issue['results']['site_detail_url']
-		issue.name = response_issue['results']['name'] if response_issue['results']['name'] else ''
-		issue.number = response_issue['results']['issue_number']
-		issue.date = response_issue['results']['cover_date']
-
-		if response_issue['results']['deck']:
-			issue.desc = response_issue['results']['deck']
-		elif response_issue['results']['description']:
-			issue.desc = response_issue['results']['description']
-		else:
-			issue.desc = ''
-
-		issue_cover_url = self.imageurl + response_issue['results']['image']['super_url'].rsplit('/', 1)[-1]
-		issue_cover_filename = unquote_plus(issue_cover_url.split('/')[-1])
-		issue_image_filepath = urlretrieve(issue_cover_url, 'media/images/covers/' + issue_cover_filename)[0]
-		issue.cover = utils.test_image(issue_image_filepath)
+		issue.cvid = issue_data['cvid']
+		issue.cvurl = issue_data['cvurl']
+		issue.name = issue_data['name']
+		issue.desc = issue_data['desc']
+		issue.number = issue_data['number']
+		issue.date = issue_data['date']
+		issue.cover = issue_data['image']
 
 		# 2. Set Series info:
 		matching_series = Series.objects.filter(cvid=response_issue['results']['volume']['id'])
 
 		if not matching_series:
-			series = Series()
-		
-			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.series_fields)
-			response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
 			time.sleep(1)
 
-			series.cvid = response_series['results']['id']
-			series.cvurl = response_series['results']['site_detail_url']
-			series.name = response_series['results']['name']
-			series.year = response_series['results']['start_year']
+			series = Series()
+			
+			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.series_fields)
+			response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
+			series_data = self._get_object_data(response_series['results'])
 
-			if response_series['results']['deck']:
-				series.desc = response_series['results']['deck']
-			elif response_series['results']['description']:
-				series.desc = response_series['results']['description']
-			else:
-				series.desc = ''
+			series.cvid = series_data['cvid']
+			series.cvurl = series_data['cvurl']
+			series.name = series_data['name']
+			series.desc = series_data['desc']
+			series.year = series_data['year']
 
 			# 3. Set Publisher info:
 			matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
 
 			if not matching_publisher:
+				time.sleep(1)
+
 				publisher = Publisher()
 
 				# Store publisher response
 				request_publisher = Request(response_series['results']['publisher']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.publisher_fields)
 				response_publisher = json.loads(urlopen(request_publisher).read().decode('utf-8'))
-				time.sleep(1)
+				publisher_data = self._get_object_data(response_publisher['results'])
 
-				if response_publisher['results']['image']:
-					publisher_logo_url = self.imageurl + response_publisher['results']['image']['super_url'].rsplit('/', 1)[-1]
-					publisher_logo_filename = unquote_plus(publisher_logo_url.split('/')[-1])
-					publisher_logo_filepath = utils.test_image(urlretrieve(publisher_logo_url, 'media/images/publishers/' + publisher_logo_filename)[0])
-				else:
-					publisher_logo_filepath = ''
-
-				publisher.cvid = response_publisher['results']['id']
-				publisher.cvurl = response_publisher['results']['site_detail_url']
-				publisher.name = response_publisher['results']['name']
-
-				if response_publisher['results']['deck']:
-					publisher.desc = response_publisher['results']['deck']
-				elif response_publisher['results']['description']:
-					publisher.desc = response_publisher['results']['description']
-				else:
-					publisher.desc = ''
-
-				publisher.logo = publisher_logo_filepath
+				publisher.cvid = publisher_data['cvid']
+				publisher.cvurl = publisher_data['cvurl']
+				publisher.name = publisher_data['name']
+				publisher.desc = publisher_data['desc']
+				publisher.logo = publisher_data['image']
 
 				publisher.save()
 				series.publisher = publisher
@@ -316,29 +284,15 @@ class CVScraper(object):
 				# Store Arc response
 				request_arc = Request(story_arc['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.arc_fields)
 				response_arc = json.loads(urlopen(request_arc).read().decode('utf-8'))
-
-				# Get Arc image
-				if response_arc['results']['image']:
-					arc_image_url = self.imageurl + response_arc['results']['image']['super_url'].rsplit('/', 1)[-1]
-					arc_image_filename = unquote_plus(arc_image_url.split('/')[-1])
-					arc_image_filepath = utils.test_image(urlretrieve(arc_image_url, 'media/images/arcs/' + arc_image_filename)[0])
-				else:
-					arc_image_filepath = ''
-
-				if response_arc['results']['deck']:
-					arc_desc = response_arc['results']['deck']
-				elif response_arc['results']['description']:
-					arc_desc = response_arc['results']['description']
-				else:
-					arc_desc = ''
+				arc_data = self._get_object_data(response_arc['results'])
 
 				# Create Arc
 				issue.arcs.create(
-					cvid=response_arc['results']['id'],
-					cvurl=response_arc['results']['site_detail_url'],
-					name=response_arc['results']['name'],
-					desc=arc_desc,
-					image=arc_image_filepath
+					cvid=arc_data['cvid'],
+					cvurl=arc_data['cvurl'],
+					name=arc_data['name'],
+					desc=arc_data['desc'] ,
+					image=arc_data['image'],
 				)
 
 			else:
@@ -356,29 +310,15 @@ class CVScraper(object):
 				# Store Character response
 				request_character = Request(character['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.character_fields)
 				response_character = json.loads(urlopen(request_character).read().decode('utf-8'))
-
-				# Get character image
-				if response_character['results']['image']:
-					character_image_url = self.imageurl + response_character['results']['image']['super_url'].rsplit('/', 1)[-1]
-					character_image_filename = unquote_plus(character_image_url.split('/')[-1])
-					character_image_filepath = utils.test_image(urlretrieve(character_image_url, 'media/images/characters/' + character_image_filename)[0])
-				else:
-					character_image_filepath = ''
-
-				if response_character['results']['deck']:
-					character_desc = response_character['results']['deck']
-				elif response_character['results']['description']:
-					character_desc = response_character['results']['description']
-				else:
-					character_desc = ''
+				character_data = self._get_object_data(response_character['results'])
 
 				# Create Character
 				issue.characters.create(
-					cvid=response_character['results']['id'],
-					cvurl=response_character['results']['site_detail_url'],
-					name=response_character['results']['name'],
-					desc=character_desc,
-					image=character_image_filepath
+					cvid=character_data['cvid'],
+					cvurl=character_data['cvurl'],
+					name=character_data['name'],
+					desc=character_data['desc'],
+					image=character_data['image'],
 				)
 
 			else:
@@ -393,32 +333,18 @@ class CVScraper(object):
 			matching_creator = Creator.objects.filter(cvid=person['id'])
 
 			if not matching_creator:
-				# Store Character response
+				# Store Creator response
 				request_creator = Request(person['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.creator_fields)
 				response_creator = json.loads(urlopen(request_creator).read().decode('utf-8'))
+				creator_data = self._get_object_data(response_creator['results'])
 
-				# Get character image
-				if response_creator['results']['image']:
-					creator_image_url = self.imageurl + response_creator['results']['image']['super_url'].rsplit('/', 1)[-1]
-					creator_image_filename = unquote_plus(creator_image_url.split('/')[-1])
-					creator_image_filepath = utils.test_image(urlretrieve(creator_image_url, 'media/images/creators/' + creator_image_filename)[0])
-				else:
-					creator_image_filepath = ''
-
-				if response_creator['results']['deck']:
-					creator_desc = response_creator['results']['deck']
-				elif response_creator['results']['description']:
-					creator_desc = response_creator['results']['description']
-				else:
-					creator_desc = ''
-
-				# Create Character
+				# Create Creator
 				issue.creators.create(
-					cvid=response_creator['results']['id'],
-					cvurl=response_creator['results']['site_detail_url'],
-					name=response_creator['results']['name'],
-					desc=creator_desc,
-					image=creator_image_filepath
+					cvid=creator_data['cvid'],
+					cvurl=creator_data['cvurl'],
+					name=creator_data['name'],
+					desc=creator_data['desc'],
+					image=creator_data['image'],
 				)
 
 			else:
@@ -434,27 +360,15 @@ class CVScraper(object):
 			if not matching_team:
 				request_team = Request(team['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.team_fields)
 				response_team = json.loads(urlopen(request_team).read().decode('utf-8'))
+				team_data = self._get_object_data(response_team['results'])
 
-				if response_team['results']['image']:
-					team_image_url = self.imageurl + response_team['results']['image']['super_url'].rsplit('/', 1)[-1]
-					team_image_filename = unquote_plus(team_image_url.split('/')[-1])
-					team_image_filepath = utils.test_image(urlretrieve(team_image_url, 'media/images/teams/' + team_image_filename)[0])
-				else:
-					team_image_filepath = ''
-
-				if response_team['results']['deck']:
-					team_desc = response_team['results']['deck']
-				elif response_team['results']['description']:
-					team_desc = response_team['results']['description']
-				else:
-					team_desc = ''
-
+				# Create Creator
 				issue.teams.create(
-					cvid=response_team['results']['id'],
-					cvurl=response_team['results']['site_detail_url'],
-					name=response_team['results']['name'],
-					desc=team_desc,
-					image=team_image_filepath
+					cvid=team_data['cvid'],
+					cvurl=team_data['cvurl'],
+					name=team_data['name'],
+					desc=team_data['desc'],
+					image=team_data['image'],
 				)
 
 				for character in response_team['results']['characters']:
@@ -465,3 +379,78 @@ class CVScraper(object):
 
 			else:
 				issue.teams.add(matching_team[0])
+
+	#==================================================================================================
+
+	def _get_object_data(self, response):
+		''' 
+		Gathers object data from a response. Tests each value to make sure 
+		it exists in the response before trying to set it. 
+
+		CVID and CVURL will always exist in a ComicVine response, so there
+		is no need to verify this data.
+
+		Returns a dictionary with all the gathered data.
+		'''
+		
+		# Get Name
+		name = ''
+
+		if 'name' in response:
+			if response['name']:
+				name = response['name']
+
+		# Get Start Year (only exists for Series objects)
+		year = ''
+
+		if 'start_year' in response:
+			if response['start_year']:
+				year = response['start_year']
+
+		# Get Number (only exists for Issue objects)
+		number = ''
+
+		if 'issue_number' in response:
+			if response['issue_number']:
+				number = response['issue_number']
+
+		# Get Date (only exists for Issue objects)
+		date = ''
+
+		if 'cover_date' in response:
+			if response['cover_date']:
+				date = response['cover_date']
+
+
+		# Get Description (Favor short description if available)
+		desc = ''
+
+		if 'deck' in response:
+			if response['deck']:
+				desc = response['deck']
+		elif 'description' in response:
+			if response['description']:
+				desc = response['description']
+
+		# Get Image
+		image = ''
+
+		if 'image' in response:
+			if response['image']:
+				image_url = self.imageurl + response['image']['super_url'].rsplit('/', 1)[-1]
+				image_filename = unquote_plus(image_url.split('/')[-1])
+				image = utils.test_image(urlretrieve(image_url, 'media/images/' + image_filename)[0])
+
+		# Create Character
+		data = {
+			'cvid': response['id'],  				# Always exists
+			'cvurl': response['site_detail_url'],  	# Always exists
+			'name': name,
+			'year': year,
+			'number': number,
+			'date': date,
+			'desc': desc,
+			'image': image,
+		}
+
+		return data
