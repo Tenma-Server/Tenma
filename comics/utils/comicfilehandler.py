@@ -92,8 +92,8 @@ class ComicFileHandler(object):
 		filename = os.path.basename(file)
 		covername = os.path.splitext(filename)[0]
 		extension = os.path.splitext(filename)[1].lower()
-		mediaroot = settings.MEDIA_ROOT + '/images/covers/'
-		mediaurl = 'media/images/covers/'
+		mediaroot = settings.MEDIA_ROOT + '/images/'
+		mediaurl = 'media/images/'
 		tempfile = mediaroot + filename
 		extracted = mediaroot + covername
 
