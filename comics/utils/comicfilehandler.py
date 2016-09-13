@@ -11,7 +11,6 @@ class ComicFileHandler(object):
 	#==================================================================================================
 
 	def __init__(self):
-		f = ''
 		if os.name == 'nt':
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
 		else:
@@ -19,13 +18,13 @@ class ComicFileHandler(object):
 			
 	#==================================================================================================
 
-	def extract_comic(self, file):
+	def extract_comic(self, file, id):
 		filename = os.path.basename(file)
 		dirname = os.path.splitext(filename)[0]
 		extension = os.path.splitext(filename)[1].lower()
 		mediaroot = settings.MEDIA_ROOT + '/temp/'
-		mediaurl = settings.MEDIA_URL + 'temp/' + dirname + '/'
-		temppath = mediaroot + dirname
+		mediaurl = settings.MEDIA_URL + 'temp/' + str(id) + '/'
+		temppath = mediaroot + str(id)
 		tempfile = mediaroot + filename
 
 		# Check if directory exists

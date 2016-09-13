@@ -122,6 +122,6 @@ class Issue(models.Model):
 	def page_set(self):
 
 		comicfilehandler = ComicFileHandler()
-		comic = comicfilehandler.extract_comic(self.file)
+		comic = comicfilehandler.extract_comic(self.file, self.id)
 
 		return comic
