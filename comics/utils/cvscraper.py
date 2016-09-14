@@ -220,184 +220,72 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def _scrape_issue(self, filename, cvid):
-		'''	Gets metadata from ComicVine for a newly imported issue. '''
+		'''	Creates or updates metadata from ComicVine for an Issue. '''
 
-		# Make API call and store issue response
-		time.sleep(1)
-		request_issue = Request(self.baseurl + 'issue/4000-' + str(cvid) + '/?format=json&api_key=' + self._api_key + self.issue_fields)
+		# 1. Make initial API call
+		issue_api_url = self.baseurl + 'issue/4000-' + str(cvid)
+		request_issue = Request(issue_api_url + '/?format=json&api_key=' + self._api_key + self.issue_fields)
 		response_issue = json.loads(urlopen(request_issue).read().decode('utf-8'))
-		issue_data = self._get_object_data(response_issue['results'])
 
-		# 1. Set basic issue information:
-		issue = Issue()
-
-		issue.file = os.path.join(self.directory_path, filename)
-		issue.cvid = issue_data['cvid']
-		issue.cvurl = issue_data['cvurl']
-		issue.name = issue_data['name']
-		issue.desc = issue_data['desc']
-		issue.number = issue_data['number']
-		issue.date = issue_data['date']
-		issue.cover = issue_data['image']
-
-		# 2. Set Series info:
+		# 2. Set Series
 		matching_series = Series.objects.filter(cvid=response_issue['results']['volume']['id'])
 
 		if not matching_series:
-			time.sleep(1)
-
-			series = Series()
-			
-			request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.series_fields)
-			response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
-			series_data = self._get_object_data(response_series['results'])
-
-			series.cvid = series_data['cvid']
-			series.cvurl = series_data['cvurl']
-			series.name = series_data['name']
-			series.desc = series_data['desc']
-			series.year = series_data['year']
-
-			# 3. Set Publisher info:
-			matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
-
-			if not matching_publisher:
-				time.sleep(1)
-
-				publisher = Publisher()
-
-				# Store publisher response
-				request_publisher = Request(response_series['results']['publisher']['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.publisher_fields)
-				response_publisher = json.loads(urlopen(request_publisher).read().decode('utf-8'))
-				publisher_data = self._get_object_data(response_publisher['results'])
-
-				publisher.cvid = publisher_data['cvid']
-				publisher.cvurl = publisher_data['cvurl']
-				publisher.name = publisher_data['name']
-				publisher.desc = publisher_data['desc']
-				publisher.logo = publisher_data['image']
-
-				publisher.save()
-				series.publisher = publisher
-
-			else:
-				series.publisher = matching_publisher[0]
-
-			series.save()
-			issue.series = series
-
+			series = self._create_series(response_issue['results']['volume']['api_detail_url'])
 		else:
-			issue.series = matching_series[0]
+			series = self._update_series(matching_series[0].id, response_issue['results']['volume']['api_detail_url'])
 
-		# 4. Save issue.
-		issue.save()
+		# 3. Set Issue
+		issue_file = os.path.join(self.directory_path, filename)
+		matching_issue = Issue.objects.filter(file=issue_file)
 
-		# 5. Set Arcs info
+		if not matching_issue:		
+			issue = self._create_issue(issue_file, issue_api_url, series.id)
+		else:
+			issue = self._update_issue(matching_issue[0].id, issue_api_url)
+
+		# 4. Set Publisher
+		request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + '&field_list=publisher')
+		response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
+
+		matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
+
+		if not matching_publisher:
+			self._create_publisher(response_series['results']['publisher']['api_detail_url'], issue.series.id)
+		else:
+			issue.series.publisher = self._update_publisher(matching_publisher[0].id, response_series['results']['publisher']['api_detail_url'])
+
+		# 5. Set Arcs
 		for story_arc in response_issue['results']['story_arc_credits']:
-			time.sleep(1)
-
-			# Check to make sure the series doesn't already exist.
 			matching_arc = Arc.objects.filter(cvid=story_arc['id'])
-
 			if not matching_arc:
-				# Store Arc response
-				request_arc = Request(story_arc['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.arc_fields)
-				response_arc = json.loads(urlopen(request_arc).read().decode('utf-8'))
-				arc_data = self._get_object_data(response_arc['results'])
-
-				# Create Arc
-				issue.arcs.create(
-					cvid=arc_data['cvid'],
-					cvurl=arc_data['cvurl'],
-					name=arc_data['name'],
-					desc=arc_data['desc'] ,
-					image=arc_data['image'],
-				)
-
+				self._create_arc(story_arc['api_detail_url'], issue.id)
 			else:
-				# Add found Arc to dictionary
-				issue.arcs.add(matching_arc[0])
+				issue.arcs.add(self._update_arc(matching_arc[0].id, story_arc['api_detail_url']))
 
-		# 6. Set Characters info
+		# 6. Set Characters
 		for character in response_issue['results']['character_credits']:
-			time.sleep(1)
-
-			# Check to make sure the character doesn't already exist.
 			matching_character = Character.objects.filter(cvid=character['id'])
-
 			if not matching_character:
-				# Store Character response
-				request_character = Request(character['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.character_fields)
-				response_character = json.loads(urlopen(request_character).read().decode('utf-8'))
-				character_data = self._get_object_data(response_character['results'])
-
-				# Create Character
-				issue.characters.create(
-					cvid=character_data['cvid'],
-					cvurl=character_data['cvurl'],
-					name=character_data['name'],
-					desc=character_data['desc'],
-					image=character_data['image'],
-				)
-
+				self._create_character(character['api_detail_url'], issue.id)
 			else:
-				# Add found Character to Issue
-				issue.characters.add(matching_character[0])
+				issue.characters.add(self._update_character(matching_character[0].id, character['api_detail_url']))
 
-		# 7. Set Creators info
+		# 7. Set Creators
 		for person in response_issue['results']['person_credits']:
-			time.sleep(1)
-
-			# Check to make sure the character doesn't already exist.
 			matching_creator = Creator.objects.filter(cvid=person['id'])
-
 			if not matching_creator:
-				# Store Creator response
-				request_creator = Request(person['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.creator_fields)
-				response_creator = json.loads(urlopen(request_creator).read().decode('utf-8'))
-				creator_data = self._get_object_data(response_creator['results'])
-
-				# Create Creator
-				issue.creators.create(
-					cvid=creator_data['cvid'],
-					cvurl=creator_data['cvurl'],
-					name=creator_data['name'],
-					desc=creator_data['desc'],
-					image=creator_data['image'],
-				)
-
+				self._create_creator(person['api_detail_url'], issue.id)
 			else:
-				# Add found Character to Issue
-				issue.creators.add(matching_creator[0])
+				issue.creators.add(self._update_creator(matching_creator[0].id, person['api_detail_url']))
 
-		# 8. Set Teams info
+		# 8. Set Teams
 		for team in response_issue['results']['team_credits']:
-			time.sleep(1)
-
 			matching_team = Team.objects.filter(cvid=team['id'])
-
 			if not matching_team:
-				request_team = Request(team['api_detail_url'] + '?format=json&api_key=' + self._api_key + self.team_fields)
-				response_team = json.loads(urlopen(request_team).read().decode('utf-8'))
-				team_data = self._get_object_data(response_team['results'])
-
-				# Create Creator
-				issue.teams.create(
-					cvid=team_data['cvid'],
-					cvurl=team_data['cvurl'],
-					name=team_data['name'],
-					desc=team_data['desc'],
-					image=team_data['image'],
-				)
-
-				for character in response_team['results']['characters']:
-					matching_character = Character.objects.filter(cvid=character['id'])
-					if matching_character:
-						team_item = Team.objects.filter(cvid=team['id'])
-						matching_character[0].teams.add(team_item[0])
-
+				self._create_team(team['api_detail_url'], issue.id)
 			else:
-				issue.teams.add(matching_team[0])
+				issue.teams.add(self._update_team(matching_team[0].id, team['api_detail_url']))
 
 
 	#==================================================================================================
@@ -474,3 +362,394 @@ class CVScraper(object):
 		}
 
 		return data
+
+
+	#==================================================================================================
+
+	def _create_arc(self, api_url, issue_id):
+		''' 
+		Creates Arc from ComicVine API URL and adds it to
+		it's corresponding Issue.
+
+		Returns the Arc object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.arc_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		issue = Issue.objects.get(id=issue_id)
+
+		# Create Arc
+		a = issue.arcs.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return a
+
+
+	#==================================================================================================
+
+	def _create_character(self, api_url, issue_id):
+		''' 
+		Creates Character from ComicVine API URL and adds it to
+		it's corresponding Issue.
+
+		Returns the Character object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.character_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		issue = Issue.objects.get(id=issue_id)
+
+		# Create Character
+		ch = issue.characters.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return ch
+
+
+	#==================================================================================================
+
+	def _create_creator(self, api_url, issue_id):
+		''' 
+		Creates Creator from ComicVine API URL and adds it to
+		it's corresponding Issue.
+
+		Returns the Creator object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.creator_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		issue = Issue.objects.get(id=issue_id)
+
+		# Create Creator
+		cr = issue.creators.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return cr
+
+
+	#==================================================================================================
+
+	def _create_issue(self, file, api_url, series_id):
+		''' 
+		Creates Issue from ComicVine API URL and adds the 
+		corresponding Series.
+
+		Returns the Issue object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.issue_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		series = Series.objects.get(id=series_id)
+
+		# Create Issue
+		i = Issue.objects.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			number=data['number'],
+			date=data['date'],
+			file=file,
+			series=series,
+			cover=data['image'],
+		)
+
+		return i
+
+
+	#==================================================================================================
+
+	def _create_publisher(self, api_url, series_id):
+		''' 
+		Creates Publisher from ComicVine API URL and adds it to
+		it's corresponding Series.
+
+		Returns the Publisher object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.publisher_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Create Publisher
+		p = Publisher.objects.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			logo=data['image'],
+		)
+
+		# Add Publisher to Series
+		series = Series.objects.get(id=series_id)
+		series.publisher = p
+		series.save()
+
+		return p
+
+
+	#==================================================================================================
+
+	def _create_team(self, api_url, issue_id):
+		''' 
+		Creates Team from ComicVine API URL and adds it to
+		it's corresponding Issue.
+
+		Returns the Team object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.team_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		issue = Issue.objects.get(id=issue_id)
+
+		# Create Team
+		t = issue.teams.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		# Add existing Characters to Team
+		for character in response['results']['characters']:
+			matching_character = Character.objects.filter(cvid=character['id'])
+			if matching_character:
+				team_item = Team.objects.filter(cvid=t.cvid)
+				matching_character[0].teams.add(team_item[0])
+
+		return t
+
+
+	#==================================================================================================
+
+	def _create_series(self, api_url):
+		''' 
+		Creates Series from ComicVine API URL.
+
+		Returns the Series object created.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.series_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Create Series
+		s = Series.objects.create(
+			cvid=data['cvid'],
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			year=data['year'],
+		)
+
+		return s
+
+
+	#==================================================================================================
+
+	def _update_arc(self, obj_id, api_url):
+		''' 
+		Updates Arc from ComicVine API URL.
+
+		Returns the Arc object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.arc_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Arc
+		Arc.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return Arc.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_character(self, obj_id, api_url):
+		''' 
+		Updates Character from ComicVine API URL.
+
+		Returns the Character object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.character_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Character
+		Character.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return Character.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_creator(self, obj_id, api_url):
+		''' 
+		Updates Creator from ComicVine API URL.
+
+		Returns the Creator object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.creator_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Creator
+		Creator.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return Creator.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_issue(self, obj_id, api_url):
+		''' 
+		Updates Issue from ComicVine API URL.
+
+		Returns the Issue object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.issue_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Issue
+		Issue.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			number=data['number'],
+			date=data['date'],
+			cover=data['image'],
+		)
+
+		return Issue.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_publisher(self, obj_id, api_url):
+		''' 
+		Updates Publisher from ComicVine API URL.
+
+		Returns the Publisher object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.publisher_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Publisher
+		Publisher.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			logo=data['image'],
+		)
+
+		return Publisher.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_team(self, obj_id, api_url):
+		''' 
+		Updates Team from ComicVine API URL.
+
+		Returns the Team object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.team_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Team
+		Team.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			image=data['image'],
+		)
+
+		return Team.objects.get(id=obj_id)
+
+
+	#==================================================================================================
+
+	def _update_series(self, obj_id, api_url):
+		''' 
+		Updates Series from ComicVine API URL.
+
+		Returns the Series object udpated.
+		'''
+
+		# Request and Response
+		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.series_fields)
+		response = json.loads(urlopen(request).read().decode('utf-8'))
+		data = self._get_object_data(response['results'])
+
+		# Update Series
+		Series.objects.filter(id=obj_id).update(
+			cvurl=data['cvurl'],
+			name=data['name'],
+			desc=data['desc'],
+			year=data['year'],
+		)
+
+		return Series.objects.get(id=obj_id)
