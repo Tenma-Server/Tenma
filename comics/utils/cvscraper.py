@@ -53,12 +53,12 @@ class CVScraper(object):
 						   file.endswith(".cbt") or file.endswith(".tar"): 
 
 							# Attempt to find match
-							if not self._api_key == '':
+							if self._api_key != '':
 								cvid = self._find_match(file)
 							else:
 								cvid = ''
 
-							if not cvid == '':
+							if cvid != '':
 								# Scrape the issue
 								self._scrape_issue(file, cvid)
 								# Write to the .processed file
@@ -66,6 +66,37 @@ class CVScraper(object):
 							else:
 								# Create issue without cvid
 								self._create_issue_without_cvid(file)
+
+
+	#==================================================================================================
+
+	def reprocess_issue(self, issue_id):
+		''' Reprocess an existing issue in the comics directories. '''
+
+		processed_files_file = os.path.join(self.directory_path, '.processed')
+		processed_files = set(line.strip() for line in open(processed_files_file))
+
+		issue = Issue.objects.get(id=issue_id)
+		cvid = ''
+
+		# Check if there's already a cvid.
+		if issue.cvid and issue.cvid != '':
+			cvid = issue.cvid
+		else:
+			# Attempt to find match
+			if self._api_key != '':
+				cvid = self._find_match(issue.file)
+			else:
+				cvid = ''
+
+		# Update issue
+		with open(processed_files_file, "a") as pff:
+			if cvid != '':
+				# Scrape the issue
+				self._scrape_issue(issue.file, cvid)
+				# Write to the .processed file
+				if issue.file not in processed_files:
+					pff.write("%s\n" % issue.file)
 
 
 	#==================================================================================================
@@ -236,11 +267,10 @@ class CVScraper(object):
 			series = self._update_series(matching_series[0].id, response_issue['results']['volume']['api_detail_url'])
 
 		# 3. Set Issue
-		issue_file = os.path.join(self.directory_path, filename)
-		matching_issue = Issue.objects.filter(file=issue_file)
+		matching_issue = Issue.objects.filter(file=filename)
 
 		if not matching_issue:		
-			issue = self._create_issue(issue_file, issue_api_url, series.id)
+			issue = self._create_issue(os.path.join(self.directory_path, filename), issue_api_url, series.id)
 		else:
 			issue = self._update_issue(matching_issue[0].id, issue_api_url)
 
