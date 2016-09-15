@@ -1,4 +1,5 @@
 Django==1.10.1
 django-solo==1.1.2
+django-widget-tweaks==1.4.1
 Pillow==3.3.1
 rarfile==2.8

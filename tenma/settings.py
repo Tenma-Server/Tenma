@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'widget_tweaks',
     'solo.apps.SoloAppConfig',
     'comics.apps.ComicsConfig',
     'django.contrib.admin',

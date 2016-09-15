@@ -14,22 +14,6 @@ $(window).load(function(){
 		itemMargin: 15
 	});
 
-	/* Settings Overlay */
-
-	// Open/Close Overlay
-	$('#navbar .settings-button').click(function(){
-		if ($('#settings-overlay').hasClass('open')) {
-			$('#settings-overlay').removeClass('open');
-		} else {
-			$('#settings-overlay').addClass('open');
-			loadSettings();
-		}
-	});
-
-	$('.close-settings').click(function(){
-		$('#settings-overlay').removeClass('open');
-	});
-
 	/*
 	 *	Reader Functions
 	 */
@@ -82,13 +66,3 @@ $(window).load(function(){
 	$('.reader').find('.page-count').find('.page-total').text(pageCount);
 
 });
-
-// Ajax call for settings
-function loadSettings() {
-	$.ajax({
-		url: "/settings",
-		context: document.body
-	}).done(function(response) {
-		$('.settings-form').html(response);
-	});
-}

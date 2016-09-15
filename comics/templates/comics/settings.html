@@ -1,9 +1,0 @@
-<form action="{% url 'comics:settings' %}" method="post" id="settings-update">{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" value="Save" />
-</form>
-
-<script>
-	var form_options = { target: '.settings-form', success: function(response) { loadSettings(); } };
-	$('#settings-update').ajaxForm(form_options);
-</script>

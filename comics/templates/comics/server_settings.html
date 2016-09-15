@@ -1,0 +1,30 @@
+{% load widget_tweaks %}
+<div class="modal-dialog modal-lg" role="document">
+	<form action="{% url 'comics:server-settings' %}" method="post" id="server-settings" class="form">{% csrf_token %}
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Server Settings</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<i class="close-settings fa fa-times-circle"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<a class="import-comics button" href="{% url 'comics:importer' %}">Import Comics</a>
+				{{ form.media }}
+				{% for field in form.visible_fields %}
+					{{ field.errors }}
+					{{ field.label_tag }}
+					{{ field|attr:"class:form-control" }}
+					<p class="helptext">{{ field.help_text|safe }}</p>
+				{% endfor %}
+			</div>
+			<div class="modal-footer">
+				<input type="submit" class="btn btn-primary" value="Save changes" />
+			</div>
+		</div><!-- /.modal-content -->
+	</form>
+</div><!-- /.modal-dialog -->
+<script>
+    var form_options = { target: '#modal', success: function(response) {} };
+    $('#server-settings').ajaxForm(form_options);
+</script>

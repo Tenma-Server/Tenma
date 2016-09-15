@@ -4,7 +4,7 @@
  *  Globals
  */
 
-a, p, h1, h2, h3, h4, h5, h6, i {
+a, p, h1, h2, h3, h4, h5, h6, i, label, ul, li {
 	color: #ececec;
 	font-family: 'Open Sans', sans-serif;
 }
@@ -13,9 +13,48 @@ a {
 	text-decoration: none;
 }
 
+a, button {
+	outline: none;
+}
+
 body {
 	margin: 0;
 	background-color: #252525;
+}
+
+input {
+	display: inline-block;
+    font-size: 14px;
+    padding: 5px 10px;
+    background: #ececec;
+    color: #252525;
+    border: none;
+    border-radius: 5px;
+    width: auto;
+}
+
+button,
+input[type=submit],
+a.button {
+	display: block;
+    text-align: center;
+    font-size: 14px;
+    padding: 5px 10px;
+    background: #ececec;
+    color: #252525;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.5s all;
+    -moz-transition: 0.5s all;
+    -webkit-transition: 0.5s all;
+    -ms-transition: all 0.5s linear;
+}
+
+button:hover,
+input[type=submit]:hover,
+a.button:hover {
+	background: #929292;
 }
 
 .page {
@@ -92,22 +131,21 @@ footer .metadata-disclaimer img {
     margin: 12px 0
 }
 
-#settings-overlay {
+#modal {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     width: 100vw;
     background: rgba(0,0,0,0.7);
-    color: black;
     display: none;
 }
 
-#settings-overlay.open {
+#modal.open {
     display: block;
 }
 
-.settings-container {
+#modal .modal-dialog {
 	position: fixed;
     background-color: #252525;
     border-radius: 10px;
@@ -116,61 +154,60 @@ footer .metadata-disclaimer img {
     transform: translate(-50%, -50%);
 }
 
-.settings-title {	
+#modal .modal-header {	
 	background-color: #151515;
     height: 50px;
     border-radius: 10px 10px 0 0;
 }
 
-.settings-title h3 {
+#modal .modal-header h3 {
 	margin: 0;
 	padding: 10px 20px;
 	float: left;
 }
 
-.settings-title .close-settings {
+#modal .modal-header .close {
 	float: right;
 	cursor: pointer;
-    padding: 13px 20px;
+    padding: 11px 20px;
     font-size: 24px;
+    border: none;
+    background-color: transparent;
 }
 
-.settings-body {
-	padding: 10px 20px;
+#modal .modal-body {
+	padding: 20px 20px 5px 20px;
 }
 
-.import-comics {
-	display: block;
-    width: 100px;
-    text-align: center;
-    font-size: 14px;
-    padding: 5px 10px;
-    margin: 10px 0;
-    background: #ececec;
-    color: #252525;
-    border-radius: 5px;
-    transition: 0.5s all;
-    -moz-transition: 0.5s all;
-    -webkit-transition: 0.5s all;
-    -ms-transition: all 0.5s linear;
+#modal .modal-footer {
+	padding: 5px 20px 20px 20px;
 }
 
-.import-comics:hover {
-	background: #929292;
+a.button.import-comics {
+    width: 110px;
+    margin-bottom: 17px;
 }
 
-#settings-overlay form input[type=text] {
-	width: 250px;
+#modal form label {
+	margin-right: 5px;
 }
 
-#settings-overlay form .helptext {
+#modal form input[type=text] {
+	width: 330px;
+}
+
+#modal form .helptext {
 	display: block;
 	font-style: italic;
 	font-size: 12px;
 }
 
-#settings-overlay form .helptext a {
+#modal form .helptext a {
 	text-decoration: underline;
+}
+
+#modal .modal-body .errorlist {
+	margin-top: 0;
 }
 
 /*
