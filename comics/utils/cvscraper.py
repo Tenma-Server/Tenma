@@ -366,9 +366,10 @@ class CVScraper(object):
 		if 'deck' in response:
 			if response['deck']:
 				desc = response['deck']
-		elif 'description' in response:
-			if response['description']:
-				desc = response['description']
+		if desc == '':
+			if 'description' in response:
+				if response['description']:
+					desc = response['description']
 
 		# Get Image
 		image = ''
