@@ -42,7 +42,15 @@ $(window).load(function(){
 		slideshow: false,
 		controlNav: false,
 		maxItems: 1,
-		before: function(){ window.scrollTo(0,0); }  // Moves window back to top when slide changes.
+		before: function(){ 
+			window.scrollTo(0,0);  // Moves window back to top when slide changes.
+		},
+		after: function(){
+			/* Update page number */
+			var pageNumber = $('.flex-active-slide').attr('class').match(/page-(\d+)/)[1];
+			console.log(pageNumber)
+			$('.page-count').find('.current-page').text(pageNumber);
+		}
 	});
 
 	/* Hide Navbar */
@@ -68,6 +76,10 @@ $(window).load(function(){
 			$(this).addClass('full-width');
 		})
 	});
+
+	/* Reader Page Count */
+	var pageCount = $('.reader li.page').length;
+	$('.reader').find('.page-count').find('.page-total').text(pageCount);
 
 });
 

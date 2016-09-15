@@ -591,18 +591,18 @@ footer .metadata-disclaimer img {
 	display: inline-block;
 }
 
-.reader .reader-controls > div {
+.reader .reader-controls .button {
 	display: inline-block;
 	margin-right: 5px;
 	cursor: pointer;
 }
 
-.reader .reader-controls > div:hover i,
-.reader .reader-controls > div:hover p {
+.reader .reader-controls .button:hover i,
+.reader .reader-controls .button:hover p {
 	color: #929292;
 }
 
-.reader .reader-controls i {
+.reader .reader-controls .button i {
 	color: #ececec;
 	margin: 0 5px;
 	transition: 0.5s all;
@@ -611,7 +611,7 @@ footer .metadata-disclaimer img {
     -ms-transition: all 0.5s linear;
 }
 
-.reader .reader-controls p {
+.reader .reader-controls .button p {
 	font-size: 14px;
 	display: inline-block;
 	margin: 0;
@@ -619,6 +619,12 @@ footer .metadata-disclaimer img {
     -moz-transition: 0.25s all;
     -webkit-transition: 0.25s all;
     -ms-transition: all 0.25s linear;
+}
+
+.reader .reader-controls .page-count {
+	position: fixed;
+    right: 30px;
+    top: 0;
 }
 
 .reader footer {
