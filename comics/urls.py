@@ -16,6 +16,5 @@ urlpatterns = [
 	url(r'^publisher/(?P<pk>[0-9]+)$', views.PublisherView.as_view(), name='publisher'),
 	url(r'^creator/(?P<pk>[0-9]+)$', views.CreatorView.as_view(), name='creator'),
 	url('importer', views.importer, name='importer'),
-	url(r'^settings', views.SettingsView.as_view(), name='settings'),
 	url(r'^server-settings', views.ServerSettingsView.as_view(), name='server-settings'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
