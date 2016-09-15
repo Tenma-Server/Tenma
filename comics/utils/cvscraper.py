@@ -380,7 +380,7 @@ class CVScraper(object):
 				image_filename = unquote_plus(image_url.split('/')[-1])
 				image = utils.test_image(urlretrieve(image_url, 'media/images/' + image_filename)[0])
 
-		# Create Character
+		# Create data object
 		data = {
 			'cvid': response['id'],  				# Always exists
 			'cvurl': response['site_detail_url'],  	# Always exists
