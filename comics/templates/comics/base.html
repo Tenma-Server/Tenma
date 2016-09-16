@@ -19,7 +19,7 @@
             <div id="navbar">
                 <a class="logo" href="/">Tenma</a>
                 {% block menu %}
-                    <a data-toggle="modal" data-target="#modal" href="{% url 'comics:server-settings' %}"><i class="settings-button fa fa-cog"></i></a>
+                    <a data-toggle="modal" data-target="#modal"><i class="settings-button fa fa-cog"></i></a>
                 {% endblock %}
             </div>
         </header>
@@ -43,8 +43,8 @@
     <div class="modal" id="modal"></div>
 
     <script>
-        $('#modal').on('show.bs.modal', function (event) {
-            var modal = $(this)
+        $('.settings-button').on('click', function (event) {
+            var modal = $('#modal')
             $.ajax({
                 url: "{% url 'comics:server-settings' %}",
                 context: document.body
