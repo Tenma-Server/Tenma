@@ -283,7 +283,7 @@ class CVScraper(object):
 		if not matching_publisher:
 			self._create_publisher(response_series['results']['publisher']['api_detail_url'], issue.series.id)
 		else:
-			issue.series.publisher = self._update_publisher(matching_publisher[0].id, response_series['results']['publisher']['api_detail_url'])
+			self._update_publisher(matching_publisher[0].id, response_series['results']['publisher']['api_detail_url'], issue.series.id)
 
 		# 5. Set Arcs
 		for story_arc in response_issue['results']['story_arc_credits']:
@@ -719,7 +719,7 @@ class CVScraper(object):
 
 	#==================================================================================================
 
-	def _update_publisher(self, obj_id, api_url):
+	def _update_publisher(self, obj_id, api_url, series_id):
 		''' 
 		Updates Publisher from ComicVine API URL.
 
@@ -738,6 +738,11 @@ class CVScraper(object):
 			desc=data['desc'],
 			logo=data['image'],
 		)
+
+		# Add Publisher to Series
+		series = Series.objects.get(id=series_id)
+		series.publisher = Publisher.objects.get(id=obj_id)
+		series.save()
 
 		return Publisher.objects.get(id=obj_id)
 
