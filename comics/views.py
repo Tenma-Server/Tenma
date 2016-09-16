@@ -1,26 +1,26 @@
 from django.shortcuts import get_object_or_404, render
-from django.views import generic
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
-
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
 from .utils.cvscraper import CVScraper
 
-class IndexView(generic.ListView):
+class IndexView(ListView):
 	template_name = 'comics/index.html'
 	context_object_name = 'all_series'
 
 	def get_queryset(self):
 		return Series.objects.order_by('name')
 
-class SeriesView(generic.DetailView):
+class SeriesView(DetailView):
 	model = Series
 	template_name = 'comics/series.html'
 
-class IssueView(generic.DetailView):
+class IssueView(DetailView):
 	model = Issue
 	template_name = 'comics/issue.html'
 	
-class CharacterView(generic.DetailView):
+class CharacterView(DetailView):
 	model = Character
 	template_name = 'comics/character.html'
 
@@ -30,7 +30,7 @@ class CharacterView(generic.DetailView):
 		context['issue_list'] = character.issue_set.all().order_by('series__name', 'number')
 		return context
 
-class ArcView(generic.DetailView):
+class ArcView(DetailView):
 	model = Arc
 	template_name = 'comics/arc.html'
 
@@ -40,7 +40,7 @@ class ArcView(generic.DetailView):
 		context['issue_list'] = arc.issue_set.all().order_by('series__name', 'number')
 		return context
 
-class TeamView(generic.DetailView):
+class TeamView(DetailView):
 	model = Team
 	template_name = 'comics/team.html'
 
@@ -50,11 +50,11 @@ class TeamView(generic.DetailView):
 		context['issue_list'] = team.issue_set.all().order_by('series__name', 'number')
 		return context
 
-class PublisherView(generic.DetailView):
+class PublisherView(DetailView):
 	model = Publisher
 	template_name = 'comics/publisher.html'
 
-class CreatorView(generic.DetailView):
+class CreatorView(DetailView):
 	model = Creator
 	template_name = 'comics/creator.html'
 
@@ -64,7 +64,7 @@ class CreatorView(generic.DetailView):
 		context['issue_list'] = creator.issue_set.all().order_by('series__name', 'number')
 		return context
 
-class ServerSettingsView(generic.edit.UpdateView):
+class ServerSettingsView(UpdateView):
 	model = Settings
 	fields = '__all__'
 	template_name = 'comics/server_settings.html'
