@@ -333,6 +333,13 @@ a.button.reprocess-issue {
 	display: none;
 }
 
+.no-series p,
+.no-results p {
+	text-align: center;
+    font-size: 22px;
+    margin: 70px 0;
+}
+
 .all-series {
 	padding: 0 30px;
 }

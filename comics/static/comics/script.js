@@ -38,10 +38,12 @@ $(window).load(function(){
 			}
 		});
 
+		$('.no-results').hide();
+
 		// Update the count
         var numberItems = count;
-        if (count = 0) {
-        	$('.no-results').show();
+        if (count == 0) {
+        	$('.no-results').fadeIn();
         }
 	});
 
