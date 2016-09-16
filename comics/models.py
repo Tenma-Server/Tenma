@@ -102,7 +102,7 @@ class Series(models.Model):
 		verbose_name_plural = "Series"
 
 class Issue(models.Model):
-	cvid = models.CharField(max_length=15, blank=True)
+	cvid = models.CharField('ComicVine ID', max_length=15, blank=True)
 	cvurl = models.URLField(max_length=200, blank=True)
 	series = models.ForeignKey(Series, on_delete=models.CASCADE, blank=True)
 	name = models.CharField('Issue name', max_length=200, blank=True)
@@ -118,6 +118,9 @@ class Issue(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_absolute_url(self):
+		return reverse('author-detail', kwargs={'pk': self.pk})
 
 	def page_set(self):
 

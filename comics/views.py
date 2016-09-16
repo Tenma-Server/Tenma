@@ -76,6 +76,15 @@ class ServerSettingsView(UpdateView):
 		self.object = form.save()
 		return render(self.request, 'comics/server-settings-success.html', {'server-settings': self.object})
 
+class IssueUpdateView(UpdateView):
+	model = Issue
+	fields = ['cvid']
+	template_name = 'comics/issue_update.html'
+
+	def form_valid(self, form):
+		self.object = form.save()
+		return render(self.request, 'comics/issue_update_success.html', {'issue-update': self.object})
+
 def read(request, issue_id):
 	issue = get_object_or_404(Issue, pk=issue_id)
 	return render(request, 'comics/read.html', {'issue': issue})
@@ -84,3 +93,8 @@ def importer(request):
 	cvscraper = CVScraper()
 	cvscraper.process_issues()
 	return HttpResponseRedirect('/')
+
+def reprocess(request, issue_id):
+	cvscraper = CVScraper()
+	cvscraper.reprocess_issue(issue_id)
+	return HttpResponseRedirect('/issue/' + issue_id)

@@ -121,7 +121,7 @@ footer .metadata-disclaimer img {
 }
 
 /*
- *	Settings Overlay
+ *	Server Settings Modal
  */
 
 #navbar .settings-button {
@@ -209,6 +209,15 @@ a.button.import-comics {
 #modal .modal-body .errorlist {
 	margin-top: 0;
 }
+
+/*
+ *	Issue Update Modal
+ */
+
+a.button.reprocess-issue {
+    width: 70px;
+}
+
 
 /*
  *	Flexslider - Related Sliders
@@ -506,35 +515,7 @@ a.button.import-comics {
 	position: relative;
 }
 
-.issue-cover i {
-	visibility: hidden;
-    opacity: 0;
-    display: inline-block;
-    position: absolute;
-    z-index: 10;
-    text-align: center;
-    width: 100%;
-    font-size: 8rem;
-    top: 50%;
-    transform: translate(0, -50%);
-    transition: 0.5s all;
-    -moz-transition: 0.5s all;
-    -webkit-transition: 0.5s all;
-    -ms-transition: all 0.5s linear;
-}
-
-.issue-cover a {
-	font-size: 0;
-}
-
-.issue-cover a:hover i {
-	visibility: visible;
-    opacity: 1;
-}
-
-.issue-cover .issue-cover-image:after {
-	content: '.';
-	font-size: 0;
+.issue-cover-overlay {
 	width: 100%;
 	height: 100%;
 	position: absolute;
@@ -547,8 +528,43 @@ a.button.import-comics {
     -ms-transition: all 0.5s linear;
 }
 
-.issue-cover a:hover .issue-cover-image:after {
+.issue-cover i {
+	visibility: hidden;
+    opacity: 0;
+    display: inline-block;
+    position: absolute;
+    z-index: 10;
+    transition: 0.5s all;
+    -moz-transition: 0.5s all;
+    -webkit-transition: 0.5s all;
+    -ms-transition: all 0.5s linear;
+}
+
+.issue-cover i:hover {
+	color: #bfbfbf;
+}
+
+.issue-cover i.read-button {
+	text-align: center;
+    font-size: 8rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.issue-cover i.issue-update-button {
+	font-size: 2.5rem;
+	bottom: 10px;
+	right: 10px;
+}
+
+.issue-cover .issue-cover-image:hover .issue-cover-overlay{
 	background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.issue-cover-overlay:hover i {
+	visibility: visible;
+    opacity: 1;
 }
 
 .issue-cover img {

@@ -19,5 +19,7 @@ urlpatterns = [
 	url(r'^publisher/(?P<pk>[0-9]+)$', PublisherView.as_view(), name='publisher'),
 	url(r'^creator/(?P<pk>[0-9]+)$', CreatorView.as_view(), name='creator'),
 	url('importer', importer, name='importer'),
+	url(r'^issue/(?P<pk>[0-9]+)/update/$', IssueUpdateView.as_view(), name='issue-update'),
+	url(r'^issue/(?P<issue_id>[0-9]+)/reprocess$', reprocess, name='reprocess'),
 	url(r'^server-settings', ServerSettingsView.as_view(), name='server-settings'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
