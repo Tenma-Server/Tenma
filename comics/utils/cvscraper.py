@@ -272,7 +272,7 @@ class CVScraper(object):
 		if not matching_issue:		
 			issue = self._create_issue(os.path.join(self.directory_path, filename), issue_api_url, series.id)
 		else:
-			issue = self._update_issue(matching_issue[0].id, issue_api_url)
+			issue = self._update_issue(matching_issue[0].id, issue_api_url, series.id)
 
 		# 4. Set Publisher
 		request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + '&field_list=publisher')
@@ -686,7 +686,7 @@ class CVScraper(object):
 
 	#==================================================================================================
 
-	def _update_issue(self, obj_id, api_url):
+	def _update_issue(self, obj_id, api_url, series_id):
 		''' 
 		Updates Issue from ComicVine API URL.
 
@@ -698,6 +698,11 @@ class CVScraper(object):
 		response = json.loads(urlopen(request).read().decode('utf-8'))
 		data = self._get_object_data(response['results'])
 
+		issue =Issue.objects.get(id=obj_id)
+		self._reset_issue(issue.id)
+
+		series = Series.objects.get(id=series_id)
+
 		# Update Issue
 		Issue.objects.filter(id=obj_id).update(
 			cvurl=data['cvurl'],
@@ -705,6 +710,7 @@ class CVScraper(object):
 			desc=data['desc'],
 			number=data['number'],
 			date=data['date'],
+			series=series,
 			cover=data['image'],
 		)
 
@@ -784,3 +790,28 @@ class CVScraper(object):
 		)
 
 		return Series.objects.get(id=obj_id)
+
+	#==================================================================================================
+
+	def _reset_issue(self, obj_id):
+		''' 
+		Resets an Issue's fields.
+
+		Returns the Issue object that was reset.
+		'''
+		issue = Issue.objects.get(id=obj_id)
+
+		issue.cvurl = ''
+		issue.name = ''
+		issue.number = 1
+		issue.date = datetime.date.today()
+		issue.desc = ''
+		issue.arcs.clear()
+		issue.characters.clear()
+		issue.creators.clear()
+		issue.teams.clear()
+		issue.cover = ''
+
+		issue.save()
+
+		return Issue.objects.get(id=obj_id)
