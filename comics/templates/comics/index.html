@@ -6,6 +6,11 @@
 
 {% block content %}
 
+<div class="series-filter-wrapper">
+	<i class="fa fa-search"></i>
+	<input id="series-filter" type="text">
+</div>
+
 <div class="all-series">
 {% if all_series %}
 	<ul>
@@ -23,6 +28,9 @@
 {% else %}
 	<p>No series currently available.</p>
 {% endif %}
+	<div class="no-results">
+		<p>No series match your search.</p>
+	</div>
 </div>
 
 {% endblock content %}

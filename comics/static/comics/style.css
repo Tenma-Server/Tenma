@@ -304,6 +304,35 @@ a.button.reprocess-issue {
  *	Homepage Series Listing
  */
 
+.series-filter-wrapper {
+	margin: 5px auto;
+    padding: 0 30px;
+    max-width: 480px;
+    position: relative;
+}
+
+.series-filter-wrapper i {
+	font-size: 1.25rem;
+    position: absolute;
+    color: #cac7c7;
+    top: 6px;
+    left: 36px;
+}
+
+#series-filter {
+	outline: none;
+    max-width: 480px;
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 18px;
+    padding-left: 30px;
+    box-sizing: border-box;
+}
+
+.no-results {
+	display: none;
+}
+
 .all-series {
 	padding: 0 30px;
 }

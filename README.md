@@ -7,6 +7,7 @@ Tenma is a comic server built on Django that allows you to store, organize, and 
 ## Features ##
 
 * Read your comics from any device that has a browser.
+* Live search through all of your series.
 * Two view modes. Fit the comic horizontally or vertically to your browser window.
 * Comic navigation with arrow buttons, or with your keyboard's arrow keys.
 * Supports CBZ, ZIP, CBR, RAR, CBT and TAR formats.

@@ -4,6 +4,7 @@ $(window).load(function(){
 	 *	General Functions
 	 */
 
+
 	/* Flexslider for related blocks */
 	$('.related-slider').flexslider({
 		animation: "slide",
@@ -12,6 +13,36 @@ $(window).load(function(){
 		controlNav: false,
 		itemWidth: 200,
 		itemMargin: 15
+	});
+
+	/*
+	 *	Instant Search Functions
+	 */
+
+	$("#series-filter").keyup(function(){
+		// Retrieve the input field text and reset the count to zero
+		var filter = $(this).val(), count = 0;
+
+		// Loop through the comment list
+		$(".all-series ul li a p").each(function(){
+
+
+			// If the list item does not contain the text phrase fade it out
+			if ($(this).text().search(new RegExp(filter, "i")) < 0) {
+				$(this).parent('a').parent('li').fadeOut();
+
+			// Show the list item if the phrase matches and increase the count by 1
+			} else {
+				$(this).parent('a').parent('li').fadeIn();
+				count++;
+			}
+		});
+
+		// Update the count
+        var numberItems = count;
+        if (count = 0) {
+        	$('.no-results').show();
+        }
 	});
 
 	/*
