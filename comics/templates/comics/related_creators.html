@@ -1,4 +1,5 @@
 {% load simple_crop %}
+{% load staticfiles %}
 
 {% if creator_list %}
 <div class="related related-creators">
@@ -9,7 +10,11 @@
 			<li>
 				<a href="{% url 'comics:creator' creator.id %}">
 					<div class="image">
-						<img src="{{ creator.image|smartcrop:"200x305"|urlencode }}" alt = "{{ creator.name }}" >
+					{% if creator.image %}
+						<img src="{{ creator.image|smartcrop:"200x305"|urlencode }}" alt="{{ creator.name }}" >
+					{% else %}
+						<img src="{% static 'comics/image-not-found.png' %}" alt="{{ creator.name }}" >
+					{% endif %}
 					</div>
 				</a>
 				<a href="{% url 'comics:creator' creator.id %}"><p>{{ creator.name }}</p></a>

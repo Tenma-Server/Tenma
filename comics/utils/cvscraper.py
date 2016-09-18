@@ -3,7 +3,7 @@ from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
-import json, os, time, datetime
+import json, os, time, datetime, re
 
 class CVScraper(object):
 
@@ -378,7 +378,8 @@ class CVScraper(object):
 			if response['image']:
 				image_url = self.imageurl + response['image']['super_url'].rsplit('/', 1)[-1]
 				image_filename = unquote_plus(image_url.split('/')[-1])
-				image = utils.test_image(urlretrieve(image_url, 'media/images/' + image_filename)[0])
+				if image_filename != '1-male-good-large.jpg' and not re.match(".*question_mark_large.*.jpg", image_filename):
+					image = utils.test_image(urlretrieve(image_url, 'media/images/' + image_filename)[0])
 
 		# Create data object
 		data = {

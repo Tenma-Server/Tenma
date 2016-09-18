@@ -1,4 +1,5 @@
 {% load simple_crop %}
+{% load staticfiles %}
 
 {% if issue_list %}
 <div class="related related-issues">
@@ -9,7 +10,11 @@
 			<li>
 				<a href="{% url 'comics:issue' issue.id %}">
 					<div class="image">
-						<img src="{{ issue.cover|smartcrop:"200x305"|urlencode }}" alt = "{{ series.name }}" >
+						{% if issue.cover %}
+							<img src="{{ issue.cover|smartcrop:"200x305"|urlencode }}" alt = "{{ series.name }}" >
+						{% else %}
+							<img src="{% static 'comics/image-not-found.png' %}" alt="{{ series.name }}" >
+						{% endif %}
 					</div>
 				</a>
 				<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>

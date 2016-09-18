@@ -1,4 +1,5 @@
 {% load simple_crop %}
+{% load staticfiles %}
 
 <div class="related related-series">
 	<h2>Series</h2>
@@ -8,7 +9,11 @@
 			<li>
 				<a href="{% url 'comics:series' series.id %}">
 					<div class="image">
-						<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"200x305"|urlencode }}" alt = "{{ seriesname }}" >
+						{% if series.issue_numerical_order_set.first.cover %}
+							<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"200x305"|urlencode }}" alt="{{ seriesname }}" >
+						{% else %}
+							<img src="{% static 'comics/image-not-found.png' %}" alt="{{ seriesname }}" >
+						{% endif %}
 					</div>
 				</a>
 				<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
