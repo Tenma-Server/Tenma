@@ -4,6 +4,7 @@
 <html lang="en">
     <head>
         <title>Tenma</title>
+        <link rel="shortcut icon" type="image/png" href="{% static 'comics/tenma-favicon.png' %}"/>
         <link rel="stylesheet" href="{% static 'comics/flexslider/flexslider.css' %}" type="text/css">
         <link rel="stylesheet" type="text/css" href="{% static 'comics/style.css' %}" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -17,7 +18,7 @@
     <body class="{% block page-type %}{% endblock %}">
         <header>
             <div id="navbar">
-                <a class="logo" href="/">Tenma</a>
+                <a class="logo" href="/"><img src="{% static 'comics/tenma-logo.png' %}"></a>
                 {% block menu %}
                     <a data-toggle="modal" data-target="#modal"><i class="settings-button fa fa-cog"></i></a>
                 {% endblock %}

@@ -123,7 +123,6 @@ class Issue(models.Model):
 		return reverse('author-detail', kwargs={'pk': self.pk})
 
 	def page_set(self):
-
 		comicfilehandler = ComicFileHandler()
 		comic = comicfilehandler.extract_comic(self.file, self.id)
 
