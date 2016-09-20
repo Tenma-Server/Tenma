@@ -51,6 +51,14 @@ $(window).load(function(){
 	 *	Reader Functions
 	 */
 
+	/* Lazy Load */
+	var lazyImages = $('.reader img.lazy-load');
+	// console.log(lazyImages);
+	lazyImages[0].src = lazyImages[0].getAttribute('data-source');
+	for (i = 1; i < 3; i++) {
+		lazyImages[i].src = lazyImages[i].getAttribute('data-source');
+	}
+
 	/* Flexslider */
 	$('.reader-slider').flexslider({
 		animation: "fade",
@@ -65,8 +73,12 @@ $(window).load(function(){
 		after: function(){
 			/* Update page number */
 			var pageNumber = $('.flex-active-slide').attr('class').match(/page-(\d+)/)[1];
-			console.log(pageNumber)
 			$('.page-count').find('.current-page').text(pageNumber);
+			/* Lazy load the next few images. */
+			pageNumberInt = parseInt(pageNumber, 10)
+			for (i = pageNumberInt; i < pageNumberInt + 2; i++) {
+				lazyImages[i].src = lazyImages[i].getAttribute('data-source');
+			}
 		}
 	});
 

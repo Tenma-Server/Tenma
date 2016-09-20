@@ -4,6 +4,7 @@ from shutil import copyfile
 from django.conf import settings
 from operator import attrgetter
 from . import fnameparser
+from . import utils
 from urllib.parse import quote
 
 class ComicFileHandler(object):
@@ -94,6 +95,11 @@ class ComicFileHandler(object):
 
 		# Get a list of pages
 		pages = self._get_file_list(temppath)
+
+		for root, dirs, files in os.walk(temppath):
+			for file in files:
+				image_path = root + '/' + file
+				utils.optimize_image(image_path, 75, 1920)
 
 		return {'mediaurl': mediaurl, 'pages': pages}
 
@@ -186,7 +192,8 @@ class ComicFileHandler(object):
 			i = 0
 			for file in sorted_files:
 				file_ext = os.path.splitext(file)[1].lower()
-				if file_ext == '.jpg' or file_ext == '.jpeg':
+				if file_ext == '.jpg' or file_ext == '.jpeg' or\
+				   file_ext == '.png' or file_ext == '.gif':
 					path = os.path.join(root,file)
 					numbered_file = "%03d" % (i,) + file_ext
 					os.rename(path, filepath + '/' + numbered_file)
@@ -208,7 +215,8 @@ class ComicFileHandler(object):
 
 		for f in sorted_list:
 			f_ext = os.path.splitext(f)[1].lower()
-			if f_ext == '.jpg' or f_ext == '.jpeg':
+			if f_ext == '.jpg' or f_ext == '.jpeg' or\
+			   f_ext == '.png' or f_ext == '.gif':
 				return f
 
 

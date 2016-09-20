@@ -1,4 +1,5 @@
 {% extends "comics/base.html" %}
+{% load staticfiles %}
 
 {% block menu %}
 	<div class="reader-controls">
@@ -23,7 +24,7 @@
 		{% for item in issue.page_set.pages %}
 		{% with mediaurl=issue.page_set.mediaurl %}
 		<li class="page page-{{ forloop.counter }}">
-			<img src="{{ mediaurl }}{{ item }}">
+			<img src="{% static 'comics/image-loading.png' %}" data-source="{{ mediaurl }}{{ item }}"" class="lazy-load" alt="Page #{{ forloop.counter }}" >
 		</li>
 		{% endwith %}
 		{% endfor %}

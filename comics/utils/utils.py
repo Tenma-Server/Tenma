@@ -188,3 +188,22 @@ def test_image(image_path):
       pass
 
    return path
+
+
+#==============================================================================
+def optimize_image(image_path, output_quality, base_width):
+   ''' Optimizes image and returns a filepath string '''
+
+   img = Image.open(image_path)
+
+   # Check that it's a supported format
+   format = str(img.format)
+   if format == 'PNG' or format == 'JPEG':
+      if base_width < img.size[0]:
+         wpercent = (base_width/float(img.size[0]))
+         hsize = int((float(img.size[1])*float(wpercent)))
+         img = img.resize((base_width,hsize), Image.BICUBIC)
+      # The 'quality' option is ignored for PNG files
+      img.save(image_path, quality=output_quality, optimize=True)
+
+   return image_path
