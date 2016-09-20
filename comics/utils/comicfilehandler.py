@@ -1,4 +1,4 @@
-import os,rarfile,zipfile,tarfile,re
+import os,rarfile,zipfile,tarfile,re,sys
 import comics
 from shutil import copyfile
 from django.conf import settings
@@ -12,10 +12,12 @@ class ComicFileHandler(object):
 
 	def __init__(self):
 		# Set the unrar tool based on filesystem
-		if os.name == 'nt':
+		if sys.platform == 'win32':		# Windows
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
-		else:
-			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar"
+		elif sys.platform == 'darwin':	# Mac
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
+		elif sys.platform == 'linux2':	# Linux
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar-nonfree_ubuntu"
 			
 
 	#==================================================================================================
@@ -44,12 +46,14 @@ class ComicFileHandler(object):
 				# Check if file does not exists
 				if not os.path.isdir(tempfile):
 					copyfile(file, tempfile)
+					os.chmod(tempfile, 0o777)
 		else:
 			# Check if file exists
 			if os.path.isdir(tempfile):
 				os.mkdir(temppath)
 			else:
 				copyfile(file, tempfile)
+				os.chmod(tempfile, 0o777)
 				os.mkdir(temppath)
 
 		# Check for CBR or RAR
@@ -117,6 +121,7 @@ class ComicFileHandler(object):
 			# Change CBR to RAR
 			if extension == '.cbr':
 				copyfile(file, tempfile)
+				os.chmod(tempfile, 0o777)
 				newext = tempfile.replace('.cbr', '.rar')
 				os.rename(tempfile, newext)
 				rf = rarfile.RarFile(newext)
@@ -131,6 +136,7 @@ class ComicFileHandler(object):
 		elif extension == '.cbz' or extension == '.zip':
 			if extension == '.cbz':
 				copyfile(file, tempfile)
+				os.chmod(tempfile, 0o777)
 				newext = tempfile.replace('.cbz', '.zip')
 				os.rename(tempfile, newext)
 				z = zipfile.ZipFile(newext)
@@ -146,6 +152,7 @@ class ComicFileHandler(object):
 		elif extension == '.cbt' or extension == '.tar':
 			if extension == '.cbt':
 				copyfile(file, tempfile)
+				os.chmod(tempfile, 0o777)
 				newext = tempfile.replace('.cbt', '.tar')
 				os.rename(tempfile, newext)
 				t = tarfile.TarFile(newext)
