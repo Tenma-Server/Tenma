@@ -250,7 +250,7 @@ class ComicFileHandler(object):
 		
 		path_normalise = re.compile(r"[/\\]")
 
-		filepath_parts = path_normalise.sub("#", filepath).split('#')
+		filepath_parts = path_normalise.sub("`", filepath).split('`')
 
 		path = ''
 
