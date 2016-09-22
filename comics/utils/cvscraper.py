@@ -1,9 +1,9 @@
-from urllib.request import urlretrieve, urlopen, Request
+import json, os, time, datetime, re, requests
+from urllib.request import urlretrieve
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
-import json, os, time, datetime, re
 
 class CVScraper(object):
 
@@ -11,20 +11,24 @@ class CVScraper(object):
 
 	def __init__(self):
 		# Set basic reusable strings
-		self._api_key = Settings.get_solo().api_key
+		self.api_key = Settings.get_solo().api_key
 		self.directory_path = 'files'
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
 		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
+		self.base_params = { 'format': 'json', 'api_key': self.api_key }
+		self.headers = {'user-agent': 'tenma'}
 
 		# Set fields to grab when calling the API.
 		# This helps increase performance per call.
-		self.arc_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		self.character_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		self.creator_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		self.team_fields = '&field_list=characters,deck,description,id,image,name,site_detail_url'
-		self.publisher_fields = '&field_list=deck,description,id,image,name,site_detail_url'
-		self.series_fields = '&field_list=deck,description,id,name,publisher,site_detail_url,start_year'
-		self.issue_fields = '&field_list=character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
+		self.arc_fields = 'deck,description,id,image,name,site_detail_url'
+		self.character_fields = 'deck,description,id,image,name,site_detail_url'
+		self.creator_fields = 'deck,description,id,image,name,site_detail_url'
+		self.issue_fields = 'api_detail_url,character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
+		self.publisher_fields = 'deck,description,id,image,name,site_detail_url'
+		self.query_fields = 'cover_date,id,issue_number,name,volume'
+		self.query_limit = '100'
+		self.series_fields = 'deck,description,id,name,publisher,site_detail_url,start_year'
+		self.team_fields = 'characters,deck,description,id,image,name,site_detail_url'
 
 
 	#==================================================================================================
@@ -53,7 +57,7 @@ class CVScraper(object):
 						   file.endswith(".cbt") or file.endswith(".tar"): 
 
 							# Attempt to find match
-							if self._api_key != '':
+							if self.api_key != '':
 								cvid = self._find_match(file)
 							else:
 								cvid = ''
@@ -113,9 +117,11 @@ class CVScraper(object):
 		# Initialize response
 		cvid = ''
 
-		# Query Settings
-		query_fields = '&field_list=cover_date,id,issue_number,name,volume'
-		query_limit = '&limit=100'
+		# Query Parameters
+		query_params = self.base_params
+		query_params['resources'] = 'issue'
+		query_params['field_list'] = self.query_fields
+		query_params['query_limit'] = self.query_limit
 
 		# Attempt to extract series name, issue number, and year
 		extracted = fnameparser.extract(filename)
@@ -133,19 +139,21 @@ class CVScraper(object):
 				if not cvid == '':
 					return cvid
 
-		# Attempt to find issue based on extracted Series Name and Issue Number
-		query_url = self.baseurl + 'search?format=json&resources=issue' + '&api_key=' + self._api_key + query_fields + query_limit + '&query='
-
-
 		# Check for series name and issue number, or just series name
 		if series_name and issue_number:
-			query_url = query_url + series_name_url + '%20%23' + issue_number
-			query_request = Request(query_url)
-			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
+			query_params['query'] = series_name_url + '%20%23' + issue_number
+			query_response = requests.get(
+				self.baseurl + 'search', 
+				params=query_params, 
+				headers=self.headers
+			).json()
 		elif series_name:
-			query_url = query_url + series_name_url
-			query_request = Request(query_url)
-			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
+			query_params['query'] = series_name_url
+			query_response = requests.get(
+				self.baseurl + 'search', 
+				params=query_params, 
+				headers=self.headers
+			).json()
 
 		best_option_list = []
 
@@ -165,10 +173,6 @@ class CVScraper(object):
 			elif series_name and issue_number:
 				if item_name == series_name and item_number == issue_number:
 					best_option_list.insert(0, issue['id'])
-		#	
-		#	elif series_name:
-		#		if item_name == series_name and issue['volume']['count_of_issues'] == '1':
-		#			best_option_list.append(issue['id'])
 
 		return best_option_list[0] if best_option_list else ''
 
@@ -185,12 +189,18 @@ class CVScraper(object):
 		issue_cvid = ''
 
 		if issue_number:
-			# Query Settings
-			query_fields = '&field_list=issues'
+			# Query Parameters
+			query_params = self.base_params
+			query_params['resources'] = 'issue'
+			query_params['field_list'] = 'issues'
+			query_params['query_limit'] = self.query_limit
 
 			# Attempt to find issue based on extracted Series Name and Issue Number
-			query_request = Request(self.baseurl + 'volume/4050-' + series_cvid + '?format=json&api_key=' + self._api_key + query_fields)
-			query_response = json.loads(urlopen(query_request).read().decode('utf-8'))
+			query_response = requests.get(
+				self.baseurl + 'volume/4050-' + series_cvid, 
+				params=query_params, 
+				headers=self.headers,
+			).json()
 
 			# Try to find the closest match.
 			for issue in query_response['results']['issues']:
@@ -286,9 +296,15 @@ class CVScraper(object):
 		'''	Creates or updates metadata from ComicVine for an Issue. '''
 
 		# 1. Make initial API call
-		issue_api_url = self.baseurl + 'issue/4000-' + str(cvid)
-		request_issue = Request(issue_api_url + '/?format=json&api_key=' + self._api_key + self.issue_fields)
-		response_issue = json.loads(urlopen(request_issue).read().decode('utf-8'))
+		# Query Parameters
+		issue_params = self.base_params
+		issue_params['field_list'] = self.issue_fields
+
+		response_issue = requests.get(
+			self.baseurl + 'issue/4000-' + str(cvid),
+			params=issue_params,
+			headers=self.headers,
+		).json()
 
 		# 2. Set Series
 		matching_series = Series.objects.filter(cvid=response_issue['results']['volume']['id'])
@@ -302,13 +318,20 @@ class CVScraper(object):
 		matching_issue = Issue.objects.filter(file=filename)
 
 		if not matching_issue:		
-			issue = self._create_issue(os.path.join(self.directory_path, filename), issue_api_url, series.id)
+			issue = self._create_issue(os.path.join(self.directory_path, filename), response_issue['results']['api_detail_url'], series.id)
 		else:
-			issue = self._update_issue(matching_issue[0].id, issue_api_url, series.id)
+			issue = self._update_issue(matching_issue[0].id, response_issue['results']['api_detail_url'], series.id)
 
 		# 4. Set Publisher
-		request_series = Request(response_issue['results']['volume']['api_detail_url'] + '?format=json&api_key=' + self._api_key + '&field_list=publisher')
-		response_series = json.loads(urlopen(request_series).read().decode('utf-8'))
+		# Query Parameters
+		series_params = self.base_params
+		series_params['field_list'] = 'publisher'
+
+		response_series = requests.get(
+			response_issue['results']['volume']['api_detail_url'],
+			params=series_params,
+			headers=self.headers,
+		).json()
 
 		matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
 
@@ -439,8 +462,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.arc_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.arc_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		issue = Issue.objects.get(id=issue_id)
@@ -468,8 +498,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.character_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.character_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		issue = Issue.objects.get(id=issue_id)
@@ -497,8 +534,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.creator_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.creator_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		issue = Issue.objects.get(id=issue_id)
@@ -526,8 +570,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.issue_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.issue_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		series = Series.objects.get(id=series_id)
@@ -559,8 +610,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.publisher_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.publisher_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Create Publisher
@@ -591,8 +649,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.team_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.team_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		issue = Issue.objects.get(id=issue_id)
@@ -626,8 +691,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.series_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.series_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Create Series
@@ -652,8 +724,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.arc_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.arc_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Arc
@@ -677,8 +756,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.character_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.character_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Character
@@ -702,8 +788,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.creator_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.creator_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Creator
@@ -727,8 +820,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.issue_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.issue_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		issue =Issue.objects.get(id=obj_id)
@@ -760,8 +860,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.publisher_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.publisher_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Publisher
@@ -790,8 +897,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.team_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.team_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Team
@@ -815,8 +929,15 @@ class CVScraper(object):
 		'''
 
 		# Request and Response
-		request = Request(api_url + '?format=json&api_key=' + self._api_key + self.series_fields)
-		response = json.loads(urlopen(request).read().decode('utf-8'))
+		params = self.base_params
+		params['field_list'] = self.series_fields
+
+		response = requests.get(
+			api_url,
+			params=params,
+			headers=self.headers,
+		).json()
+
 		data = self._get_object_data(response['results'])
 
 		# Update Series
