@@ -97,6 +97,8 @@ class CVScraper(object):
 				# Write to the .processed file
 				if issue.file not in processed_files:
 					pff.write("%s\n" % issue.file)
+			else:
+				self._reprocess_issue_without_cvid(issue.id)
 
 
 	#==================================================================================================
@@ -236,6 +238,46 @@ class CVScraper(object):
 
 			# 4. Save Issue.
 			issue.save()
+		else:
+			self._reprocess_issue_without_cvid(matching_issue[0].id)
+
+
+	#==================================================================================================
+
+	def _reprocess_issue_without_cvid(self, issue_id):
+		'''	Create an issue without a ComicVine ID.	'''
+
+		# Make sure the issue exists
+		issue = Issue.objects.get(id=issue_id)
+
+		if issue:
+			# 1. Attempt to extract series name, issue number, year and cover.
+			extracted = fnameparser.extract(issue.file)
+			series_name = extracted[0]
+			issue_number = extracted[1]
+			issue_year = extracted[2]
+
+			cfh = ComicFileHandler()
+			issue_cover = cfh.extract_cover(issue.file)
+
+			# 2. Update Issue information:
+			Issue.objects.filter(id=issue_id).update(
+				number=issue_number if issue_number else 1,
+				date=issue_year + '-01-01' if issue_year else datetime.date.today(),
+				cover=issue_cover,
+			)
+
+			# 3. Update Series information:
+			if Series.objects.get(id=issue.series.id):
+				Series.objects.filter(id=issue.series.id).update(
+					name=series_name,
+				)
+			else:
+				series = Series()
+				series.name = series_name
+				series.save()
+				issue.series = series
+				issue.save()
 
 
 	#==================================================================================================
