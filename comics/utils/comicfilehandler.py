@@ -135,6 +135,9 @@ class ComicFileHandler(object):
 				rf = rarfile.RarFile(file)
 
 			cover_filename = self._get_first_image(rf.namelist())
+			normalised_cover_filename = self._normalise_imagepath(cover_filename)
+
+			self._delete_existing_cover(mediaroot + normalised_cover_filename)
 
 			rf.extract(cover_filename, path=mediaroot)
 
@@ -150,6 +153,9 @@ class ComicFileHandler(object):
 				z = zipfile.ZipFile(file)	
 
 			cover_filename = self._get_first_image(z.namelist())
+			normalised_cover_filename = self._normalise_imagepath(cover_filename)
+
+			self._delete_existing_cover(mediaroot + normalised_cover_filename)
 
 			z.extract(cover_filename, path=mediaroot)
 			z.close()
@@ -166,6 +172,9 @@ class ComicFileHandler(object):
 				t =tarfile.TarFile(file)
 
 			cover_filename = self._get_first_image(t.namelist())
+			normalised_cover_filename = self._normalise_imagepath(cover_filename)
+
+			self._delete_existing_cover(mediaroot + normalised_cover_filename)
 
 			t.extract(cover_filename, path=mediaroot)
 
@@ -175,7 +184,11 @@ class ComicFileHandler(object):
 		elif os.path.isfile(newext):
 			os.remove(newext)
 
-		return mediaurl + self._normalise_imagepath(cover_filename)
+		cover = mediaurl + normalised_cover_filename
+
+		utils.optimize_image(cover, 75, 540)
+
+		return cover
 		
 
 	#==================================================================================================
@@ -218,6 +231,16 @@ class ComicFileHandler(object):
 			if f_ext == '.jpg' or f_ext == '.jpeg' or\
 			   f_ext == '.png' or f_ext == '.gif':
 				return f
+
+
+	#==================================================================================================
+
+	def _delete_existing_cover(self, filepath):
+		''' Deletes cover image if found. '''
+
+		if os.path.isfile(filepath):
+			os.chmod(filepath, 0o777)
+			os.remove(filepath)
 
 
 	#==================================================================================================
