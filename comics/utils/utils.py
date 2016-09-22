@@ -173,6 +173,15 @@ def convert_number_words(phrase_s, expand_b):
       phrase_s = re.sub(r'\beightteenth\b', '18th', phrase_s);
    return phrase_s
 
+#==============================================================================
+def remove_special_characters(string):
+   """
+   Removes any special characters from a string.
+   """
+   s = re.sub('[^A-Za-z0-9\s]+', '', string)
+   s = re.sub('\s+', ' ', s)
+   return s
+
 
 #==============================================================================
 def test_image(image_path):

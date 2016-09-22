@@ -117,7 +117,7 @@ class CVScraper(object):
 
 		# Attempt to extract series name, issue number, and year
 		extracted = fnameparser.extract(filename)
-		series_name = extracted[0]
+		series_name = utils.remove_special_characters(extracted[0])
 		series_name_url = quote_plus(series_name)
 		issue_number = extracted[1]
 		issue_year = extracted[2]
@@ -152,6 +152,7 @@ class CVScraper(object):
 			item_year = issue['cover_date'][0:4] if issue['cover_date'] else ''
 			item_number = issue['issue_number'] if issue['issue_number'] else ''
 			item_name = issue['volume']['name'] if issue['volume']['name'] else ''
+			item_name = utils.remove_special_characters(item_name)
 
 			if series_name and issue_number and issue_year:
 				if item_name == series_name and item_number == issue_number and item_year == issue_year:
