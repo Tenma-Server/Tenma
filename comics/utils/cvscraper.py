@@ -208,44 +208,33 @@ class CVScraper(object):
 		matching_issue = Issue.objects.filter(file=os.path.join(self.directory_path, filename))
 
 		if not matching_issue:
-			# Attempt to extract series name, issue number, and year
+			# 1. Attempt to extract series name, issue number, and year
 			extracted = fnameparser.extract(filename)
 			series_name = extracted[0]
 			issue_number = extracted[1]
 			issue_year = extracted[2]
 
-			# 1. Set basic issue information:
+			# 2. Set Issue Information:
 			issue = Issue()
 			issue.file = os.path.join(self.directory_path, filename)
-
-			if issue_number:
-				issue.number = issue_number
-			else:
-				issue.number = 1
-
-			if issue_year:
-				issue.date = issue_year + '-01-01'
-			else:
-				issue.date = datetime.date.today()
+			issue.number = issue_number if issue_number else 1
+			issue.date = issue_year + '-01-01' if issue_year else datetime.date.today()
 
 			cfh = ComicFileHandler()
 			issue.cover = cfh.extract_cover(os.path.join(self.directory_path, filename))
 
-			# 2. Set Series info:
+			# 3. Set Series Information:
 			matching_series = Series.objects.filter(name=series_name)
 
 			if not matching_series:
 				series = Series()
 				series.name = series_name
-
-				# 4. Save Series
 				series.save()
 				issue.series = series
-
 			else:
 				issue.series = matching_series[0]
 
-			# 5. Save issue.
+			# 4. Save Issue.
 			issue.save()
 
 
