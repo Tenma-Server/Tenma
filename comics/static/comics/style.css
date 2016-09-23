@@ -555,6 +555,7 @@ a.button.reprocess-issue {
 	width: 29%;
 	margin-right: 1%;
 	position: relative;
+	line-height: 0;
 }
 
 .issue-cover-overlay {
