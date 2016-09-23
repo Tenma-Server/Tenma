@@ -1,4 +1,4 @@
-import json, os, time, datetime, re, requests
+import json, os, time, datetime, re, requests, requests_cache
 from urllib.request import urlretrieve
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
@@ -10,6 +10,10 @@ class CVScraper(object):
 	#==================================================================================================
 
 	def __init__(self):
+		# Setup requests caching
+		requests_cache.install_cache('comicvine-cache', expire_after=1800)
+		requests_cache.core.remove_expired_responses()
+
 		# Set basic reusable strings
 		self.api_key = Settings.get_solo().api_key
 		self.directory_path = 'files'
