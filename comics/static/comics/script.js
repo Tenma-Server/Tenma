@@ -4,7 +4,6 @@ $(window).load(function(){
 	 *	General Functions
 	 */
 
-
 	/* Flexslider for related blocks */
 	$('.related-slider').flexslider({
 		animation: "slide",
@@ -25,8 +24,6 @@ $(window).load(function(){
 
 		// Loop through the comment list
 		$(".all-series ul li a p").each(function(){
-
-
 			// If the list item does not contain the text phrase fade it out
 			if ($(this).text().search(new RegExp(filter, "i")) < 0) {
 				$(this).parent('a').parent('li').fadeOut();
@@ -53,7 +50,6 @@ $(window).load(function(){
 
 	/* Lazy Load */
 	var lazyImages = $('.reader img.lazy-load');
-	// console.log(lazyImages);
 	lazyImages[0].src = lazyImages[0].getAttribute('data-source');
 	for (i = 1; i < 3; i++) {
 		lazyImages[i].src = lazyImages[i].getAttribute('data-source');
