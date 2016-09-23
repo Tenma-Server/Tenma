@@ -16,7 +16,7 @@ class CVScraper(object):
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
 		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
 		self.base_params = { 'format': 'json', 'api_key': self.api_key }
-		self.headers = {'user-agent': 'tenma'}
+		self.headers = { 'user-agent': 'tenma' }
 
 		# Set fields to grab when calling the API.
 		# This helps increase performance per call.
@@ -117,12 +117,6 @@ class CVScraper(object):
 		# Initialize response
 		cvid = ''
 
-		# Query Parameters
-		query_params = self.base_params
-		query_params['resources'] = 'issue'
-		query_params['field_list'] = self.query_fields
-		query_params['query_limit'] = self.query_limit
-
 		# Attempt to extract series name, issue number, and year
 		extracted = fnameparser.extract(filename)
 		series_name = utils.remove_special_characters(extracted[0])
@@ -139,9 +133,15 @@ class CVScraper(object):
 				if not cvid == '':
 					return cvid
 
+		# Query Parameters
+		query_params = self.base_params
+		query_params['resources'] = 'issue'
+		query_params['field_list'] = self.query_fields
+		query_params['limit'] = self.query_limit
+
 		# Check for series name and issue number, or just series name
 		if series_name and issue_number:
-			query_params['query'] = series_name_url + '%20%23' + issue_number
+			query_params['query'] = series_name + ' ' + issue_number
 			query_response = requests.get(
 				self.baseurl + 'search', 
 				params=query_params, 
@@ -159,10 +159,20 @@ class CVScraper(object):
 
 		# Try to find the closest match.
 		for issue in query_response['results']:
-			item_year = issue['cover_date'][0:4] if issue['cover_date'] else ''
-			item_number = issue['issue_number'] if issue['issue_number'] else ''
-			item_name = issue['volume']['name'] if issue['volume']['name'] else ''
-			item_name = utils.remove_special_characters(item_name)
+			item_year = datetime.date.today().year
+			item_number = 1
+			item_name = ''
+
+			if 'cover_date' in issue:
+				if issue['cover_date']:
+					item_year = issue['cover_date'][0:4]
+			if 'issue_number' in issue:
+				if issue['issue_number']:
+					item_number = issue['issue_number']
+			if 'name' in issue['volume']:
+				if issue['volume']['name']:
+					item_name = issue['volume']['name']
+					item_name = utils.remove_special_characters(item_name)
 
 			if series_name and issue_number and issue_year:
 				if item_name == series_name and item_number == issue_number and item_year == issue_year:
@@ -193,7 +203,7 @@ class CVScraper(object):
 			query_params = self.base_params
 			query_params['resources'] = 'issue'
 			query_params['field_list'] = 'issues'
-			query_params['query_limit'] = self.query_limit
+			query_params['limit'] = self.query_limit
 
 			# Attempt to find issue based on extracted Series Name and Issue Number
 			query_response = requests.get(
@@ -408,7 +418,7 @@ class CVScraper(object):
 				number = response['issue_number']
 
 		# Get Date (only exists for Issue objects)
-		date = ''
+		date = datetime.date.today()
 
 		if 'cover_date' in response:
 			if response['cover_date']:
