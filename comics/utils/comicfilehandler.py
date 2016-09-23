@@ -30,76 +30,52 @@ class ComicFileHandler(object):
 		Returns a dictionary containing the mediaurl and a list of files.
 		'''
 		filename = os.path.basename(file)
-		dirname = os.path.splitext(filename)[0]
-		extension = os.path.splitext(filename)[1].lower()
+		ext = os.path.splitext(filename)[1].lower()
 		mediaroot = settings.MEDIA_ROOT + '/temp/'
 		mediaurl = settings.MEDIA_URL + 'temp/' + str(id) + '/'
 		temppath = mediaroot + str(id)
 		tempfile = mediaroot + filename
 
-		# Check if directory exists
-		if os.path.isdir(temppath):
-			# Check if directory is not empty
-			if not os.listdir(temppath) == []:
-				pages = self._get_file_list(temppath)
-				return {'mediaurl': mediaurl, 'pages': pages}
+		# File validation
+		if self.valid_comic_file(filename):
+			# If directory already exists, return it.
+			# Otherwise, create the directory.
+			if os.path.isdir(temppath):
+				if not os.listdir(temppath) == []:
+					pages = self._get_file_list(temppath)
+					return {'mediaurl': mediaurl, 'pages': pages}
 			else:
-				# Check if file does not exists
-				if not os.path.isdir(tempfile):
-					copyfile(file, tempfile)
-					os.chmod(tempfile, 0o777)
-		else:
-			# Check if file exists
-			if os.path.isdir(tempfile):
 				os.mkdir(temppath)
-			else:
+
+			# Create temp file if not found.
+			if not os.path.isfile(tempfile):
 				copyfile(file, tempfile)
 				os.chmod(tempfile, 0o777)
-				os.mkdir(temppath)
 
-		# Check for CBR or RAR
-		if extension == '.cbr' or extension == '.rar':
-			# Change CBR to RAR
-			if extension == '.cbr':
-				newext = tempfile.replace('.cbr', '.rar')
-				os.rename(tempfile, newext)
-				rf = rarfile.RarFile(newext)
-			else:
-				rf = rarfile.RarFile(tempfile)
-			rf.extractall(path=temppath)
-		# Check for CBZ or ZIP
-		elif extension == '.cbz' or extension == '.zip':
-			if extension == '.cbz':
-				newext = tempfile.replace('.cbz', '.zip')
-				os.rename(tempfile, newext)
-				z = zipfile.ZipFile(newext)
-			else:
-				z = zipfile.ZipFile(tempfile)	
-			z.extractall(path=temppath)
-			z.close()
-		# Check for CBT or TAR
-		elif extension == '.cbt' or extension == '.tar':
-			if extension == '.cbt':
-				newext = tempfile.replace('.cbt', '.tar')
-				os.rename(tempfile, newext)
-				t = tarfile.TarFile(newext)
-			else:
-				t =tarfile.TarFile(tempfile)
-			t.extractall(path=temppath)
+			# Change extension if needed
+			comic_file = self.normalise_comic_extension(tempfile)
 
-		# Delete the file after extraction so that space isn't wasted.
-		if os.path.isfile(tempfile):
-			os.remove(tempfile)
-		elif os.path.isfile(newext):
-			os.remove(newext)
+			# Get extractor
+			extractor = self.get_extractor(comic_file)
 
-		# Get a list of pages
-		pages = self._get_file_list(temppath)
+			extractor.extractall(path=temppath)
 
-		for root, dirs, files in os.walk(temppath):
-			for file in files:
-				image_path = root + '/' + file
-				utils.optimize_image(image_path, 75, 1920)
+			if ext == '.zip':
+				extractor.close()
+
+			# Delete the file after extraction so that space isn't wasted.
+			if os.path.isfile(tempfile):
+				os.remove(tempfile)
+			elif os.path.isfile(comic_file):
+				os.remove(comic_file)
+
+			# Get a list of pages
+			pages = self._get_file_list(temppath)
+
+			for root, dirs, files in os.walk(temppath):
+				for file in files:
+					image_path = root + '/' + file
+					utils.optimize_image(image_path, 75, 1920)
 
 		return {'mediaurl': mediaurl, 'pages': pages}
 
@@ -113,80 +89,47 @@ class ComicFileHandler(object):
 		Returns a path to the cover image.
 		'''
 		filename = os.path.basename(file)
-		covername = os.path.splitext(filename)[0]
-		extension = os.path.splitext(filename)[1].lower()
+		ext = os.path.splitext(filename)[1].lower()
 		mediaroot = settings.MEDIA_ROOT + '/images/'
 		mediaurl = 'media/images/'
 		tempfile = mediaroot + filename
-		extracted = mediaroot + covername
+		cover = ''
 
-		cover_filename = ''
+		# File validation
+		if self.valid_comic_file(filename):			
+			# Copy file to temp directory
+			copyfile(file, tempfile)
+			os.chmod(tempfile, 0o777)
 
-		# Check for CBR or RAR
-		if extension == '.cbr' or extension == '.rar':
-			# Change CBR to RAR
-			if extension == '.cbr':
-				copyfile(file, tempfile)
-				os.chmod(tempfile, 0o777)
-				newext = tempfile.replace('.cbr', '.rar')
-				os.rename(tempfile, newext)
-				rf = rarfile.RarFile(newext)
-			else:
-				rf = rarfile.RarFile(file)
+			# Change extension if needed
+			comic_file = self.normalise_comic_extension(tempfile)
 
-			cover_filename = self._get_first_image(rf.namelist())
-			normalised_cover_filename = self._normalise_imagepath(cover_filename)
+			# Get extractor
+			extractor = self.get_extractor(comic_file)
 
-			self._delete_existing_cover(mediaroot + normalised_cover_filename)
+			# Get cover file name
+			first_image = self._get_first_image(extractor.namelist())
+			normalised_file = self._normalise_imagepath(first_image)
+			cover_filename = os.path.splitext(normalised_file)[0] + '-' + os.path.splitext(filename)[0] + os.path.splitext(normalised_file)[1]
 
-			rf.extract(cover_filename, path=mediaroot)
+			# Delete existing cover if it exists
+			self._delete_existing_cover(mediaroot + cover_filename)
 
-		# Check for CBZ or ZIP
-		elif extension == '.cbz' or extension == '.zip':
-			if extension == '.cbz':
-				copyfile(file, tempfile)
-				os.chmod(tempfile, 0o777)
-				newext = tempfile.replace('.cbz', '.zip')
-				os.rename(tempfile, newext)
-				z = zipfile.ZipFile(newext)
-			else:
-				z = zipfile.ZipFile(file)	
+			# Extract, rename, and optimize cover image
+			extractor.extract(first_image, path=mediaroot)
+			os.rename(mediaroot + normalised_file, mediaroot + cover_filename)
+			cover = mediaurl + cover_filename
+			utils.optimize_image(cover, 75, 540)
 
-			cover_filename = self._get_first_image(z.namelist())
-			normalised_cover_filename = self._normalise_imagepath(cover_filename)
+			# Close out zip extractor
+			if ext == '.zip':
+				extractor.close()
 
-			self._delete_existing_cover(mediaroot + normalised_cover_filename)
-
-			z.extract(cover_filename, path=mediaroot)
-			z.close()
-
-		# Check for CBT or TAR
-		elif extension == '.cbt' or extension == '.tar':
-			if extension == '.cbt':
-				copyfile(file, tempfile)
-				os.chmod(tempfile, 0o777)
-				newext = tempfile.replace('.cbt', '.tar')
-				os.rename(tempfile, newext)
-				t = tarfile.TarFile(newext)
-			else:
-				t =tarfile.TarFile(file)
-
-			cover_filename = self._get_first_image(t.namelist())
-			normalised_cover_filename = self._normalise_imagepath(cover_filename)
-
-			self._delete_existing_cover(mediaroot + normalised_cover_filename)
-
-			t.extract(cover_filename, path=mediaroot)
-
-		# Delete the file after extraction so that space isn't wasted.
-		if os.path.isfile(tempfile):
-			os.remove(tempfile)
-		elif os.path.isfile(newext):
-			os.remove(newext)
-
-		cover = mediaurl + normalised_cover_filename
-
-		utils.optimize_image(cover, 75, 540)
+			# Delete the temp comic file
+			if os.path.isfile(tempfile):
+				os.remove(tempfile)
+			elif os.path.isfile(comic_file):
+				os.remove(comic_file)	
 
 		return cover
 		
@@ -258,3 +201,54 @@ class ComicFileHandler(object):
 			path = os.path.join(path, part)
 
 		return path
+
+
+	#==================================================================================================
+
+	def valid_comic_file(self, comic_file):
+		''' Checks for valid comic file '''
+
+		ext = os.path.splitext(comic_file)[1].lower()
+
+		if ext == '.cbr' or ext == '.rar' or \
+			ext == '.cbz' or ext == '.zip' or \
+			ext == '.cbt' or ext == '.tar':
+			return True
+		else:
+			return False
+
+
+	#==================================================================================================
+
+	def normalise_comic_extension(self, comic_file):
+		''' Set correct extension if necessary '''
+
+		ext = os.path.splitext(comic_file)[1].lower()
+		c = comic_file
+		if ext == '.cbr':
+			c = c.replace('.cbr', '.rar')
+		elif ext == '.cbz':
+			c = c.replace('.cbz', '.zip')
+		elif ext == '.cbt':
+			c = c.replace('.cbt', '.tar')
+		os.rename(comic_file, c)
+
+		return c
+
+
+	#==================================================================================================
+
+	def get_extractor(self, comic_file):
+		''' Return extractor based on file extension '''
+
+		# Get extractor
+		ext = os.path.splitext(comic_file)[1].lower()
+		e = None
+		if ext == '.rar':
+			e = rarfile.RarFile(comic_file)
+		if ext == '.zip':
+			e = zipfile.ZipFile(comic_file)
+		if ext == '.tar':
+			e = tarfile.TarFile(comic_file)
+
+		return e
