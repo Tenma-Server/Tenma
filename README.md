@@ -33,13 +33,11 @@ Please refer to the [Tenma Wiki](https://github.com/hmhrex/Tenma/wiki) for insta
 
 # Screenshots #
 
+#### Homepage ####
 ![homepage](./screenshots/homepage.png)
 
-#### Homepage ####
-
-![issue](./screenshots/issue.png)
-
 #### Issue Page ####
+![issue](./screenshots/issue.png)
 
 *For more screenshots, check out the screenshots directory*
 
