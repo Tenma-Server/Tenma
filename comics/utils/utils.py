@@ -230,3 +230,21 @@ def valid_comic_file(comic_file):
       return True
    else:
       return False
+
+#==============================================================================
+def parse_CV_HTML(string):
+   ''' 
+   Parses a string retrieved from ComicVine and parses out unneccessary HTML.
+   This is based on the ComicVine text editor.
+
+   Returns parsed string.
+   '''
+
+   # Remove <h2>, <h3>, <h4>, <ul>, <ol>, <table> and <figure> tags
+   parsed = re.sub('<(table|figure|h2|h3|h4|ul|ol)[^>]*>[\s\S]*?</(table|figure|h2|h3|h4|ul|ol)>', '', string)
+
+   # Unpack <a> tags first because there could be other tags inside.
+   parsed = re.sub('</?a[^>]*>', '', parsed)                            # Unpack <a> tags
+   parsed = re.sub('</?(b|i|u|s|em|blockquote|strong)>', '', parsed)    # Unpack <b>, <i>, <u>, <s>, <em>, <blockquote> and <strong> tags
+
+   return parsed

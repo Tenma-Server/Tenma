@@ -435,7 +435,7 @@ class ComicImporter(object):
 		if desc == '':
 			if 'description' in response:
 				if response['description']:
-					desc = response['description']
+					desc = utils.parse_CV_HTML(response['description'])
 
 		# Get Image
 		image = ''
