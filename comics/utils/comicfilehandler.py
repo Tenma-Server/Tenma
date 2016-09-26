@@ -37,7 +37,7 @@ class ComicFileHandler(object):
 		tempfile = mediaroot + filename
 
 		# File validation
-		if self.valid_comic_file(filename):
+		if utils.valid_comic_file(filename):
 			# If directory already exists, return it.
 			# Otherwise, create the directory.
 			if os.path.isdir(temppath):
@@ -57,7 +57,6 @@ class ComicFileHandler(object):
 
 			# Get extractor
 			extractor = self.get_extractor(comic_file)
-
 			extractor.extractall(path=temppath)
 
 			if ext == '.zip':
@@ -96,7 +95,7 @@ class ComicFileHandler(object):
 		cover = ''
 
 		# File validation
-		if self.valid_comic_file(filename):			
+		if utils.valid_comic_file(filename):			
 			# Copy file to temp directory
 			copyfile(file, tempfile)
 			os.chmod(tempfile, 0o777)
@@ -201,21 +200,6 @@ class ComicFileHandler(object):
 			path = os.path.join(path, part)
 
 		return path
-
-
-	#==================================================================================================
-
-	def valid_comic_file(self, comic_file):
-		''' Checks for valid comic file '''
-
-		ext = os.path.splitext(comic_file)[1].lower()
-
-		if ext == '.cbr' or ext == '.rar' or \
-			ext == '.cbz' or ext == '.zip' or \
-			ext == '.cbt' or ext == '.tar':
-			return True
-		else:
-			return False
 
 
 	#==================================================================================================
