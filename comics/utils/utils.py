@@ -11,7 +11,7 @@ Originally modified on Aug 10, 2016
 @author: hmhrex
 '''
 
-import re,sys
+import re,sys,os
 from PIL import Image
 
 # unmodifiable cache for speeding up calls to natural_compare 
@@ -219,7 +219,7 @@ def optimize_image(image_path, output_quality, base_width):
 
 
 #==============================================================================
-def valid_comic_file(self, comic_file):
+def valid_comic_file(comic_file):
    ''' Checks for valid comic file '''
 
    ext = os.path.splitext(comic_file)[1].lower()
