@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
-from .utils.cvscraper import CVScraper
+from .utils.comicimporter import ComicImporter
 
 class IndexView(ListView):
 	template_name = 'comics/index.html'
@@ -90,11 +90,11 @@ def read(request, issue_id):
 	return render(request, 'comics/read.html', {'issue': issue})
 
 def importer(request):
-	cvscraper = CVScraper()
-	cvscraper.process_issues()
+	comicimporter = ComicImporter()
+	comicimporter.process_issues()
 	return HttpResponseRedirect('/')
 
 def reprocess(request, issue_id):
-	cvscraper = CVScraper()
-	cvscraper.reprocess_issue(issue_id)
+	comicimporter = ComicImporter()
+	comicimporter.reprocess_issue(issue_id)
 	return HttpResponseRedirect('/issue/' + issue_id)

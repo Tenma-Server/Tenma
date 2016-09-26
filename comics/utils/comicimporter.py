@@ -5,13 +5,13 @@ from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issu
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
 
-class CVScraper(object):
+class ComicImporter(object):
 
 	#==================================================================================================
 
 	def __init__(self):
 		# Setup requests caching
-		requests_cache.install_cache('comicvine-cache', expire_after=1800)
+		requests_cache.install_cache('./media/CACHE/comicvine-cache', expire_after=1800)
 		requests_cache.core.remove_expired_responses()
 
 		# Set basic reusable strings
@@ -51,15 +51,12 @@ class CVScraper(object):
 
 		# Check for unprocessed files
 		with open(processed_files_file, "a") as pff:
-			for root, disr, files in os.walk(self.directory_path):
+			for root, dirs, files in os.walk(self.directory_path):
 				for file in files:
 					time.sleep(1)
 					if file not in processed_files:
 						# Make sure the file is valid
-						if file.endswith(".cbz") or file.endswith(".zip") or \
-						   file.endswith(".cbr") or file.endswith(".rar") or \
-						   file.endswith(".cbt") or file.endswith(".tar"): 
-
+						if utils.valid_comic_file(file): 
 							# Attempt to find match
 							if self.api_key != '':
 								cvid = self._find_match(file)
