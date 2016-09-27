@@ -91,7 +91,7 @@ def read(request, issue_id):
 
 def importer(request):
 	comicimporter = ComicImporter()
-	comicimporter.process_issues()
+	comicimporter.import_comic_files()
 	return HttpResponseRedirect('/')
 
 def reprocess(request, issue_id):

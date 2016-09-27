@@ -231,6 +231,7 @@ def valid_comic_file(comic_file):
    else:
       return False
 
+
 #==============================================================================
 def parse_CV_HTML(string):
    ''' 

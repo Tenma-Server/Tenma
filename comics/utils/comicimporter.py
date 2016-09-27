@@ -17,69 +17,93 @@ class ComicImporter(object):
 		# Set basic reusable strings
 		self.api_key = Settings.get_solo().api_key
 		self.directory_path = 'files'
+		
+		# Set up files to store processed files and directories
+		self.processed_files_file = os.path.join(self.directory_path, '.processed-files')
+		if not os.path.isfile(self.processed_files_file):
+			open(self.processed_files_file, 'w')
+		self.processed_dirs_file = os.path.join(self.directory_path, '.processed-dirs')
+		if not os.path.isfile(self.processed_dirs_file):
+			open(self.processed_dirs_file, 'w')
+
+		# API Strings
 		self.baseurl = 'http://comicvine.gamespot.com/api/'
 		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
 		self.base_params = { 'format': 'json', 'api_key': self.api_key }
 		self.headers = { 'user-agent': 'tenma' }
 
-		# Set fields to grab when calling the API.
-		# This helps increase performance per call.
+		# API field strings
 		self.arc_fields = 'deck,description,id,image,name,site_detail_url'
 		self.character_fields = 'deck,description,id,image,name,site_detail_url'
 		self.creator_fields = 'deck,description,id,image,name,site_detail_url'
 		self.issue_fields = 'api_detail_url,character_credits,cover_date,deck,description,id,image,issue_number,name,person_credits,site_detail_url,story_arc_credits,team_credits,volume'
 		self.publisher_fields = 'deck,description,id,image,name,site_detail_url'
-		self.query_fields = 'cover_date,id,issue_number,name,volume'
-		self.query_limit = '100'
-		self.series_fields = 'deck,description,id,name,publisher,site_detail_url,start_year'
+		self.query_issue_fields ='cover_date,id,issue_number,name,volume'
+		self.query_issue_limit = '100'
+		self.query_series_fields = 'id,name,start_year'
+		self.query_series_limit = '10'
+		self.series_fields = 'api_detail_url,deck,description,id,name,publisher,site_detail_url,start_year'
 		self.team_fields = 'characters,deck,description,id,image,name,site_detail_url'
 
 
 	#==================================================================================================
 
-	def process_issues(self):
-		''' Main function to process issues in the comics directories. '''
+	def import_comic_files(self):
+		''' Main entry point to import comic files. '''
 
-		# Settings for comics directory
-		processed_files_file = os.path.join(self.directory_path, '.processed')
+		for entry in os.scandir(self.directory_path):
+			filepath = os.path.join(self.directory_path, entry.name)
 
-		# Create processed files file
-		if not os.path.isfile(processed_files_file):
-			file = open(processed_files_file, 'w')
+			# If file, process issue. If directory, process series.
+			if entry.is_file():
+				# Check for unprocessed files
+				with open(self.processed_files_file, "a") as pff:
+					processed_files = set(line.strip() for line in open(self.processed_files_file))
 
-		processed_files = set(line.strip() for line in open(processed_files_file))
-
-		# Check for unprocessed files
-		with open(processed_files_file, "a") as pff:
-			for root, dirs, files in os.walk(self.directory_path):
-				for file in files:
-					time.sleep(1)
-					if file not in processed_files:
-						# Make sure the file is valid
-						if utils.valid_comic_file(file): 
+					if entry.name not in processed_files:
+						# Check comic file validity
+						if utils.valid_comic_file(entry.name):
 							# Attempt to find match
+							cvid = ''
 							if self.api_key != '':
-								cvid = self._find_match(file)
-							else:
-								cvid = ''
-
+								cvid = self._find_issue_match(entry.name)
 							if cvid != '':
-								# Scrape the issue
-								self._scrape_issue(file, cvid)
+								# Process issue with ComicVine
+								self._process_issue(entry.name, cvid)
 								# Write to the .processed file
-								pff.write("%s\n" % file)
+								pff.write("%s\n" % entry.name)
 							else:
-								# Create issue without cvid
-								self._create_issue_without_cvid(file)
+								# Process issue without ComicVine
+								self._process_issue_without_cvid(filepath)
+			elif entry.is_dir():
+				# Attempt to find match
+				with open(self.processed_dirs_file, "a") as pff:
+					processed_dirs = set(line.strip() for line in open(self.processed_dirs_file))
 
+					cvid = ''
+					if self.api_key != '':
+						if entry.name in processed_dirs:
+							cvid = re.match('.*\s|\s([0-9]+)', processed_dirs)[1]
+						else:
+							cvid = self._find_series_match(entry.name)
+
+					if cvid != '':
+						# Process series with ComicVine
+						if entry.name not in processed_dirs:
+							self._process_series(entry.name, cvid)
+						self._process_series_directory(filepath, cvid)
+						# Write to the .processed file
+						pff.write(entry.name + " | " + str(cvid) + "\n")
+					else:
+						# Process series without ComicVine
+						self._process_series_without_cvid(entry.name)
 
 	#==================================================================================================
 
 	def reprocess_issue(self, issue_id):
 		''' Reprocess an existing issue in the comics directories. '''
 
-		processed_files_file = os.path.join(self.directory_path, '.processed')
-		processed_files = set(line.strip() for line in open(processed_files_file))
+		processed_files = set(line.strip() for line in open(self.processed_files_file))
 
 		issue = Issue.objects.get(id=issue_id)
 		cvid = ''
@@ -95,10 +119,10 @@ class ComicImporter(object):
 				cvid = ''
 
 		# Update issue
-		with open(processed_files_file, "a") as pff:
+		with open(self.processed_files_file, "a") as pff:
 			if cvid != '':
-				# Scrape the issue
-				self._scrape_issue(issue.file, cvid)
+				# Process the issue with ComicVine
+				self._process_issue(issue.file, cvid)
 				# Write to the .processed file
 				if issue.file not in processed_files:
 					pff.write("%s\n" % issue.file)
@@ -108,7 +132,7 @@ class ComicImporter(object):
 
 	#==================================================================================================
 
-	def _find_match(self, filename):
+	def _find_issue_match(self, filename):
 		'''
 		Try to find a match in ComicVine for an issue.
 
@@ -137,8 +161,8 @@ class ComicImporter(object):
 		# Query Parameters
 		query_params = self.base_params
 		query_params['resources'] = 'issue'
-		query_params['field_list'] = self.query_fields
-		query_params['limit'] = self.query_limit
+		query_params['field_list'] = self.query_issue_fields
+		query_params['limit'] = self.query_issue_limit
 
 		# Check for series name and issue number, or just series name
 		if series_name and issue_number:
@@ -190,6 +214,75 @@ class ComicImporter(object):
 
 	#==================================================================================================
 
+	def _find_series_match(self, dirname):
+		'''
+		Try to find a match in ComicVine for a series.
+
+		Returns a ComicVine ID.
+		'''
+
+		# Initialize response
+		cvid = ''
+
+		# Attempt to extract series name, issue number, and year
+		extracted = fnameparser.extract(dirname)
+		series_name = utils.remove_special_characters(extracted[0])
+		series_name_url = quote_plus(series_name)
+		series_year = extracted[2]
+
+		# First check if there's already a series locally
+		if series_year != '':
+			matching_series = Series.objects.filter(name=series_name, year=int(series_year))
+		else:
+			matching_series = Series.objects.filter(name=series_name)
+
+		if matching_series:
+			if not matching_series[0].cvid == '':
+				return matching_series[0].cvid
+
+		# Query Parameters
+		query_params = self.base_params
+		query_params['resources'] = 'volume'
+		query_params['field_list'] = self.query_series_fields
+		query_params['limit'] = self.query_series_limit
+
+		# Check for series name and issue number, or just series name
+		if series_name:
+			query_params['query'] = series_name_url
+			query_response = requests.get(
+				self.baseurl + 'search', 
+				params=query_params, 
+				headers=self.headers
+			).json()
+
+		best_option_list = []
+
+		# Try to find the closest match.
+		for series in query_response['results']:
+			item_year = datetime.date.today().year
+			item_name = ''
+
+			if 'name' in series:
+				if series['name']:
+					item_name = series['name']
+					item_name = utils.remove_special_characters(item_name)
+			if 'start_year' in series:
+				if series['start_year']:
+					item_year = series['start_year']
+
+			if series_name and series_year:
+				if item_name == series_name and item_year == series_year:
+					best_option_list.insert(0, series['id'])
+					break
+			elif series_name:
+				if item_name == series_name:
+					best_option_list.insert(0, series['id'])
+
+		return best_option_list[0] if best_option_list else ''
+
+
+	#==================================================================================================
+
 	def _find_match_with_series(self, series_cvid, issue_number):
 		'''
 		Try to retrieve a match based on an existing series name.
@@ -202,13 +295,11 @@ class ComicImporter(object):
 		if issue_number:
 			# Query Parameters
 			query_params = self.base_params
-			query_params['resources'] = 'issue'
 			query_params['field_list'] = 'issues'
-			query_params['limit'] = self.query_limit
 
 			# Attempt to find issue based on extracted Series Name and Issue Number
 			query_response = requests.get(
-				self.baseurl + 'volume/4050-' + series_cvid, 
+				self.baseurl + 'volume/4050-' + str(series_cvid),
 				params=query_params, 
 				headers=self.headers,
 			).json()
@@ -224,27 +315,29 @@ class ComicImporter(object):
 
 	#==================================================================================================
 
-	def _create_issue_without_cvid(self, filename):
+	def _process_issue_without_cvid(self, filepath):
 		'''	Create an issue without a ComicVine ID.	'''
 
 		# Make sure the issue hadn't already been added
-		matching_issue = Issue.objects.filter(file=os.path.join(self.directory_path, filename))
+		matching_issue = Issue.objects.filter(file=filepath)
+
+		filename = os.path.basename(filepath)
 
 		if not matching_issue:
 			# 1. Attempt to extract series name, issue number, and year
-			extracted = fnameparser.extract(filename)
+			extracted = fnameparser.extract(filepath)
 			series_name = extracted[0]
 			issue_number = extracted[1]
 			issue_year = extracted[2]
 
 			# 2. Set Issue Information:
 			issue = Issue()
-			issue.file = os.path.join(self.directory_path, filename)
+			issue.file = filepath
 			issue.number = issue_number if issue_number else 1
 			issue.date = issue_year + '-01-01' if issue_year else datetime.date.today()
 
 			cfh = ComicFileHandler()
-			issue.cover = cfh.extract_cover(os.path.join(self.directory_path, filename))
+			issue.cover = cfh.extract_cover(filepath)
 
 			# 3. Set Series Information:
 			matching_series = Series.objects.filter(name=series_name)
@@ -303,7 +396,7 @@ class ComicImporter(object):
 
 	#==================================================================================================
 
-	def _scrape_issue(self, filename, cvid):
+	def _process_issue(self, filename, cvid):
 		'''	Creates or updates metadata from ComicVine for an Issue. '''
 
 		# 1. Make initial API call
@@ -382,6 +475,95 @@ class ComicImporter(object):
 				self._create_team(team['api_detail_url'], issue.id)
 			else:
 				issue.teams.add(self._update_team(matching_team[0].id, team['api_detail_url']))
+
+
+	#==================================================================================================
+	def _process_series(self, series_directory, cvid):
+		'''	Creates or updates metadata from ComicVine for a Series. '''
+
+		# 1. Make initial API call
+		# Query Parameters
+		series_params = self.base_params
+		series_params['field_list'] = self.series_fields
+
+		response_series = requests.get(
+			self.baseurl + 'volume/4050-' + str(cvid),
+			params=series_params,
+			headers=self.headers,
+		).json()
+
+		# 2. Set Series
+		matching_series = Series.objects.filter(cvid=response_series['results']['id'])
+
+		if not matching_series:
+			series = self._create_series(response_series['results']['api_detail_url'])
+		else:
+			series = self._update_series(matching_series[0].id, response_series['results']['api_detail_url'])
+
+		# 3. Set Publisher
+		matching_publisher = Publisher.objects.filter(cvid=response_series['results']['publisher']['id'])
+
+		if not matching_publisher:
+			self._create_publisher(response_series['results']['publisher']['api_detail_url'], series.id)
+		else:
+			self._update_publisher(matching_publisher[0].id, response_series['results']['publisher']['api_detail_url'], series.id)
+
+
+	#==================================================================================================
+	def _process_series_directory(self, series_directory, series_cvid):
+		''' Processes issues in a series directory '''
+
+		series = Series.objects.get(cvid=series_cvid)
+
+		for entry in os.scandir(series_directory):
+			filepath = os.path.join(series_directory, entry.name)
+
+			# If file, process issue. If directory, process series.
+			if entry.is_file():
+				# Check for unprocessed files
+				with open(self.processed_files_file, "a") as pff:
+					processed_files = set(line.strip() for line in open(self.processed_files_file))
+
+					if entry.name not in processed_files:
+						# Check comic file validity
+						if utils.valid_comic_file(entry.name):
+							# Attempt to find match
+							cvid = ''
+
+							# Attempt to extract series name, issue number, and year
+							extracted = fnameparser.extract(entry.name)
+							issue_number = extracted[1]
+
+							if self.api_key != '':
+								cvid = self._find_match_with_series(series_cvid, issue_number)
+							if cvid != '':
+								self._process_issue(filepath, cvid)
+								pff.write("%s\n" % entry.name)
+							else:
+								# Process issue without ComicVine
+								self._process_issue_without_cvid(filepath)
+			elif entry.is_dir():
+				# Attempt to find match
+				with open(self.processed_dirs_file, "a") as pff:
+					processed_dirs = set(line.strip() for line in open(self.processed_dirs_file))
+
+					cvid = ''
+					if self.api_key != '':
+						if entry.name in processed_dirs:
+							cvid = re.match('.*\s|\s([0-9]+)', processed_dirs)[1]
+						else:
+							cvid = self._find_series_match(entry.name)
+
+					if cvid != '':
+						# Process series with ComicVine
+						if entry.name not in processed_dirs:
+							self._process_series(entry.name, cvid)
+						self._process_series_directory(filepath)
+						# Write to the .processed file
+						pff.write(entry.name + " | " + str(cvid) + "\n")
+					else:
+						# Process series without ComicVine
+						self._process_series_without_cvid(entry.name)
 
 
 	#==================================================================================================
