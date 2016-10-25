@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'widget_tweaks',
+    'kombu.transport.django',
     'solo.apps.SoloAppConfig',
     'comics.apps.ComicsConfig',
     'django.contrib.admin',
@@ -85,6 +86,7 @@ DATABASES = {
     }
 }
 
+BROKER_URL = 'django://'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators

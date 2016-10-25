@@ -5,6 +5,7 @@
 *.sqlite
 *.sqlite3
 *.pyc
+celerybeat-schedule.db
 
 # OS generated files #
 ######################
