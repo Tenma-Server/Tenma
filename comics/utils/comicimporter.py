@@ -113,8 +113,8 @@ class ComicImporter(object):
 			cvid = issue.cvid
 		else:
 			# Attempt to find match
-			if self._api_key != '':
-				cvid = self._find_match(issue.file)
+			if self.api_key != '':
+				cvid = self._find_issue_match(issue.file)
 			else:
 				cvid = ''
 
