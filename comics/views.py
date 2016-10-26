@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
-from .tasks import import_comic_files_task
+from .tasks import import_comic_files_task, reprocess_issue_task
 from .utils.comicimporter import ComicImporter
 
 class IndexView(ListView):
@@ -95,6 +95,5 @@ def importer(request):
 	return HttpResponseRedirect('/')
 
 def reprocess(request, issue_id):
-	comicimporter = ComicImporter()
-	comicimporter.reprocess_issue(issue_id)
+	reprocess_issue_task.delay(issue_id)
 	return HttpResponseRedirect('/issue/' + issue_id)
