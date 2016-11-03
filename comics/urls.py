@@ -8,7 +8,6 @@ from comics.views import IndexView, SeriesView, IssueView, CharacterView, ArcVie
 app_name = 'comics'
 
 urlpatterns = [
-	url(r'^$', IndexView.as_view(), name='index'),
 	url(r'^series/(?P<pk>[0-9]+)$', SeriesView.as_view(), name='series'),
 	url(r'^issue/(?P<pk>[0-9]+)$', IssueView.as_view(), name='issue'),
 	url(r'^issue/(?P<issue_id>[0-9]+)/read$', read, name='read'),
