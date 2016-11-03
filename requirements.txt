@@ -2,11 +2,16 @@ amqp==1.4.9
 anyjson==0.3.3
 billiard==3.3.0.23
 celery==3.1.23
+coreapi==2.0.9
 Django==1.10.1
 django-solo==1.1.2
 django-widget-tweaks==1.4.1
+djangorestframework==3.5.1
+itypes==1.1.0
 kombu==3.0.35
 Pillow==3.3.1
+pytz==2016.6.1
 rarfile==2.8
 requests==2.11.1
 requests-cache==0.4.12
+uritemplate==3.0.0
