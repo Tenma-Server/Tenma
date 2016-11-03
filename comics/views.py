@@ -4,6 +4,7 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
 from .tasks import import_comic_files_task, reprocess_issue_task
+from .utils.comicimporter import ComicImporter
 
 class IndexView(ListView):
 	template_name = 'comics/index.html'
