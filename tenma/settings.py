@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+	'rest_framework',
+	'corsheaders',
     'widget_tweaks',
     'kombu.transport.django',
     'solo.apps.SoloAppConfig',
@@ -46,13 +48,14 @@ INSTALLED_APPS = [
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'comics.middleware.LoginRequiredMiddleware',
+    #'comics.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'tenma.urls'
@@ -130,3 +133,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_URL = '/admin/login/'
+
+REST_FRAMEWORK = {}
+
+CORS_ORIGIN_ALLOW_ALL = True

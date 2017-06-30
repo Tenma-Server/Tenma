@@ -3,11 +3,11 @@
 {% block content %}
 
 <div class="issue-info-wrapper">
-	{% if issue.cover|length %}
+	{% if issue.image|length %}
 	<div class="issue-cover">
 		<div class="issue-cover-image">
 			{% autoescape off %}
-			<img src="/{{ issue.cover|urlencode }}" >
+			<img src="/{{ issue.image|urlencode }}" >
 			{% endautoescape %}
 			<div class="issue-cover-overlay">
 				<a href="{% url 'comics:read' issue.id %}">

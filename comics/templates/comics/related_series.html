@@ -9,8 +9,8 @@
 			<li>
 				<a href="{% url 'comics:series' series.id %}">
 					<div class="image">
-						{% if series.issue_numerical_order_set.first.cover %}
-							<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"200x305"|urlencode }}" alt="{{ seriesname }}" >
+						{% if series.issue_numerical_order_set.first.image %}
+							<img src="{{ series.issue_numerical_order_set.first.image|smartcrop:"200x305"|urlencode }}" alt="{{ seriesname }}" >
 						{% else %}
 							<img src="{% static 'comics/image-not-found.png' %}" alt="{{ seriesname }}" >
 						{% endif %}
