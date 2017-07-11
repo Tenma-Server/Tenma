@@ -14,12 +14,12 @@ class ComicFileHandler(object):
 	def __init__(self):
 		# Set the unrar tool based on filesystem
 		if sys.platform == 'win32':		# Windows
-			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"
 		elif sys.platform == 'darwin':	# Mac
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
 		elif sys.platform == 'linux2':	# Linux
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar-nonfree_ubuntu"
-			
+
 
 	#==================================================================================================
 
@@ -63,10 +63,10 @@ class ComicFileHandler(object):
 				extractor.close()
 
 			# Delete the file after extraction so that space isn't wasted.
-			if os.path.isfile(tempfile):
-				os.remove(tempfile)
-			elif os.path.isfile(comic_file):
-				os.remove(comic_file)
+#			if os.path.isfile(tempfile):
+#				os.remove(tempfile)
+#			elif os.path.isfile(comic_file):
+#				os.remove(comic_file)
 
 			# Get a list of pages
 			pages = self._get_file_list(temppath)
@@ -95,7 +95,7 @@ class ComicFileHandler(object):
 		cover = ''
 
 		# File validation
-		if utils.valid_comic_file(filename):			
+		if utils.valid_comic_file(filename):
 			# Copy file to temp directory
 			copyfile(file, tempfile)
 			os.chmod(tempfile, 0o777)
@@ -125,13 +125,13 @@ class ComicFileHandler(object):
 				extractor.close()
 
 			# Delete the temp comic file
-			if os.path.isfile(tempfile):
-				os.remove(tempfile)
-			elif os.path.isfile(comic_file):
-				os.remove(comic_file)	
+#			if os.path.isfile(tempfile):
+#				os.remove(tempfile)
+#			elif os.path.isfile(comic_file):
+#				os.remove(comic_file)
 
 		return cover
-		
+
 
 	#==================================================================================================
 
@@ -189,7 +189,7 @@ class ComicFileHandler(object):
 
 	def _normalise_imagepath(self, filepath):
 		'''	Returns a normalised image path. '''
-		
+
 		path_normalise = re.compile(r"[/\\]")
 
 		filepath_parts = path_normalise.sub("`", filepath).split('`')
