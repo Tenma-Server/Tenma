@@ -478,6 +478,19 @@ class ComicImporter(object):
 
 
 	#==================================================================================================
+	def _process_series_without_cvid(self, series_name):
+		'''	Create a series without a ComicVine ID.	'''
+
+		# Make sure the series hadn't already been added
+		matching_series = Series.objects.filter(name=series_name)
+
+		if not matching_series:
+			series = Series()
+			series.name = series_name
+			series.save()
+
+
+	#==================================================================================================
 	def _process_series(self, series_directory, cvid):
 		'''	Creates or updates metadata from ComicVine for a Series. '''
 
