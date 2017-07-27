@@ -60,7 +60,7 @@ class ComicImporter(object):
 				with open(self.processed_files_file, "a") as pff:
 					processed_files = set(line.strip() for line in open(self.processed_files_file))
 
-					if entry.name not in processed_files:
+					if filepath not in processed_files:
 						# Check comic file validity
 						if utils.valid_comic_file(entry.name):
 							# Attempt to find match
@@ -71,7 +71,7 @@ class ComicImporter(object):
 								# Process issue with ComicVine
 								self._process_issue(entry.name, cvid)
 								# Write to the .processed file
-								pff.write("%s\n" % entry.name)
+								pff.write("%s\n" % filepath)
 							else:
 								# Process issue without ComicVine
 								self._process_issue_without_cvid(filepath)
@@ -524,7 +524,7 @@ class ComicImporter(object):
 				with open(self.processed_files_file, "a") as pff:
 					processed_files = set(line.strip() for line in open(self.processed_files_file))
 
-					if entry.name not in processed_files:
+					if filepath not in processed_files:
 						# Check comic file validity
 						if utils.valid_comic_file(entry.name):
 							# Attempt to find match
@@ -538,7 +538,7 @@ class ComicImporter(object):
 								cvid = self._find_match_with_series(series_cvid, issue_number)
 							if cvid != '':
 								self._process_issue(filepath, cvid)
-								pff.write("%s\n" % entry.name)
+								pff.write("%s\n" % filepath)
 							else:
 								# Process issue without ComicVine
 								self._process_issue_without_cvid(filepath)
@@ -719,7 +719,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _create_creator(self, api_url, issue_id):
-		''' 
+		'''
 		Creates Creator from ComicVine API URL and adds it to
 		it's corresponding Issue.
 
@@ -755,8 +755,8 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _create_issue(self, file, api_url, series_id):
-		''' 
-		Creates Issue from ComicVine API URL and adds the 
+		'''
+		Creates Issue from ComicVine API URL and adds the
 		corresponding Series.
 
 		Returns the Issue object created.
@@ -795,7 +795,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _create_publisher(self, api_url, series_id):
-		''' 
+		'''
 		Creates Publisher from ComicVine API URL and adds it to
 		it's corresponding Series.
 
@@ -834,7 +834,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _create_team(self, api_url, issue_id):
-		''' 
+		'''
 		Creates Team from ComicVine API URL and adds it to
 		it's corresponding Issue.
 
@@ -877,7 +877,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _create_series(self, api_url):
-		''' 
+		'''
 		Creates Series from ComicVine API URL.
 
 		Returns the Series object created.
@@ -910,7 +910,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_arc(self, obj_id, api_url):
-		''' 
+		'''
 		Updates Arc from ComicVine API URL.
 
 		Returns the Arc object udpated.
@@ -942,7 +942,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_character(self, obj_id, api_url):
-		''' 
+		'''
 		Updates Character from ComicVine API URL.
 
 		Returns the Character object udpated.
@@ -974,7 +974,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_creator(self, obj_id, api_url):
-		''' 
+		'''
 		Updates Creator from ComicVine API URL.
 
 		Returns the Creator object udpated.
@@ -1006,7 +1006,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_issue(self, obj_id, api_url, series_id):
-		''' 
+		'''
 		Updates Issue from ComicVine API URL.
 
 		Returns the Issue object udpated.
@@ -1046,7 +1046,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_publisher(self, obj_id, api_url, series_id):
-		''' 
+		'''
 		Updates Publisher from ComicVine API URL.
 
 		Returns the Publisher object udpated.
@@ -1083,7 +1083,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_team(self, obj_id, api_url):
-		''' 
+		'''
 		Updates Team from ComicVine API URL.
 
 		Returns the Team object udpated.
@@ -1115,7 +1115,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _update_series(self, obj_id, api_url):
-		''' 
+		'''
 		Updates Series from ComicVine API URL.
 
 		Returns the Series object udpated.
@@ -1146,7 +1146,7 @@ class ComicImporter(object):
 	#==================================================================================================
 
 	def _reset_issue(self, obj_id):
-		''' 
+		'''
 		Resets an Issue's fields.
 
 		Returns the Issue object that was reset.
