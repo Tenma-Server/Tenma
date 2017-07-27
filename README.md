@@ -29,7 +29,9 @@ You can legally download DRM-free comics from the following sources:
 
 # Installation and Configuration #
 
-Please refer to the [Tenma Wiki](https://github.com/hmhrex/Tenma/wiki) for installation and configuration instructions for different operating systems.
+For Docker installation check out the [tenma-docker](https://github.com/hmhrex/tenma-docker) repo.
+
+To manually install, please refer to the [Tenma Wiki](https://github.com/hmhrex/Tenma/wiki) for installation and configuration instructions for different operating systems.
 
 # Screenshots #
 
