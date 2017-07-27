@@ -59,7 +59,7 @@ class ComicFileHandler(object):
 			extractor = self.get_extractor(comic_file)
 			extractor.extractall(path=temppath)
 
-			if ext == '.zip':
+			if ext == '.zip' or '.cbz':
 				extractor.close()
 
 			# Delete the file after extraction so that space isn't wasted.
@@ -121,7 +121,7 @@ class ComicFileHandler(object):
 			utils.optimize_image(cover, 75, 540)
 
 			# Close out zip extractor
-			if ext == '.zip':
+			if ext == '.zip' or '.cbz':
 				extractor.close()
 
 			# Delete the temp comic file
