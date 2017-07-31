@@ -27,8 +27,8 @@ class ComicImporter(object):
 			open(self.processed_dirs_file, 'w')
 
 		# API Strings
-		self.baseurl = 'http://comicvine.gamespot.com/api/'
-		self.imageurl = 'http://comicvine.gamespot.com/api/image/'
+		self.baseurl = 'https://comicvine.gamespot.com/api/'
+		self.imageurl = 'https://comicvine.gamespot.com/api/image/'
 		self.base_params = { 'format': 'json', 'api_key': self.api_key }
 		self.headers = { 'user-agent': 'tenma' }
 
