@@ -69,7 +69,7 @@ class ComicImporter(object):
 								cvid = self._find_issue_match(entry.name)
 							if cvid != '':
 								# Process issue with ComicVine
-								self._process_issue(entry.name, cvid)
+								self._process_issue(filepath, cvid)
 								# Write to the .processed file
 								pff.write("%s\n" % filepath)
 							else:
@@ -422,7 +422,7 @@ class ComicImporter(object):
 		matching_issue = Issue.objects.filter(file=filename)
 
 		if not matching_issue:		
-			issue = self._create_issue(os.path.join(self.directory_path, filename), response_issue['results']['api_detail_url'], series.id)
+			issue = self._create_issue(filename, response_issue['results']['api_detail_url'], series.id)
 		else:
 			issue = self._update_issue(matching_issue[0].id, response_issue['results']['api_detail_url'], series.id)
 
