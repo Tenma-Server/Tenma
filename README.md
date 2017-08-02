@@ -11,7 +11,7 @@ Tenma is a self-hosted server that allows you to store, organize, and read DRM-f
 * Live search through all of your series.
 * Two view modes. Fit the comic horizontally or vertically to your browser window.
 * Comic navigation with arrow buttons, or with your keyboard's arrow keys.
-* Supports CBZ, ZIP, CBR, RAR, CBT and TAR formats.
+* Supports CBZ, ZIP, CBR, RAR, CBT, TAR and PDF formats.
 * ... More features on the way!
 
 # Where to get DRM-free comics #
