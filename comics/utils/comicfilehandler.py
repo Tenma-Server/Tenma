@@ -17,7 +17,7 @@ class ComicFileHandler(object):
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
 		elif sys.platform == 'darwin':	# Mac
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
-		elif sys.platform == 'linux2':	# Linux
+		elif sys.platform == 'linux':	# Linux
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar-nonfree_ubuntu"
 			
 
