@@ -14,14 +14,14 @@ Originally modified on Aug 10, 2016
 import re,sys,os
 from PIL import Image
 
-# unmodifiable cache for speeding up calls to natural_compare 
-__keys_cache = None 
+# unmodifiable cache for speeding up calls to natural_compare
+__keys_cache = None
 
 
 #==============================================================================
 def is_string(object):
    ''' returns a boolean indicating whether the given object is a string '''
-   
+
    if object is None:
       return False
    return isinstance(object, str)
@@ -46,27 +46,27 @@ def sstr(object):
    if is_string(object):
       # this is needed, because str() breaks on some strings that have unicode
       # characters, due to a python bug.  (all strings in python are unicode.)
-      return object 
+      return object
    return str(object)
 
 
 # ==========================================================================
-def natural_compare(a, b): 
-   ''' 
-   Compares two strings using their "natural" ordering. Strings that don't 
+def natural_compare(a, b):
+   '''
+   Compares two strings using their "natural" ordering. Strings that don't
    contain numbers will sort alphabetically, but strings with numbers will
-   sort numerically first (["1","2" "11"] instead of ["1","11" "2"]).  
-   Natural comparison works between numerical strings with alphabetic characters 
+   sort numerically first (["1","2" "11"] instead of ["1","11" "2"]).
+   Natural comparison works between numerical strings with alphabetic characters
    (["4","4a","5"]) and even provides meaningful comparisons between numerical
    strings containing unicode fractions (["5", "5¼", "5½", "6"]).
-     
+
    Returns -1 if a<b, +1 if a>b, and 0 if a==b.
    '''
-    
+
    global __keys_cache
    if __keys_cache is None:
       __keys_cache = { str(x): natural_key(str(x)) for x in range(999) }
-      
+
    a = __keys_cache[a] if a in __keys_cache else natural_key(a)
    b = __keys_cache[b] if b in __keys_cache else natural_key(b)
    return -1 if a < b else 1 if a > b else 0
@@ -80,11 +80,11 @@ def natural_key(s):
    or '5 A' and '5A' or '.5' and '0.5000'.
    '''
    s = s.strip()
-   
+
    # Converts unicode fractions (like '5½') into floats (like 5.5).
    def unicode_fraction_to_float(s):
       number = None
-      match = re.match("\s*(-?)\s*(\d*)\s*([⅛⅙⅕¼⅓⅜⅖½⅗⅝⅔¾⅘⅚⅞])\s*", s) 
+      match = re.match("\s*(-?)\s*(\d*)\s*([⅛⅙⅕¼⅓⅜⅖½⅗⅝⅔¾⅘⅚⅞])\s*", s)
       if match:
          negative = match.group(1)
          intpart = match.group(2)
@@ -96,7 +96,7 @@ def natural_key(s):
          fracpart = fracs[fracpart] if fracpart in fracs else 0
          number = -1*(intpart+fracpart) if negative else intpart+fracpart
       return number
-   
+
    unicode_float = unicode_fraction_to_float(s)
    if unicode_float:
       return ['', unicode_float, '' ]
@@ -105,34 +105,34 @@ def natural_key(s):
       convert = lambda text: float(text) if is_number(text) \
          else text.lower().strip()
       return [ convert(c) for c in re.split( pattern, s) ]
-            
-            
+
+
 #==============================================================================
 def convert_roman_numerals(num_s):
    '''
-   Converts the given string into an positive or negative integer value, 
+   Converts the given string into an positive or negative integer value,
    throwing an exception if it can't.  The given string can be a integer value
    in regular arabic form (1, 2, 3,...) or roman form (i, ii, iii, iv,...).
    The returned value will be an integer.
-   
+
    Note that roman numerals outside the range [-20, 20] and 0 are not supported.
    '''
-   
+
    roman_mapping = {'i':1, 'ii':2,'iii':3,'iv':4,'v':5,'vi':6,'vii':7,'viii':8,
                     'ix':9,'x':10,'xi':11,'xii':12,'xiii':13,'xiv':14,'xv':15,
                     'xvi':16,'xvii':17,'xviii':18,'xix':19,'xx':20}
-   
+
    num_s = num_s.replace(' ', '').strip().lower();
    negative = num_s.startswith('-')
    if negative:
       num_s = num_s[1:]
-   
+
    retval = None
    try:
       retval = int(num_s)
    except:
       retval = roman_mapping[num_s]
-   
+
    return retval * -1 if negative else retval
 
 
@@ -144,9 +144,9 @@ def convert_number_words(phrase_s, expand_b):
    When expanding, words like '1' and '2nd' will be transformed into 'one'
    and 'second' in the returned string.   When contracting, the transformation
    goes in reverse.
-   
+
    This method only works for numbers up to 20, and it only works properly
-   on lower case strings. 
+   on lower case strings.
    """
    number_map = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three',\
       '4': 'four', '5': 'five', '6': 'six','7': 'seven', '8': 'eight',\
@@ -186,7 +186,7 @@ def remove_special_characters(string):
 #==============================================================================
 def test_image(image_path):
    ''' returns a filepath string if the file is valid and not broken '''
-   
+
    path = ''
 
    try:
@@ -226,7 +226,8 @@ def valid_comic_file(comic_file):
 
    if ext == '.cbr' or ext == '.rar' or \
       ext == '.cbz' or ext == '.zip' or \
-      ext == '.cbt' or ext == '.tar':
+      ext == '.cbt' or ext == '.tar' or \
+	  ext == '.pdf':
       return True
    else:
       return False
@@ -234,7 +235,7 @@ def valid_comic_file(comic_file):
 
 #==============================================================================
 def parse_CV_HTML(string):
-   ''' 
+   '''
    Parses a string retrieved from ComicVine and parses out unneccessary HTML.
    This is based on the ComicVine text editor.
 
@@ -249,3 +250,54 @@ def parse_CV_HTML(string):
    parsed = re.sub('</?(b|i|u|s|em|blockquote|strong)>', '', parsed)    # Unpack <b>, <i>, <u>, <s>, <em>, <blockquote> and <strong> tags
 
    return parsed
+
+#==============================================================================
+def extract_images_from_PDF(file, destination):
+	'''
+	Extracts images from PDFs.
+	Uses Ned Batchelder's method: https://nedbatchelder.com/blog/200712/extracting_jpgs_from_pdfs.html
+	'''
+
+	with open(file, "rb") as f:
+		pdf = f.read()
+
+	i = 0
+	njpg = 0
+
+	while True:
+		istream = pdf.find(b"stream", i)
+		if istream < 0:
+			break
+
+		istart = pdf.find(b"\xff\xd8", istream, istream + 20)
+		if istart < 0:
+			i = istream + 20
+			continue
+
+		iend = pdf.find(b"endstream", istart)
+		if iend < 0:
+			raise Exception("Didn't find end of stream!")
+		iend = pdf.find(b"\xff\xd9", iend - 20)
+		if iend < 0:
+			raise Exception("Didn't find end of JPG!")
+
+		iend += 2
+		jpg = pdf[istart:iend]
+		jpgname = destination + "/%03d.jpg" % njpg
+		with open(jpgname, "wb") as jpgfile:
+			jpgfile.write(jpg)
+
+		# Make sure the image isn't a thumbnail.
+		img = Image.open(jpgname)
+		if img.size[1] < 200:
+			img.close()
+			os.remove(jpgname)
+			i = istream + 20
+			continue
+
+		img.close()
+
+		njpg += 1
+		i = iend
+
+	f.close()

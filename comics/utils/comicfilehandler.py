@@ -16,12 +16,12 @@ class ComicFileHandler(object):
 		if os.getenv('TENMA_UNRAR_PATH'):
 			rarfile.UNRAR_TOOL = os.getenv('TENMA_UNRAR_PATH')
 		elif sys.platform == 'win32':		# Windows
-			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
+			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"
 		elif sys.platform == 'darwin':	# Mac
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
 		elif sys.platform == 'linux':	# Linux
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar-nonfree_ubuntu"
-			
+
 
 	#==================================================================================================
 
@@ -54,15 +54,18 @@ class ComicFileHandler(object):
 				copyfile(file, tempfile)
 				os.chmod(tempfile, 0o777)
 
-			# Change extension if needed
-			comic_file = self.normalise_comic_extension(tempfile)
+			if ext == '.pdf':
+				utils.extract_images_from_PDF(file, temppath)
+			else:
+				# Change extension if needed
+				comic_file = self.normalise_comic_extension(tempfile)
 
-			# Get extractor
-			extractor = self.get_extractor(comic_file)
-			extractor.extractall(path=temppath)
+				# Get extractor
+				extractor = self.get_extractor(comic_file)
+				extractor.extractall(path=temppath)
 
-			if ext == '.zip' or '.cbz':
-				extractor.close()
+				if ext == '.zip' or '.cbz':
+					extractor.close()
 
 			# Delete the file after extraction so that space isn't wasted.
 			if os.path.isfile(tempfile):
@@ -97,7 +100,7 @@ class ComicFileHandler(object):
 		cover = ''
 
 		# File validation
-		if utils.valid_comic_file(filename):			
+		if utils.valid_comic_file(filename):
 			# Copy file to temp directory
 			copyfile(file, tempfile)
 			os.chmod(tempfile, 0o777)
@@ -130,10 +133,10 @@ class ComicFileHandler(object):
 			if os.path.isfile(tempfile):
 				os.remove(tempfile)
 			elif os.path.isfile(comic_file):
-				os.remove(comic_file)	
+				os.remove(comic_file)
 
 		return cover
-		
+
 
 	#==================================================================================================
 
@@ -191,7 +194,7 @@ class ComicFileHandler(object):
 
 	def _normalise_imagepath(self, filepath):
 		'''	Returns a normalised image path. '''
-		
+
 		path_normalise = re.compile(r"[/\\]")
 
 		filepath_parts = path_normalise.sub("`", filepath).split('`')
