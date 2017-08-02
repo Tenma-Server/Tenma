@@ -254,7 +254,7 @@ def parse_CV_HTML(string):
 #==============================================================================
 def extract_images_from_PDF(file, destination):
 	'''
-	Extracts images from PDFs.
+	Extracts images from a PDF.
 	Uses Ned Batchelder's method: https://nedbatchelder.com/blog/200712/extracting_jpgs_from_pdfs.html
 	'''
 
@@ -301,3 +301,59 @@ def extract_images_from_PDF(file, destination):
 		i = iend
 
 	f.close()
+
+#==============================================================================
+def extract_first_image_from_PDF(file, destination):
+	'''
+	Extracts first image from a PDF.
+	Uses Ned Batchelder's method: https://nedbatchelder.com/blog/200712/extracting_jpgs_from_pdfs.html
+
+	Returns cover file name.
+	'''
+
+	with open(file, "rb") as f:
+		pdf = f.read()
+
+	i = 0
+
+	base = os.path.basename(file)
+	filename = os.path.splitext(base)[0]
+	jpgname = "cover-" + filename + ".jpg"
+	jpgpath = destination + jpgname
+
+	while True:
+		istream = pdf.find(b"stream", i)
+		if istream < 0:
+			break
+
+		istart = pdf.find(b"\xff\xd8", istream, istream + 20)
+		if istart < 0:
+			i = istream + 20
+			continue
+
+		iend = pdf.find(b"endstream", istart)
+		if iend < 0:
+			raise Exception("Didn't find end of stream!")
+		iend = pdf.find(b"\xff\xd9", iend - 20)
+		if iend < 0:
+			raise Exception("Didn't find end of JPG!")
+
+		iend += 2
+		jpg = pdf[istart:iend]
+		with open(jpgpath, "wb") as jpgfile:
+			jpgfile.write(jpg)
+
+		# Make sure the image isn't a thumbnail.
+		img = Image.open(jpgpath)
+		if img.size[1] < 200:
+			img.close()
+			os.remove(jpgpath)
+			i = istream + 20
+			continue
+		else:
+			img.close()
+			break
+
+	f.close()
+
+	return jpgname

@@ -86,7 +86,7 @@ class ComicFileHandler(object):
 
 	#==================================================================================================
 
-	def extract_cover(self,file):
+	def extract_cover(self, file):
 		'''
 		Extract the cover image from a comic file.
 
@@ -105,29 +105,35 @@ class ComicFileHandler(object):
 			copyfile(file, tempfile)
 			os.chmod(tempfile, 0o777)
 
-			# Change extension if needed
-			comic_file = self.normalise_comic_extension(tempfile)
+			if ext == '.pdf':
+				cover = utils.extract_first_image_from_PDF(file, mediaroot)
+				cover = mediaurl + cover
+			else:
+				# Change extension if needed
+				comic_file = self.normalise_comic_extension(tempfile)
 
-			# Get extractor
-			extractor = self.get_extractor(comic_file)
+				# Get extractor
+				extractor = self.get_extractor(comic_file)
 
-			# Get cover file name
-			first_image = self._get_first_image(extractor.namelist())
-			normalised_file = self._normalise_imagepath(first_image)
-			cover_filename = os.path.splitext(normalised_file)[0] + '-' + os.path.splitext(filename)[0] + os.path.splitext(normalised_file)[1]
+				# Get cover file name
+				first_image = self._get_first_image(extractor.namelist())
+				normalised_file = self._normalise_imagepath(first_image)
+				cover_filename = os.path.splitext(normalised_file)[0] + '-' + os.path.splitext(filename)[0] + os.path.splitext(normalised_file)[1]
 
-			# Delete existing cover if it exists
-			self._delete_existing_cover(mediaroot + cover_filename)
+				# Delete existing cover if it exists
+				self._delete_existing_cover(mediaroot + cover_filename)
 
-			# Extract, rename, and optimize cover image
-			extractor.extract(first_image, path=mediaroot)
-			os.rename(mediaroot + normalised_file, mediaroot + cover_filename)
-			cover = mediaurl + cover_filename
+				# Extract, rename, and optimize cover image
+				extractor.extract(first_image, path=mediaroot)
+				os.rename(mediaroot + normalised_file, mediaroot + cover_filename)
+				cover = mediaurl + cover_filename
+
+				# Close out zip extractor
+				if ext == '.zip' or '.cbz':
+					extractor.close()
+
+			# Optimize cover image
 			utils.optimize_image(cover, 75, 540)
-
-			# Close out zip extractor
-			if ext == '.zip' or '.cbz':
-				extractor.close()
 
 			# Delete the temp comic file
 			if os.path.isfile(tempfile):
