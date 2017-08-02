@@ -13,7 +13,9 @@ class ComicFileHandler(object):
 
 	def __init__(self):
 		# Set the unrar tool based on filesystem
-		if sys.platform == 'win32':		# Windows
+		if os.getenv('TENMA_UNRAR_PATH'):
+			rarfile.UNRAR_TOOL = os.getenv('TENMA_UNRAR_PATH')
+		elif sys.platform == 'win32':		# Windows
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar.exe"	
 		elif sys.platform == 'darwin':	# Mac
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
