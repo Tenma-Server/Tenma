@@ -1,23 +1,24 @@
 {% load simple_crop %}
 {% load staticfiles %}
 
-{% if creator_list %}
+{% if roles_list %}
 <div class="related related-creators">
 	<h2>Creators</h2>
 	<div class="flexslider related-slider">
 		<ul class="slides">
-			{% for creator in creator_list %}
+			{% for roles in roles_list %}
 			<li>
-				<a href="{% url 'comics:creator' creator.id %}">
+				<a href="{% url 'comics:creator' roles.creator.id %}">
 					<div class="image">
-					{% if creator.image %}
-						<img src="{{ creator.image|smartcrop:"200x305"|urlencode }}" alt="{{ creator.name }}" >
+					{% if roles.creator.image %}
+						<img src="{{ roles.creator.image|smartcrop:"200x305"|urlencode }}" alt="{{ roles.creator.name }}" >
 					{% else %}
-						<img src="{% static 'comics/image-not-found.png' %}" alt="{{ creator.name }}" >
+						<img src="{% static 'comics/image-not-found.png' %}" alt="{{ roles.creator.name }}" >
 					{% endif %}
 					</div>
 				</a>
-				<a href="{% url 'comics:creator' creator.id %}"><p>{{ creator.name }}</p></a>
+				<a href="{% url 'comics:creator' roles.creator.id %}"><p>{{ roles.creator.name }}</p></a>
+				<p><small><em>{{ roles.roles }}</em></small></p>
 			</li>
 			{% endfor %}
 		</ul>

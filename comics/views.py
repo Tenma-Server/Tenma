@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
-from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
+from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings, Roles
 from .tasks import import_comic_files_task, reprocess_issue_task
 from .utils.comicimporter import ComicImporter
 
@@ -20,7 +20,13 @@ class SeriesView(DetailView):
 class IssueView(DetailView):
 	model = Issue
 	template_name = 'comics/issue.html'
-	
+
+	def get_context_data(self, **kwargs):
+		context = super(IssueView, self).get_context_data(**kwargs)
+		issue = self.get_object()
+		context['roles_list'] = Roles.objects.filter(issue=issue)
+		return context
+
 class CharacterView(DetailView):
 	model = Character
 	template_name = 'comics/character.html'
@@ -62,7 +68,8 @@ class CreatorView(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(CreatorView, self).get_context_data(**kwargs)
 		creator = self.get_object()
-		context['issue_list'] = creator.issue_set.all().order_by('series__name', 'number')
+		roles = Roles.objects.filter(creator=creator)
+		context['issue_list'] = Issue.objects.filter(id__in=roles.values('issue_id'))
 		return context
 
 class ServerSettingsView(UpdateView):

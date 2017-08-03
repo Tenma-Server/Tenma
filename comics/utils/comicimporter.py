@@ -1,7 +1,7 @@
 import json, os, time, datetime, re, requests, requests_cache
 from urllib.request import urlretrieve
 from urllib.parse import quote_plus, unquote_plus
-from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Settings
+from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Roles, Settings
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
 
@@ -464,9 +464,14 @@ class ComicImporter(object):
 		for person in response_issue['results']['person_credits']:
 			matching_creator = Creator.objects.filter(cvid=person['id'])
 			if not matching_creator:
-				self._create_creator(person['api_detail_url'], issue.id)
+				self._create_creator(person['api_detail_url'], re.sub(' ', '', person['role']), issue.id)
 			else:
-				issue.creators.add(self._update_creator(matching_creator[0].id, person['api_detail_url']))
+				#TODO: Create many-to-many relationship through Role
+				Roles.objects.create(
+					creator=matching_creator[0],
+					issue=issue,
+					roles=re.sub(' ', '', person['role'])
+				)
 
 		# 8. Set Teams
 		for team in response_issue['results']['team_credits']:
@@ -734,7 +739,7 @@ class ComicImporter(object):
 
 	#==================================================================================================
 
-	def _create_creator(self, api_url, issue_id):
+	def _create_creator(self, api_url, roles, issue_id):
 		'''
 		Creates Creator from ComicVine API URL and adds it to
 		it's corresponding Issue.
@@ -757,12 +762,19 @@ class ComicImporter(object):
 		issue = Issue.objects.get(id=issue_id)
 
 		# Create Creator
-		cr = issue.creators.create(
+		cr = Creator.objects.create(
 			cvid=data['cvid'],
 			cvurl=data['cvurl'],
 			name=data['name'],
 			desc=data['desc'],
 			image=data['image'],
+		)
+
+		# Create Role in issue
+		r = Roles.objects.create(
+			creator=cr,
+			issue=issue,
+			roles=roles
 		)
 
 		return cr
@@ -1176,7 +1188,7 @@ class ComicImporter(object):
 		issue.desc = ''
 		issue.arcs.clear()
 		issue.characters.clear()
-		issue.creators.clear()
+		Roles.objects.filter(issue=issue).delete()
 		issue.teams.clear()
 		issue.cover = ''
 

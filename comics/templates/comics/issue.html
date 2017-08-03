@@ -50,7 +50,7 @@
 
 {% include "comics/related_characters.html" with character_list=issue.characters.all %}
 
-{% include "comics/related_creators.html" with creator_list=issue.creators.all %}
+{% include "comics/related_creators.html" with roles_list=roles_list.all %}
 
 {% include "comics/related_teams.html" with team_list=issue.teams.all %}
 <script>
