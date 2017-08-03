@@ -7,6 +7,7 @@ django-solo==1.1.2
 django-widget-tweaks==1.4.1
 kombu==3.0.35
 Pillow>=3.5,<=4.0
+PyPDF2==1.26.0
 rarfile==2.8
 requests==2.11.1
 requests-cache==0.4.12
