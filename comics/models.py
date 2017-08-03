@@ -19,6 +19,13 @@ Choices for model use.
 # Generated years
 YEAR_CHOICES = [(r,r) for r in range(1837, datetime.date.today().year+1)]
 
+# Comic read status
+STATUS_CHOICES = (
+	(0, 'Unread'),
+	(1, 'Partially read'),
+	(2, 'Completed'),
+)
+
 # Creator roles for an issue
 ROLE_CHOICES = (
 	('artist', 'Artist'),
@@ -39,8 +46,8 @@ class Settings(SingletonModel):
 		'ComicVine API Key',
 		help_text="A 40-character key provided by ComicVine. This is used to retrieve metadata about your comics. You can create a ComicVine API Key at <a target=\"_blank\" href=\"http://comicvine.gamespot.com/api/\">ComicVine's API Page</a> (ComicVine account is required).",
 		validators=[RegexValidator(
-			regex='^.{40}$', 
-			message='Length must be 40 characters.', 
+			regex='^.{40}$',
+			message='Length must be 40 characters.',
 			code='nomatch'
 		)],
 		max_length=40,
@@ -114,7 +121,13 @@ class Series(models.Model):
 
 	def issue_numerical_order_set(self):
 		return self.issue_set.all().order_by('number')
-		
+
+	def issue_count(self):
+		return self.issue_set.all().count()
+
+	def unread_issue_count(self):
+		return self.issue_set.exclude(status=2).count()
+
 	class Meta:
 		verbose_name_plural = "Series"
 
@@ -131,9 +144,11 @@ class Issue(models.Model):
 	teams = models.ManyToManyField(Team, blank=True)
 	file = models.FilePathField('File path', path="files/", recursive=True)
 	cover = models.FilePathField('Cover file path', path="media/images", blank=True)
+	status = models.PositiveSmallIntegerField('Status', choices=STATUS_CHOICES, default=0, blank=True)
+	leaf = models.PositiveSmallIntegerField(editable=False, default=1, blank=True)
 
 	def __str__(self):
-		return self.name
+		return self.series.name + ' #' + str(self.number)
 
 	def get_absolute_url(self):
 		return reverse('author-detail', kwargs={'pk': self.pk})

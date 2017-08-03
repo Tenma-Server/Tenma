@@ -160,7 +160,7 @@ footer .metadata-disclaimer img {
     transform: translate(-50%, -50%);
 }
 
-#modal .modal-header {	
+#modal .modal-header {
 	background-color: #151515;
     height: 50px;
     border-radius: 10px 10px 0 0;
@@ -358,6 +358,7 @@ a.button.reprocess-issue {
 }
 
 .all-series li {
+	position: relative;
 	display: inline-block;
 	padding: 10px;
 	margin: 0 0 1% 1%;
@@ -374,9 +375,25 @@ a.button.reprocess-issue {
 	margin: 0 0 10px;
 }
 
+.all-series li .unread-count {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	background-color: #40C899;
+	box-shadow: 0px 0px 6px #000000;
+	border-radius: 16px;
+}
+
+.all-series li .unread-count p {
+	color: #252525;
+	margin: 5px 12px;
+	font-weight: bold;
+}
+
 .all-series li p {
 	text-align: center;
 	font-size: 16px;
+	margin: 5px 8px;
 }
 
 @media (max-width: 480px) {
@@ -649,6 +666,15 @@ a.button.reprocess-issue {
 .related h2,
 .related h3 {
 	margin-left: 30px;
+}
+
+.related li i.fa-circle,
+.related li i.fa-adjust {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	color: #40C899;
+	text-shadow: 0px 0px 6px #000000;
 }
 
 /*

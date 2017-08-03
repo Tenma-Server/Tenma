@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import UpdateView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings, Roles
 from .tasks import import_comic_files_task, reprocess_issue_task
 from .utils.comicimporter import ComicImporter
@@ -104,3 +104,19 @@ def importer(request):
 def reprocess(request, issue_id):
 	reprocess_issue_task.delay(issue_id)
 	return HttpResponseRedirect('/issue/' + issue_id)
+
+def update_issue_status(request, issue_id):
+	issue = Issue.objects.get(pk=issue_id)
+
+	if request.GET.get('complete', '') == '1':
+		issue.leaf = 1
+		issue.status = 2
+		issue.save()
+	else:
+		issue.leaf = int(request.GET.get('leaf', ''))
+		issue.status = 1
+		issue.save()
+
+	data = { 'saved': 1 }
+
+	return JsonResponse(data)

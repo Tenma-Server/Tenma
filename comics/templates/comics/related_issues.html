@@ -15,6 +15,11 @@
 						{% else %}
 							<img src="{% static 'comics/image-not-found.png' %}" alt="{{ series.name }}" >
 						{% endif %}
+						{% if issue.status == 0 %}
+							<i class="fa fa-circle fa-2x"></i>
+						{% elif issue.status == 1 %}
+							<i class="fa fa-adjust fa-2x fa-flip-horizontal"></i>
+						{% endif %}
 					</div>
 				</a>
 				<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>

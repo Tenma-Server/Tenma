@@ -48,12 +48,13 @@ $(window).load(function(){
 	 *	Reader Functions
 	 */
 
+	// Start where the reader left off.
+	var leaf = parseInt($('.issue-data').data('leaf'));
+	$('.page-count').find('.current-page').text(leaf);
+
 	/* Lazy Load */
 	var lazyImages = $('.reader img.lazy-load');
-	lazyImages[0].src = lazyImages[0].getAttribute('data-source');
-	for (i = 1; i < 3; i++) {
-		lazyImages[i].src = lazyImages[i].getAttribute('data-source');
-	}
+	lazyLoadImages(lazyImages, leaf);
 
 	/* Flexslider */
 	$('.reader-slider').flexslider({
@@ -62,19 +63,26 @@ $(window).load(function(){
 		animationLoop: false,
 		slideshow: false,
 		controlNav: false,
+		startAt: leaf - 1, 			// Start where the reader left off.
 		maxItems: 1,
-		before: function(){ 
-			window.scrollTo(0,0);  // Moves window back to top when slide changes.
+		before: function(){
+			window.scrollTo(0,0);  	// Moves window back to top when slide changes.
 		},
 		after: function(){
 			/* Update page number */
 			var pageNumber = $('.flex-active-slide').attr('class').match(/page-(\d+)/)[1];
 			$('.page-count').find('.current-page').text(pageNumber);
-			/* Lazy load the next few images. */
-			pageNumberInt = parseInt(pageNumber, 10)
-			for (i = pageNumberInt; i < pageNumberInt + 2; i++) {
-				lazyImages[i].src = lazyImages[i].getAttribute('data-source');
+			if (parseInt(pageNumber) > leaf) {
+				leaf = parseInt(pageNumber);
 			}
+			/* Update issue status and leaf */
+			var issueId = $('.issue-data').data('id');
+			var complete = $('.flex-active-slide').next('li').length ? '0' : '1'
+			$.ajax({
+		        type: "GET",
+		        url: '/issue/' + issueId + '/update-status?leaf=' + leaf + '&complete=' + complete
+		    });
+			lazyLoadImages(lazyImages, parseInt(pageNumber, 10));
 		}
 	});
 
@@ -86,7 +94,7 @@ $(window).load(function(){
 		i = setTimeout('$("header").fadeOut();', 1000);
 	}).mouseleave(function() {
 		clearTimeout(i);
-		$("header").hide();  
+		$("header").hide();
 	});
 
 	/* Reader Controls */
@@ -105,5 +113,22 @@ $(window).load(function(){
 	/* Reader Page Count */
 	var pageCount = $('.reader li.page').length;
 	$('.reader').find('.page-count').find('.page-total').text(pageCount);
+
+
+	/*
+	 * Get query variable from URL by variable name
+	 */
+	function lazyLoadImages(lazyImages, start) {
+		for (i = start; i < start + 2; i++) {
+			if (lazyImages[i]) {
+				lazyImages[i].src = lazyImages[i].getAttribute('data-source');
+			}
+		}
+		for (i = start - 1; i > start - 4; i--) {
+			if (lazyImages[i]) {
+				lazyImages[i].src = lazyImages[i].getAttribute('data-source');
+			}
+		}
+	}
 
 });

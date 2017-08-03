@@ -19,6 +19,11 @@
 			<li>
 				<a href="{% url 'comics:series' series.id %}">
 					<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"1280x1950"|urlencode }}" alt = "{{ series.name }}" >
+					{% if series.unread_issue_count > 0 %}
+						<div class="unread-count">
+							<p>{{ series.unread_issue_count }}</p>
+						</div>
+					{% endif %}
 				</a>
 				<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
 			</li>
