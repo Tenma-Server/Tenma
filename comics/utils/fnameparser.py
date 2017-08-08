@@ -189,8 +189,9 @@ def __extract_numbers(s):
    '''
    Searches through the given string left-to-right, building an ordered list of
    "issue number-like" re.match objects.  For example, this method finds
+   matches substrings like:  3, #4, 6.00, .5, -1.0
    '''
-   matches = list(re.finditer(r"(?u)(^|[_\s#v])(-?\d*\.?\d\w*)", s))
+   matches = list(re.finditer(r"(?u)(^|[_\s#v])(-?\d*\.?\d)", s))
    # remove matches that look like years, EXCEPT on the "2000AD" series,
    # the  "The Beano" series, and any year that starts with '#' (i.e. #1950)
    is2000AD = re.match(r"(?i)\s*2000[\s\.-_]*a[\s.-_]*d.*", s)
