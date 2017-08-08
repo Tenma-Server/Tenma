@@ -146,7 +146,7 @@ class ComicImporter(object):
 		extracted = fnameparser.extract(filename)
 		series_name = utils.remove_special_characters(extracted[0])
 		series_name_url = quote_plus(series_name)
-		issue_number = extracted[1]
+		issue_number = extracted[1] if extracted[1] else '1'
 		issue_year = extracted[2]
 
 		# First check if there's already a series locally
