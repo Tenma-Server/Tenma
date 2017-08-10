@@ -72,8 +72,6 @@ class ComicImporter(object):
 	def reprocess_issue(self, issue_id):
 		''' Reprocess an existing issue in the comics directories. '''
 
-		processed_files = set(line.strip() for line in open(self.processed_files_file))
-
 		issue = Issue.objects.get(id=issue_id)
 		cvid = ''
 
@@ -88,13 +86,9 @@ class ComicImporter(object):
 				cvid = ''
 
 		# Update issue
-		with open(self.processed_files_file, "a") as pff:
 			if cvid != '':
 				# Process the issue with ComicVine
 				self._process_issue(issue.file, cvid)
-				# Write to the .processed file
-				if issue.file not in processed_files:
-					pff.write("%s\n" % issue.file)
 			else:
 				self._reprocess_issue_without_cvid(issue.id)
 
