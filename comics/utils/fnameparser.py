@@ -106,14 +106,17 @@ def __extract(name_s):
    s = re.sub(r"(?i)(?<=\d)(\s*(of|de|di|von|van|z)\s*#*\d+)", "", s)
    s = re.sub(r"(?<=\d)(-\d+)", "", s)
 
-   # 9. iff this is one of those comic books that replaces all spaces with
-   #    dashes, then strip the dashes out.  otherwise leave them in (because
-   #    they might be important, like minus signs or something.)
+   # 9. if this is one of those comic books that replaces all spaces with
+   #    dashes or periods, then strip the dashes and/or periods out. otherwise
+   #    leave them in (because they might be important, like minus signs or
+   #    something.)
    if "-" in s and " " not in s:
       s = re.sub(r"(?<![-_# ])-", " ", s)
+   if "." in s and " " not in s:
+      s = re.sub(r"(?<![._# ])\.", " ", s)
 
    # 10. get an ordered list of issue number-like strings in the filename
-   #    for example:  3, #4, 5a, 6.00, 10.0b, .5, -1.0
+   #    for example:  3, #4, 6.00, .5, -1.0
    #    also, remove numbers that look like years, EXCEPT on the "2000AD" series
    matches = __extract_numbers(s)
 

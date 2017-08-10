@@ -5,6 +5,8 @@ from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issu
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
 
+from fuzzywuzzy import fuzz
+
 class ComicImporter(object):
 
 	#==================================================================================================
@@ -199,14 +201,13 @@ class ComicImporter(object):
 					item_name = issue['volume']['name']
 					item_name = utils.remove_special_characters(item_name)
 
-			if series_name and issue_number and issue_year:
-				if item_name == series_name and item_number == issue_number and item_year == issue_year:
+			if series_name and issue_number:
+				score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
+				if score >= 90:
+					if item_number == issue_number:
+						if item_year == issue_year:
 					best_option_list.insert(0, issue['id'])
 					break
-				elif item_name == series_name and item_number == issue_number:
-					best_option_list.insert(0, issue['id'])
-			elif series_name and issue_number:
-				if item_name == series_name and item_number == issue_number:
 					best_option_list.insert(0, issue['id'])
 
 		return best_option_list[0] if best_option_list else ''
@@ -270,13 +271,14 @@ class ComicImporter(object):
 				if series['start_year']:
 					item_year = series['start_year']
 
-			if series_name and series_year:
-				if item_name == series_name and item_year == series_year:
+			if series_name:
+				score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
+				if score >= 90:
+					if item_year == series_year:
 					best_option_list.insert(0, series['id'])
 					break
-			elif series_name:
-				if item_name == series_name:
 					best_option_list.insert(0, series['id'])
+
 
 		return best_option_list[0] if best_option_list else ''
 
