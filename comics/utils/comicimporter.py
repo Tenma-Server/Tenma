@@ -49,9 +49,8 @@ class ComicImporter(object):
 		for entry in os.scandir(path):
 			# If file, process issue. If directory, process series.
 			if entry.is_file():
-				filepath = os.path.join(self.directory_path, entry.name)
 				# Check for unprocessed files:
-				if filepath not in excluded:
+				if entry.path not in excluded:
 					# Check comic file validity
 					if utils.valid_comic_file(entry.name):
 						# Attempt to find match
@@ -60,10 +59,10 @@ class ComicImporter(object):
 							cvid = self._find_issue_match(entry.name)
 							if cvid != '':
 								# Process issue with ComicVine
-								self._process_issue(filepath, cvid)
+								self._process_issue(entry.path, cvid)
 							else:
 								# Process issue without ComicVine
-								self._process_issue_without_cvid(filepath)
+								self._process_issue_without_cvid(entry.path)
 			else:
 				self._process_dir(entry.path, excluded)
 
