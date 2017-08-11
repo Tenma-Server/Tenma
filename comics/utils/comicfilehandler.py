@@ -113,7 +113,7 @@ class ComicFileHandler(object):
 
 				# Get cover file name
 				first_image = self._get_first_image(extractor.namelist())
-				normalised_file = self._normalise_imagepath(first_image)
+				normalised_file = self._normalise_image_name(first_image)
 				cover_filename = os.path.splitext(normalised_file)[0] + '-' + os.path.splitext(filename)[0] + os.path.splitext(normalised_file)[1]
 
 				# Delete existing cover if it exists
@@ -121,7 +121,7 @@ class ComicFileHandler(object):
 
 				# Extract, rename, and optimize cover image
 				extractor.extract(first_image, path=mediaroot)
-				os.rename(mediaroot + normalised_file, mediaroot + cover_filename)
+				os.rename(mediaroot + first_image, mediaroot + cover_filename)
 				cover = mediaurl + cover_filename
 
 				# Close out zip extractor
@@ -233,19 +233,12 @@ class ComicFileHandler(object):
 
 	#==================================================================================================
 
-	def _normalise_imagepath(self, filepath):
-		'''	Returns a normalised image path. '''
+	def _normalise_image_name(self, filepath):
+		'''	Returns a normalised image name. '''
 
 		path_normalise = re.compile(r"[/\\]")
-
-		filepath_parts = path_normalise.sub("`", filepath).split('`')
-
-		path = ''
-
-		for part in filepath_parts:
-			path = os.path.join(path, part)
-
-		return path
+		filename = path_normalise.sub("`", filepath).split('`')[-1]
+		return filename
 
 	#==================================================================================================
 
