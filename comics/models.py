@@ -146,6 +146,7 @@ class Issue(models.Model):
 	cover = models.FilePathField('Cover file path', path="media/images", blank=True)
 	status = models.PositiveSmallIntegerField('Status', choices=STATUS_CHOICES, default=0, blank=True)
 	leaf = models.PositiveSmallIntegerField(editable=False, default=1, blank=True)
+	page_count = models.PositiveSmallIntegerField(editable=False, default=1, blank=True)
 
 	def __str__(self):
 		return self.series.name + ' #' + str(self.number)

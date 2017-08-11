@@ -8,7 +8,7 @@ from . import fnameparser, utils
 from fuzzywuzzy import fuzz
 
 class ComicImporter(object):
-	
+
 	def __init__(self):
 		# Setup requests caching
 		requests_cache.install_cache('./media/CACHE/comicvine-cache', expire_after=1800)
@@ -86,11 +86,11 @@ class ComicImporter(object):
 				cvid = ''
 
 		# Update issue
-			if cvid != '':
-				# Process the issue with ComicVine
-				self._process_issue(issue.file, cvid)
-			else:
-				self._reprocess_issue_without_cvid(issue.id)
+		if cvid != '':
+			# Process the issue with ComicVine
+			self._process_issue(issue.file, cvid)
+		else:
+			self._reprocess_issue_without_cvid(issue.id)
 
 	#==================================================================================================
 
@@ -228,6 +228,7 @@ class ComicImporter(object):
 
 			cfh = ComicFileHandler()
 			issue.cover = cfh.extract_cover(filepath)
+			issue.page_count = cfh.get_page_count(filepath)
 
 			# 3. Set Series Information:
 			matching_series = Series.objects.filter(name=series_name)
@@ -262,6 +263,7 @@ class ComicImporter(object):
 
 			cfh = ComicFileHandler()
 			issue_cover = cfh.extract_cover(issue.file)
+			issue.page_count = cfh.get_page_count(issue.file)
 
 			# 2. Update Issue information:
 			Issue.objects.filter(id=issue_id).update(
@@ -566,6 +568,7 @@ class ComicImporter(object):
 
 		Returns the Issue object created.
 		'''
+		cfh = ComicFileHandler()
 
 		# Request and Response
 		params = self.base_params
@@ -592,6 +595,7 @@ class ComicImporter(object):
 			file=file,
 			series=series,
 			cover=data['image'],
+			page_count=cfh.get_page_count(file),
 		)
 
 		return i

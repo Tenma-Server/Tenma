@@ -9,8 +9,6 @@ from urllib.parse import quote
 
 class ComicFileHandler(object):
 
-	#==================================================================================================
-
 	def __init__(self):
 		# Set the unrar tool based on filesystem
 		if os.getenv('TENMA_UNRAR_PATH'):
@@ -21,7 +19,6 @@ class ComicFileHandler(object):
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar_mac"
 		elif sys.platform == 'linux':	# Linux
 			rarfile.UNRAR_TOOL = os.path.dirname(comics.__file__) + "/utils/unrar/unrar-nonfree_ubuntu"
-
 
 	#==================================================================================================
 
@@ -83,7 +80,6 @@ class ComicFileHandler(object):
 
 		return {'mediaurl': mediaurl, 'pages': pages}
 
-
 	#==================================================================================================
 
 	def extract_cover(self, file):
@@ -143,6 +139,48 @@ class ComicFileHandler(object):
 
 		return cover
 
+	#==================================================================================================
+
+	def get_page_count(self, file):
+		page_count = 0
+
+		filename = os.path.basename(file)
+		ext = os.path.splitext(filename)[1].lower()
+		mediaroot = settings.MEDIA_ROOT + '/images/'
+		tempfile = mediaroot + filename
+
+		# File validation
+		if utils.valid_comic_file(filename):
+			# Copy file to temp directory
+			copyfile(file, tempfile)
+			os.chmod(tempfile, 0o777)
+
+			if ext == '.pdf':
+				page_count = utils.get_PDF_page_count(file)
+			else:
+				# Change extension if needed
+				comic_file = self.normalise_comic_extension(tempfile)
+
+				# Get extractor
+				extractor = self.get_extractor(comic_file)
+
+				for f in extractor.infolist():
+					f_ext = os.path.splitext(f.filename)[1].lower()
+					if f_ext == '.jpg' or f_ext == '.jpeg' or\
+					   f_ext == '.png' or f_ext == '.gif':
+						page_count += 1
+
+				# Close out zip extractor
+				if ext == '.zip' or '.cbz':
+					extractor.close()
+
+		# Delete the temp comic file
+		if os.path.isfile(tempfile):
+			os.remove(tempfile)
+		elif os.path.isfile(comic_file):
+			os.remove(comic_file)
+
+		return page_count
 
 	#==================================================================================================
 
@@ -171,7 +209,6 @@ class ComicFileHandler(object):
 
 		return pages
 
-
 	#==================================================================================================
 
 	def _get_first_image(self, filelist):
@@ -185,7 +222,6 @@ class ComicFileHandler(object):
 			   f_ext == '.png' or f_ext == '.gif':
 				return f
 
-
 	#==================================================================================================
 
 	def _delete_existing_cover(self, filepath):
@@ -194,7 +230,6 @@ class ComicFileHandler(object):
 		if os.path.isfile(filepath):
 			os.chmod(filepath, 0o777)
 			os.remove(filepath)
-
 
 	#==================================================================================================
 
@@ -212,7 +247,6 @@ class ComicFileHandler(object):
 
 		return path
 
-
 	#==================================================================================================
 
 	def normalise_comic_extension(self, comic_file):
@@ -229,7 +263,6 @@ class ComicFileHandler(object):
 		os.rename(comic_file, c)
 
 		return c
-
 
 	#==================================================================================================
 

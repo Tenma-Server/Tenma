@@ -340,20 +340,55 @@ def extract_first_image_from_PDF(file, destination):
 
 		iend += 2
 		jpg = pdf[istart:iend]
-		with open(jpgpath, "wb") as jpgfile:
-			jpgfile.write(jpg)
+		size = iend - istart
+		if size >= 10000:
+			with open(jpgpath, "wb") as jpgfile:
+				jpgfile.write(jpg)
 
-		# Make sure the image isn't a thumbnail.
-		img = Image.open(jpgpath)
-		if img.size[1] < 200:
-			img.close()
-			os.remove(jpgpath)
-			i = istream + 20
-			continue
-		else:
-			img.close()
-			break
+		i = iend
 
 	f.close()
 
 	return jpgname
+
+#==============================================================================
+def get_PDF_page_count(file):
+	'''
+	Gets  and returns page count from PDF file.
+	'''
+
+	page_count = 0
+
+	with open(file, "rb") as f:
+		pdf = f.read()
+
+	i = 0
+
+	while True:
+		istream = pdf.find(b"stream", i)
+		if istream < 0:
+			break
+
+		istart = pdf.find(b"\xff\xd8", istream, istream + 20)
+		if istart < 0:
+			i = istream + 20
+			continue
+
+		iend = pdf.find(b"endstream", istart)
+		if iend < 0:
+			raise Exception("Didn't find end of stream!")
+		iend = pdf.find(b"\xff\xd9", iend - 20)
+		if iend < 0:
+			raise Exception("Didn't find end of JPG!")
+
+		iend += 2
+		jpg = pdf[istart:iend]
+		size = iend - istart
+		if size >= 10000:
+			page_count +=  1
+
+		i = iend
+
+	f.close()
+
+	return page_count

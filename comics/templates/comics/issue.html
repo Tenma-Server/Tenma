@@ -29,6 +29,7 @@
 			{% if issue.date %}
 			<p>Released: {{ issue.date }}</p>
 			{% endif %}
+			<p>{{ issue.page_count }} pages</p>
 		</div>
 
 		{% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
