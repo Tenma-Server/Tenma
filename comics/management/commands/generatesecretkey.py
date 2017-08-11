@@ -15,7 +15,7 @@ class Command(management.BaseCommand):
 
 	@staticmethod
 	def _generate_secret_key():
-		chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[\{]\{;:,<.>/?'
+		chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+'
 		return get_random_string(50, chars)
 
 	def handle(self, *args, **options):
