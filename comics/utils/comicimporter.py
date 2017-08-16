@@ -1,4 +1,4 @@
-import json, os, datetime, re, requests, requests_cache
+import json, os, datetime, re, requests, requests_cache, logging
 from urllib.request import urlretrieve
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Roles, Settings
@@ -10,6 +10,9 @@ from fuzzywuzzy import fuzz
 class ComicImporter(object):
 
 	def __init__(self):
+		# Setup logging
+		self.logger = logging.getLogger('tenma')
+
 		# Setup requests caching
 		requests_cache.install_cache('./media/CACHE/comicvine-cache', expire_after=1800)
 		requests_cache.core.remove_expired_responses()
@@ -59,10 +62,16 @@ class ComicImporter(object):
 							cvid = self._find_issue_match(entry.name)
 							if cvid != '':
 								# Process issue with ComicVine
-								self._process_issue(entry.path, cvid)
+								try:
+									self._process_issue(entry.path, cvid)
+								except Exception:
+									self.logger.exception('An error occurred while processing %s' % entry.path)
 							else:
 								# Process issue without ComicVine
-								self._process_issue_without_cvid(entry.path)
+								try:
+									self._process_issue_without_cvid(entry.path)
+								except Exception:
+									self.logger.exception('An error occurred while processing %s' % entry.path)
 			else:
 				self._process_dir(entry.path, excluded)
 
@@ -101,6 +110,7 @@ class ComicImporter(object):
 		'''
 
 		# Initialize response
+		found_issue = None
 		cvid = ''
 
 		# Attempt to extract series name, issue number, and year
@@ -115,61 +125,84 @@ class ComicImporter(object):
 
 		if matching_series:
 			if not matching_series[0].cvid == '':
-				cvid = self._find_match_with_series(matching_series[0].cvid, issue_number)
-				if not cvid == '':
-					return cvid
+				found_issue = self._find_match_with_series(matching_series[0].cvid, issue_number)
 
-		# Query Parameters
-		query_params = self.base_params
-		query_params['resources'] = 'issue'
-		query_params['field_list'] = self.query_issue_fields
-		query_params['limit'] = self.query_issue_limit
+		if found_issue is None:
+			# Query Parameters
+			query_params = self.base_params
+			query_params['resources'] = 'issue'
+			query_params['field_list'] = self.query_issue_fields
+			query_params['limit'] = self.query_issue_limit
 
-		# Check for series name and issue number, or just series name
-		if series_name and issue_number:
-			query_params['query'] = series_name + ' ' + issue_number
-			query_response = requests.get(
-				self.baseurl + 'search',
-				params=query_params,
-				headers=self.headers
-			).json()
-		elif series_name:
-			query_params['query'] = series_name_url
-			query_response = requests.get(
-				self.baseurl + 'search',
-				params=query_params,
-				headers=self.headers
-			).json()
-
-		best_option_list = []
-
-		# Try to find the closest match.
-		for issue in query_response['results']:
-			item_year = datetime.date.today().year
-			item_number = 1
-			item_name = ''
-
-			if 'cover_date' in issue:
-				if issue['cover_date']:
-					item_year = issue['cover_date'][0:4]
-			if 'issue_number' in issue:
-				if issue['issue_number']:
-					item_number = issue['issue_number']
-			if 'name' in issue['volume']:
-				if issue['volume']['name']:
-					item_name = issue['volume']['name']
-					item_name = utils.remove_special_characters(item_name)
-
+			# Check for series name and issue number, or just series name
 			if series_name and issue_number:
-				score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
-				if score >= 90:
-					if item_number == issue_number:
-						if item_year == issue_year:
-							best_option_list.insert(0, issue['id'])
-							break
-						best_option_list.insert(0, issue['id'])
+				query_params['query'] = series_name + ' ' + issue_number
+				query_response = requests.get(
+					self.baseurl + 'search',
+					params=query_params,
+					headers=self.headers
+				).json()
+			elif series_name:
+				query_params['query'] = series_name_url
+				query_response = requests.get(
+					self.baseurl + 'search',
+					params=query_params,
+					headers=self.headers
+				).json()
 
-		return best_option_list[0] if best_option_list else ''
+			best_option_list = []
+
+			# Try to find the closest match.
+			for issue in query_response['results']:
+				item_year = datetime.date.today().year
+				item_number = 1
+				item_name = ''
+
+				if 'cover_date' in issue:
+					if issue['cover_date']:
+						item_year = issue['cover_date'][0:4]
+				if 'issue_number' in issue:
+					if issue['issue_number']:
+						item_number = issue['issue_number']
+				if 'name' in issue['volume']:
+					if issue['volume']['name']:
+						item_name = issue['volume']['name']
+						item_name = utils.remove_special_characters(item_name)
+
+				if series_name and issue_number:
+					score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
+					if score >= 90:
+						if item_number == issue_number:
+							if item_year == issue_year:
+								best_option_list.insert(0, issue)
+								break
+							best_option_list.insert(0, issue)
+
+			found_issue = best_option_list[0] if best_option_list else None
+
+		cvid = found_issue['id'] if found_issue else ''
+
+		if found_issue is not None:
+			if 'name' in found_issue['volume']:
+				if found_issue['volume']['name']:
+					series = found_issue['volume']['name']
+			elif matching_series:
+					series = matching_series[0].name
+			if 'issue_number' in found_issue:
+				if found_issue['issue_number']:
+					number = found_issue['issue_number']
+				else:
+					number = ''
+			self.logger.info('\"%(filename)s\" was matched on Comic Vine as \"%(series)s - #%(number)s\" (%(CVID)s)' % {
+			 	'filename': filename,
+				'series': series,
+				'number': number,
+				'CVID': cvid
+			})
+		else:
+			self.logger.warning('No match was found for \"%s\" on Comic Vine.' % filename)
+
+		return cvid
 
 	#==================================================================================================
 
@@ -177,15 +210,15 @@ class ComicImporter(object):
 		'''
 		Try to retrieve a match based on an existing series name.
 
-		Returns a ComicVine ID.
+		Returns an issue from list.
 		'''
 
-		issue_cvid = ''
+		found_issue = None
 
 		if issue_number:
 			# Query Parameters
 			query_params = self.base_params
-			query_params['field_list'] = 'issues'
+			query_params['field_list'] = 'issues,name'
 
 			# Attempt to find issue based on extracted Series Name and Issue Number
 			query_response = requests.get(
@@ -198,9 +231,9 @@ class ComicImporter(object):
 			for issue in query_response['results']['issues']:
 				item_number = issue['issue_number'] if issue['issue_number'] else ''
 				if item_number == issue_number:
-					issue_cvid = issue['id']
+					found_issue = issue
 
-		return issue_cvid
+		return found_issue
 
 	#==================================================================================================
 
@@ -244,6 +277,12 @@ class ComicImporter(object):
 			issue.save()
 		else:
 			self._reprocess_issue_without_cvid(matching_issue[0].id)
+
+		self.logger.info('\"%(filename)s\" was processed successfully as \"%(series)s - #%(number)s\"' % {
+			'filename': filename,
+			'series': issue.series.name,
+			'number': issue.number
+		})
 
 	#==================================================================================================
 
@@ -368,6 +407,13 @@ class ComicImporter(object):
 				self._create_team(team['api_detail_url'], issue.id)
 			else:
 				issue.teams.add(self._update_team(matching_team[0].id, team['api_detail_url']))
+
+		self.logger.info('\"%(filename)s\" was processed successfully as \"%(series)s - #%(number)s\" (%(CVID)s)' % {
+			'filename': filename,
+			'series': series.name,
+			'number': issue.number,
+			'CVID': issue.cvid
+		})
 
 	#==================================================================================================
 
