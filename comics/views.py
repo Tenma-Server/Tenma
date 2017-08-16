@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.http import HttpResponseRedirect, JsonResponse
 from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings, Roles
 from .tasks import import_comic_files_task, reprocess_issue_task
@@ -92,6 +92,10 @@ class IssueUpdateView(UpdateView):
 	def form_valid(self, form):
 		self.object = form.save()
 		return render(self.request, 'comics/issue_update_success.html', {'issue-update': self.object})
+
+class IssueDeleteView(DeleteView):
+	model = Issue
+	success_url = '/'
 
 def read(request, issue_id):
 	issue = get_object_or_404(Issue, pk=issue_id)

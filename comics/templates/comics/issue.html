@@ -30,6 +30,9 @@
 			<p>Released: {{ issue.date }}</p>
 			{% endif %}
 			<p>{{ issue.page_count }} pages</p>
+			<form action="{% url 'comics:issue-delete' issue.id %}" method="post">{% csrf_token %}
+				<input type="submit" name="remove-issue" value="Remove">
+			</form>
 		</div>
 
 		{% include "comics/related_arcs.html" with arc_list=issue.arcs.all %}
