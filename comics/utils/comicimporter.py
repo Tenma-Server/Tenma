@@ -164,6 +164,7 @@ class ComicImporter(object):
 				if 'issue_number' in issue:
 					if issue['issue_number']:
 						item_number = issue['issue_number']
+				if 'volume' in issue:
 				if 'name' in issue['volume']:
 					if issue['volume']['name']:
 						item_name = issue['volume']['name']
@@ -183,6 +184,7 @@ class ComicImporter(object):
 		cvid = found_issue['id'] if found_issue else ''
 
 		if found_issue is not None:
+			if 'volume' in found_issue:
 			if 'name' in found_issue['volume']:
 				if found_issue['volume']['name']:
 					series = found_issue['volume']['name']
