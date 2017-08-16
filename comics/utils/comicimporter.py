@@ -165,10 +165,10 @@ class ComicImporter(object):
 					if issue['issue_number']:
 						item_number = issue['issue_number']
 				if 'volume' in issue:
-				if 'name' in issue['volume']:
-					if issue['volume']['name']:
-						item_name = issue['volume']['name']
-						item_name = utils.remove_special_characters(item_name)
+					if 'name' in issue['volume']:
+						if issue['volume']['name']:
+							item_name = issue['volume']['name']
+							item_name = utils.remove_special_characters(item_name)
 
 				if series_name and issue_number:
 					score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
@@ -185,9 +185,9 @@ class ComicImporter(object):
 
 		if found_issue is not None:
 			if 'volume' in found_issue:
-			if 'name' in found_issue['volume']:
-				if found_issue['volume']['name']:
-					series = found_issue['volume']['name']
+				if 'name' in found_issue['volume']:
+					if found_issue['volume']['name']:
+						series = found_issue['volume']['name']
 			elif matching_series:
 					series = matching_series[0].name
 			if 'issue_number' in found_issue:
