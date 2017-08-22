@@ -10,8 +10,8 @@ from fuzzywuzzy import fuzz
 class ComicImporter(object):
 
 	def __init__(self):
-		# Setup logging
 		# Configure logging
+		logging.getLogger("requests").setLevel(logging.WARNING)
 		self.logger = logging.getLogger('tenma')
 
 		# Setup requests caching
