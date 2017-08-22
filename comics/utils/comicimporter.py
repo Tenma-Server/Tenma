@@ -39,6 +39,18 @@ class ComicImporter(object):
 		self.series_fields = 'api_detail_url,deck,description,id,name,publisher,site_detail_url,start_year'
 		self.team_fields = 'characters,deck,description,id,image,name,site_detail_url'
 
+		# International reprint publishers
+		# Ordered by # of issues (est.) for quick matching.
+		self.int_pubs = [
+			2350,	# Panini (21.5k)
+			2812,	# Marvel UK (4.2k)
+			2094,	# Abril (2.1k)
+			2319,	# Planeta DeAgostini (2.1k)
+			2903,	# Ediciones Zinco (0.7k)
+			1133,	# Semic As (0.3k)
+			2961,	# Marvel Italia (0.04k)
+		]
+
 	#==================================================================================================
 
 	def import_comic_files(self):
@@ -158,6 +170,7 @@ class ComicImporter(object):
 				item_year = datetime.date.today().year
 				item_number = 1
 				item_name = ''
+				item_pub_id = ''
 
 				if 'cover_date' in issue:
 					if issue['cover_date']:
@@ -171,16 +184,48 @@ class ComicImporter(object):
 							item_name = issue['volume']['name']
 							item_name = utils.remove_special_characters(item_name)
 
-				if series_name and issue_number:
-					score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 2
-					if score >= 90:
-						if item_number == issue_number:
-							if item_year == issue_year:
-								best_option_list.insert(0, issue)
-								break
-							best_option_list.insert(0, issue)
+					# Get publisher ID
+					pub_check_params = self.base_params
+					pub_check_params['field_list'] = 'publisher'
+					pub_check_response = requests.get(
+						self.baseurl + 'volume/4050-' + str(issue['volume']['id']),
+						params=pub_check_params,
+						headers=self.headers,
+					).json()
 
-			found_issue = best_option_list[0] if best_option_list else None
+					if 'publisher' in pub_check_response['results']:
+						if pub_check_response['results']['publisher'] is not None:
+							item_pub_id = pub_check_response['results']['publisher']['id']
+
+				# Get the match score (0-5)
+				if series_name:
+					# Fuzzy match the series name.
+					# Gives a score between 0 and 2.
+					score = (fuzz.ratio(item_name.lower(), series_name.lower()) + fuzz.partial_ratio(item_name.lower(), series_name.lower())) / 100
+
+					# If the issue number is the same, add 1 point.
+					if item_number == issue_number:
+						score += 1
+
+					# If the year is the same, add 2 points.
+					if issue_year != '':
+						if item_year == issue_year:
+							score += 2
+
+					# If the publisher is an international reprint, subtract a point.
+					if item_pub_id != '':
+						if item_pub_id in self.int_pubs:
+							score = score - 1 if score > 1 else 0
+
+					# Add the issue and it's score to the list.
+					best_option_list.insert(0, {
+						'score': score,
+						'issue': issue,
+					})
+
+			# Sort the list by score, and pick the top scoring issue.
+			best_option_list.sort(key=lambda x: x['score'], reverse=True)
+			found_issue = best_option_list[0]['issue'] if best_option_list else None
 
 		cvid = found_issue['id'] if found_issue else ''
 
