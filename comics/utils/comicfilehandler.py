@@ -236,7 +236,7 @@ class ComicFileHandler(object):
 	def _normalise_image_name(self, filepath):
 		'''	Returns a normalised image name. '''
 
-		path_normalise = re.compile(r"[/\\]{1,2}")
+		path_normalise = re.compile(r"[/\\]{1,}")
 		filename = path_normalise.sub("`", filepath).split('`')[-1]
 		return filename
 
