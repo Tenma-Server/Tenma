@@ -11,6 +11,7 @@ class ComicImporter(object):
 
 	def __init__(self):
 		# Setup logging
+		# Configure logging
 		self.logger = logging.getLogger('tenma')
 
 		# Setup requests caching
