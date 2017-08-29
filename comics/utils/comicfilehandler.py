@@ -75,8 +75,11 @@ class ComicFileHandler(object):
 
 			for root, dirs, files in os.walk(temppath):
 				for file in files:
-					image_path = root + '/' + file
-					utils.optimize_image(image_path, 75, 1920)
+					file_ext = os.path.splitext(file)[1].lower()
+					if file_ext == '.jpg' or file_ext == '.jpeg' or \
+					   file_ext == '.png' or file_ext == '.gif':
+						image_path = root + '/' + file
+						utils.optimize_image(image_path, 75, 1920)
 
 		return {'mediaurl': mediaurl, 'pages': pages}
 
