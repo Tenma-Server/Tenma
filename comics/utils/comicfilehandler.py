@@ -75,9 +75,7 @@ class ComicFileHandler(object):
 
 			for root, dirs, files in os.walk(temppath):
 				for file in files:
-					file_ext = os.path.splitext(file)[1].lower()
-					if file_ext == '.jpg' or file_ext == '.jpeg' or \
-					   file_ext == '.png' or file_ext == '.gif':
+					if utils.valid_image_file(file):
 						image_path = root + '/' + file
 						utils.optimize_image(image_path, 75, 1920)
 
@@ -167,10 +165,8 @@ class ComicFileHandler(object):
 				# Get extractor
 				extractor = self.get_extractor(comic_file)
 
-				for f in extractor.infolist():
-					f_ext = os.path.splitext(f.filename)[1].lower()
-					if f_ext == '.jpg' or f_ext == '.jpeg' or\
-					   f_ext == '.png' or f_ext == '.gif':
+				for file in extractor.infolist():
+					if utils.valid_image_file(file):
 						page_count += 1
 
 				# Close out zip extractor
@@ -198,9 +194,8 @@ class ComicFileHandler(object):
 			sorted_files = sorted(files)
 			i = 0
 			for file in sorted_files:
-				file_ext = os.path.splitext(file)[1].lower()
-				if file_ext == '.jpg' or file_ext == '.jpeg' or\
-				   file_ext == '.png' or file_ext == '.gif':
+				if utils.valid_image_file(file):
+					file_ext = os.path.splitext(file)[1].lower()
 					path = os.path.join(root,file)
 					numbered_file = "%03d" % (i,) + file_ext
 					os.rename(path, filepath + '/' + numbered_file)
@@ -219,11 +214,9 @@ class ComicFileHandler(object):
 
 		sorted_list = sorted(filelist)
 
-		for f in sorted_list:
-			f_ext = os.path.splitext(f)[1].lower()
-			if f_ext == '.jpg' or f_ext == '.jpeg' or\
-			   f_ext == '.png' or f_ext == '.gif':
-				return f
+		for file in sorted_list:
+			if utils.valid_image_file(file):
+				return file
 
 	#==================================================================================================
 

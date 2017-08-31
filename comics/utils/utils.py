@@ -232,6 +232,18 @@ def valid_comic_file(comic_file):
    else:
       return False
 
+   # ==============================================================================
+def valid_image_file(image_file):
+   ''' Checks for valid image file based on file extension'''
+
+   file_ext = os.path.splitext(image_file)[1].lower()
+
+   if file_ext == '.jpg' or file_ext == '.jpeg' or \
+      file_ext == '.png' or file_ext == '.gif':
+       return True
+   else:
+       return False
+
 
 #==============================================================================
 def parse_CV_HTML(string):
