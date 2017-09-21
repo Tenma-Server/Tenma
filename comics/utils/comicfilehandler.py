@@ -166,7 +166,7 @@ class ComicFileHandler(object):
 				extractor = self.get_extractor(comic_file)
 
 				for file in extractor.infolist():
-					if utils.valid_image_file(file):
+					if utils.valid_image_file(file.filename):
 						page_count += 1
 
 				# Close out zip extractor
