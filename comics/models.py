@@ -4,13 +4,11 @@ import datetime,os,rarfile,zipfile,tarfile
 
 from shutil import copyfile
 from multiselectfield import MultiSelectField
-
 from django.db import models
 from solo.models import SingletonModel
 from django.utils import timezone
 from django.conf import settings
 from django.core.validators import RegexValidator
-
 from .utils.comicfilehandler import ComicFileHandler
 
 """
@@ -60,9 +58,9 @@ class Settings(SingletonModel):
 class Arc(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
-	name = models.CharField('Arc name', max_length=200)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images", blank=True)
+	name = models.CharField(max_length=200)
+	desc = models.TextField(max_length=500, blank=True)
+	image = models.FilePathField(path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -70,9 +68,9 @@ class Arc(models.Model):
 class Team(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
-	name = models.CharField('Team name', max_length=200)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images", blank=True)
+	name = models.CharField(max_length=200)
+	desc = models.TextField(max_length=500, blank=True)
+	image = models.FilePathField(path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -80,10 +78,10 @@ class Team(models.Model):
 class Character(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
-	name = models.CharField('Character name', max_length=200)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	teams = models.ManyToManyField(Team, blank=True)
-	image = models.FilePathField('Image file path', path="media/images", blank=True)
+	name = models.CharField(max_length=200)
+	desc = models.TextField(max_length=500, blank=True)
+	teams = models.ManyToManyField(Team, related_name="characters", blank=True)
+	image = models.FilePathField(path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -91,9 +89,9 @@ class Character(models.Model):
 class Creator(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
-	name = models.CharField('Creator name', max_length=200)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	image = models.FilePathField('Image file path', path="media/images", blank=True)
+	name = models.CharField(max_length=200)
+	desc = models.TextField(max_length=500, blank=True)
+	image = models.FilePathField(path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -101,9 +99,9 @@ class Creator(models.Model):
 class Publisher(models.Model):
 	cvid = models.CharField(max_length=15)
 	cvurl = models.URLField(max_length=200)
-	name = models.CharField('Series name', max_length=200)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	logo = models.FilePathField('Logo file path', path="media/images", blank=True)
+	name = models.CharField(max_length=200)
+	desc = models.TextField(max_length=500, blank=True)
+	logo = models.FilePathField(path="media/images", blank=True)
 
 	def __str__(self):
 		return self.name
@@ -111,10 +109,10 @@ class Publisher(models.Model):
 class Series(models.Model):
 	cvid = models.CharField(max_length=15, blank=True)
 	cvurl = models.URLField(max_length=200, blank=True)
-	name = models.CharField('Series name', max_length=200)
-	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True, blank=True)
-	year = models.PositiveSmallIntegerField('year', choices=YEAR_CHOICES, default=datetime.datetime.now().year, blank=True)
-	desc = models.TextField('Description', max_length=500, blank=True)
+	name = models.CharField(max_length=200)
+	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True, related_name="series", blank=True)
+	year = models.PositiveSmallIntegerField(choices=YEAR_CHOICES, default=datetime.datetime.now().year, blank=True)
+	desc = models.TextField(max_length=500, blank=True)
 
 	def __str__(self):
 		return self.name
@@ -128,23 +126,27 @@ class Series(models.Model):
 	def unread_issue_count(self):
 		return self.issue_set.exclude(status=2).count()
 
+	@property
+	def image(self):
+		return self.issues.all().order_by('number').first().image
+
 	class Meta:
 		verbose_name_plural = "Series"
 
 class Issue(models.Model):
-	cvid = models.CharField('ComicVine ID', max_length=15, blank=True)
+	cvid = models.CharField(max_length=15, blank=True)
 	cvurl = models.URLField(max_length=200, blank=True)
-	series = models.ForeignKey(Series, on_delete=models.CASCADE, blank=True)
-	name = models.CharField('Issue name', max_length=200, blank=True)
-	number = models.PositiveSmallIntegerField('Issue number')
-	date = models.DateField('Cover date', blank=True)
-	desc = models.TextField('Description', max_length=500, blank=True)
-	arcs = models.ManyToManyField(Arc, blank=True)
-	characters = models.ManyToManyField(Character, blank=True)
-	teams = models.ManyToManyField(Team, blank=True)
-	file = models.FilePathField('File path', path="files/", recursive=True)
-	cover = models.FilePathField('Cover file path', path="media/images", blank=True)
-	status = models.PositiveSmallIntegerField('Status', choices=STATUS_CHOICES, default=0, blank=True)
+	series = models.ForeignKey(Series, on_delete=models.CASCADE, related_name="issues", blank=True)
+	name = models.CharField(max_length=200, blank=True)
+	number = models.PositiveSmallIntegerField()
+	date = models.DateField(blank=True)
+	desc = models.TextField(max_length=500, blank=True)
+	arcs = models.ManyToManyField(Arc, related_name="issues", blank=True)
+	characters = models.ManyToManyField(Character, related_name="issues", blank=True)
+	teams = models.ManyToManyField(Team, related_name="issues", blank=True)
+	file = models.FilePathField(path="files/", recursive=True)
+	cover = models.FilePathField(path="media/images", blank=True)
+	status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=0, blank=True)
 	leaf = models.PositiveSmallIntegerField(editable=False, default=1, blank=True)
 	page_count = models.PositiveSmallIntegerField(editable=False, default=1, blank=True)
 
@@ -157,7 +159,6 @@ class Issue(models.Model):
 	def page_set(self):
 		comicfilehandler = ComicFileHandler()
 		comic = comicfilehandler.extract_comic(self.file, self.id)
-
 		return comic
 
 class Roles(models.Model):

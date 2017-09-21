@@ -65,10 +65,10 @@ class ComicFileHandler(object):
 					extractor.close()
 
 			# Delete the file after extraction so that space isn't wasted.
-			if os.path.isfile(tempfile):
-				os.remove(tempfile)
-			elif os.path.isfile(comic_file):
-				os.remove(comic_file)
+#			if os.path.isfile(tempfile):
+#				os.remove(tempfile)
+#			elif os.path.isfile(comic_file):
+#				os.remove(comic_file)
 
 			# Get a list of pages
 			pages = self._get_file_list(temppath)

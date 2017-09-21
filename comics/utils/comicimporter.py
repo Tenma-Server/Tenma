@@ -355,7 +355,7 @@ class ComicImporter(object):
 			Issue.objects.filter(id=issue_id).update(
 				number=issue_number if issue_number else 1,
 				date=issue_year + '-01-01' if issue_year else datetime.date.today(),
-				cover=issue_cover,
+				image=issue_image,
 			)
 
 			# 3. Update Series information:
@@ -932,7 +932,7 @@ class ComicImporter(object):
 			number=data['number'],
 			date=data['date'],
 			series=series,
-			cover=data['image'],
+			image=data['image'],
 		)
 
 		return Issue.objects.get(id=obj_id)
@@ -1054,7 +1054,7 @@ class ComicImporter(object):
 		issue.characters.clear()
 		Roles.objects.filter(issue=issue).delete()
 		issue.teams.clear()
-		issue.cover = ''
+		issue.image = ''
 
 		issue.save()
 
