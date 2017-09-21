@@ -1,20 +1,14 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import UpdateView
+from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, renderers
 from rest_framework.decorators import api_view, detail_route
-from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings
+from .models import Series, Issue, Character, Arc, Team, Publisher, Creator, Settings, Roles
 from .serializers import ArcSerializer, CharacterSerializer, CreatorSerializer, \
 	GroupSerializer, IssueSerializer, PublisherSerializer, SeriesSerializer, \
 	SettingsSerializer, TeamSerializer, UserSerializer
-from .tasks import import_comic_files_task, reprocess_issue_task
 
 def index(request):
 	return render(request, 'comics/index.html')
-
-# API VIEWS #
 
 @api_view(['GET'])
 def api_root(request, format=None):

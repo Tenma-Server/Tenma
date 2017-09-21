@@ -20,13 +20,56 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'v0v)u49dj#c6vdnr9a5fl*mv$=9b3n#y=_f#frz^x-cqg*#pe_'
+# To generate a SECRET_KEY, use The following command:
+# python manage.py generatesecretkey
+SECRET_KEY = '<secret-key>'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# LOGGING
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s | %(asctime)s | %(module)s | %(message)s',
+            'datefmt': '%m/%d/%Y %I:%M:%S %p',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR, 'logs', 'tenma.log'),
+            'maxBytes': 1024*1024*15, # 15MB
+            'backupCount': 5,
+        },
+    },
+    'loggers': {
+        'django.server': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'tenma': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
+}
 
 # Application definition
 
@@ -86,6 +129,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 20,
+        },
     }
 }
 
