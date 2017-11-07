@@ -11,6 +11,8 @@ from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issu
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
 
+from .comicapi.issuestring import IssueString
+
 from fuzzywuzzy import fuzz
 
 
@@ -373,9 +375,11 @@ class ComicImporter(object):
             issue_cover = cfh.extract_cover(issue.file)
             issue.page_count = cfh.get_page_count(issue.file)
 
+            num = issue_number if issue_number else 1
+
             # 2. Update Issue information:
             Issue.objects.filter(id=issue_id).update(
-                number=issue_number if issue_number else 1,
+                number=IssueString(num).asString(pad=3),
                 date=issue_year + '-01-01' if issue_year else datetime.date.today(),
                 cover=issue_cover,
             )
@@ -718,7 +722,7 @@ class ComicImporter(object):
             cvurl=data['cvurl'],
             name=data['name'],
             desc=data['desc'],
-            number=data['number'],
+            number=IssueString(data['number']).asString(pad=3),
             date=data['date'],
             file=file,
             series=series,
@@ -964,7 +968,7 @@ class ComicImporter(object):
             cvurl=data['cvurl'],
             name=data['name'],
             desc=data['desc'],
-            number=data['number'],
+            number=IssueString(data['number']).asString(pad=3),
             date=data['date'],
             series=series,
             cover=data['image'],
@@ -1082,7 +1086,7 @@ class ComicImporter(object):
 
         issue.cvurl = ''
         issue.name = ''
-        issue.number = 1
+        issue.number = IssueString('1').asString(pad=3),
         issue.date = datetime.date.today()
         issue.desc = ''
         issue.arcs.clear()
