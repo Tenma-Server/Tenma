@@ -129,6 +129,7 @@ class Series(models.Model):
     cvid = models.CharField(max_length=15, blank=True)
     cvurl = models.URLField(max_length=200, blank=True)
     name = models.CharField('Series name', max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
     publisher = models.ForeignKey(
         Publisher, on_delete=models.CASCADE, null=True, blank=True)
     year = models.PositiveSmallIntegerField(

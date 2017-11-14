@@ -835,11 +835,17 @@ class ComicImporter(object):
 
         data = self._get_object_data(response['results'])
 
+        if (data['year']) is not None:
+            slugy = (data['name'] + ' ' + data['year'])
+        else:
+            slugy = data['name']
+
         # Create Series
         s = Series.objects.create(
             cvid=data['cvid'],
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(slugy),
             desc=data['desc'],
             year=data['year'],
         )
@@ -1067,10 +1073,16 @@ class ComicImporter(object):
 
         data = self._get_object_data(response['results'])
 
+        if (data['year']) is not None:
+            slugy = (data['name'] + ' ' + data['year'])
+        else:
+            slugy = data['name']
+
         # Update Series
         Series.objects.filter(id=obj_id).update(
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(slugy),
             desc=data['desc'],
             year=data['year'],
         )
