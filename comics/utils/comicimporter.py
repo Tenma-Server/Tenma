@@ -5,6 +5,7 @@ import re
 import requests
 import requests_cache
 import logging
+from django.utils.text import slugify
 from urllib.request import urlretrieve
 from urllib.parse import quote_plus, unquote_plus
 from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issue, Roles, Settings
@@ -759,6 +760,7 @@ class ComicImporter(object):
             cvid=data['cvid'],
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(data['name']),
             desc=data['desc'],
             logo=data['image'],
         )
@@ -1001,6 +1003,7 @@ class ComicImporter(object):
         Publisher.objects.filter(id=obj_id).update(
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(data['name']),
             desc=data['desc'],
             logo=data['image'],
         )

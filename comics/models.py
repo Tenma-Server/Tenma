@@ -116,6 +116,7 @@ class Publisher(models.Model):
     cvid = models.CharField(max_length=15)
     cvurl = models.URLField(max_length=200)
     name = models.CharField('Series name', max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
     desc = models.TextField('Description', max_length=500, blank=True)
     logo = models.FilePathField(
         'Logo file path', path="media/images", blank=True)

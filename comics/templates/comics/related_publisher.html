@@ -1,6 +1,6 @@
 {% if publisher %}
 <div class="related-publisher">
-	<a href="{% url 'comics:publisher' publisher.id %}">
+	<a href="{% url 'comics:publisher' publisher.slug %}">
 		{% if publisher.logo|length %}
 			<img src="/{{ publisher.logo|urlencode }}" alt = "{{ publisher.name }}" >
 		{% else %}
