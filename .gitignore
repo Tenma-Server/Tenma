@@ -16,3 +16,5 @@ celerybeat-schedule.db
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+*~
