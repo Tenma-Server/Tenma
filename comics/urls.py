@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^issue/(?P<issue_id>[0-9]+)/read$', read, name='read'),
     url(r'^issue/(?P<issue_id>[0-9]+)/update-status$',
         update_issue_status, name='update_issue_status'),
-    url(r'^character/(?P<pk>[0-9]+)$',
+    url(r'^character/(?P<slug>[\w\-]+)/$',
         CharacterView.as_view(), name='character'),
     url(r'^arc/(?P<pk>[0-9]+)$', ArcView.as_view(), name='arc'),
     url(r'^team/(?P<slug>[\w\-]+)/$', TeamView.as_view(), name='team'),
