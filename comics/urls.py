@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^character/(?P<pk>[0-9]+)$',
         CharacterView.as_view(), name='character'),
     url(r'^arc/(?P<pk>[0-9]+)$', ArcView.as_view(), name='arc'),
-    url(r'^team/(?P<pk>[0-9]+)$', TeamView.as_view(), name='team'),
+    url(r'^team/(?P<slug>[\w\-]+)/$', TeamView.as_view(), name='team'),
     url(r'^publisher/(?P<slug>[\w\-]+)/$',
         PublisherView.as_view(), name='publisher'),
     url(r'^creator/(?P<slug>[\w\-]+)/$', CreatorView.as_view(), name='creator'),

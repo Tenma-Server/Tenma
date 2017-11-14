@@ -8,7 +8,7 @@
 		<ul class="slides">
 			{% for team in team_list %}
 			<li>
-				<a href="{% url 'comics:team' team.id %}">
+				<a href="{% url 'comics:team' team.slug %}">
 					<div class="image">
 						{% if team.image %}
 							<img src="{{ team.image|smartcrop:"200x305"|urlencode }}" alt="{{ team.name }}" >
