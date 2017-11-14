@@ -20,7 +20,7 @@
 {% block content %}
 
 <div class="flexslider reader-slider">
-	<div class="issue-data" data-id="{{ issue.id }}" data-leaf="{{ issue.leaf }}"></div>
+	<div class="issue-data" data-id="{{ issue.slug }}" data-leaf="{{ issue.leaf }}"></div>
 	<ul class="slides">
 		{% for item in issue.page_set.pages %}
 		{% with mediaurl=issue.page_set.mediaurl %}

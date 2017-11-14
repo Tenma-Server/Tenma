@@ -161,6 +161,7 @@ class Issue(models.Model):
     cvurl = models.URLField(max_length=200, blank=True)
     series = models.ForeignKey(Series, on_delete=models.CASCADE, blank=True)
     name = models.CharField('Issue name', max_length=200, blank=True)
+    slug = models.SlugField(max_length=200, unique=True)
     number = models.CharField('Issue number', max_length=25)
     date = models.DateField('Cover date', blank=True)
     desc = models.TextField('Description', max_length=500, blank=True)

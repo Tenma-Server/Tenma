@@ -8,6 +8,6 @@ def import_comic_files_task():
 	importer.import_comic_files()
 
 @task(name="reprocess_issue_task")
-def reprocess_issue_task(issue_id):
+def reprocess_issue_task(slug):
 	comicimporter = ComicImporter()
-	comicimporter.reprocess_issue(issue_id)
+	comicimporter.reprocess_issue(slug)

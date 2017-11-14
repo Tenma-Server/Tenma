@@ -105,10 +105,10 @@ class ComicImporter(object):
 
     #=========================================================================
 
-    def reprocess_issue(self, issue_id):
+    def reprocess_issue(self, slug):
         ''' Reprocess an existing issue in the comics directories. '''
 
-        issue = Issue.objects.get(id=issue_id)
+        issue = Issue.objects.get(slug=slug)
         cvid = ''
 
         # Check if there's already a cvid.
@@ -720,13 +720,22 @@ class ComicImporter(object):
 
         series = Series.objects.get(id=series_id)
 
+        fixed_number = IssueString(data['number']).asString(pad=3)
+
+        if (data['date']) is not None:
+            dt = datetime.datetime.strptime(data['date'], "%Y-%m-%d")
+            slugy = series.name + ' ' + fixed_number + ' ' + str(dt.year)
+        else:
+            slugy = series.name + ' ' + fixed_number
+
         # Create Issue
         i = Issue.objects.create(
             cvid=data['cvid'],
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(slugy),
             desc=data['desc'],
-            number=IssueString(data['number']).asString(pad=3),
+            number=fixed_number,
             date=data['date'],
             file=file,
             series=series,
@@ -978,12 +987,21 @@ class ComicImporter(object):
 
         series = Series.objects.get(id=series_id)
 
+        fixed_number = IssueString(data['number']).asString(pad=3)
+
+        if (data['date']) is not None:
+            dt = datetime.datetime.strptime(data['date'], "%Y-%m-%d")
+            slugy = series.name + ' ' + fixed_number + ' ' + str(dt.year)
+        else:
+            slugy = series.name + ' ' + fixed_number
+
         # Update Issue
         Issue.objects.filter(id=obj_id).update(
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(slugy),
             desc=data['desc'],
-            number=IssueString(data['number']).asString(pad=3),
+            number=fixed_number,
             date=data['date'],
             series=series,
             cover=data['image'],
