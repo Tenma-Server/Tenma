@@ -609,6 +609,7 @@ class ComicImporter(object):
             cvid=data['cvid'],
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(data['name']),
             desc=data['desc'],
             image=data['image'],
         )
@@ -880,6 +881,7 @@ class ComicImporter(object):
         Arc.objects.filter(id=obj_id).update(
             cvurl=data['cvurl'],
             name=data['name'],
+            slug=slugify(data['name']),
             desc=data['desc'],
             image=data['image'],
         )

@@ -17,7 +17,7 @@ urlpatterns = [
         update_issue_status, name='update_issue_status'),
     url(r'^character/(?P<slug>[\w\-]+)/$',
         CharacterView.as_view(), name='character'),
-    url(r'^arc/(?P<pk>[0-9]+)$', ArcView.as_view(), name='arc'),
+    url(r'^arc/(?P<slug>[\w\-]+)/$', ArcView.as_view(), name='arc'),
     url(r'^team/(?P<slug>[\w\-]+)/$', TeamView.as_view(), name='team'),
     url(r'^publisher/(?P<slug>[\w\-]+)/$',
         PublisherView.as_view(), name='publisher'),
