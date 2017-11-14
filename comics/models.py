@@ -104,6 +104,7 @@ class Creator(models.Model):
     cvid = models.CharField(max_length=15)
     cvurl = models.URLField(max_length=200)
     name = models.CharField('Creator name', max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
     desc = models.TextField('Description', max_length=500, blank=True)
     image = models.FilePathField(
         'Image file path', path="media/images", blank=True)

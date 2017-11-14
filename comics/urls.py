@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^team/(?P<pk>[0-9]+)$', TeamView.as_view(), name='team'),
     url(r'^publisher/(?P<slug>[\w\-]+)/$',
         PublisherView.as_view(), name='publisher'),
-    url(r'^creator/(?P<pk>[0-9]+)$', CreatorView.as_view(), name='creator'),
+    url(r'^creator/(?P<slug>[\w\-]+)/$', CreatorView.as_view(), name='creator'),
     url('importer', importer, name='importer'),
     url(r'^issue/(?P<pk>[0-9]+)/update/$',
         IssueUpdateView.as_view(), name='issue-update'),
