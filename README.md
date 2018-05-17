@@ -1,6 +1,6 @@
 ![logo-banner](./screenshots/banner.png)
 
-## This project is currently on hiatus while I'm focussing on some other work. The project is not dead, and I will return to it. If you have any urgent bugs or issues please create an issue and I will try and get to it as soon as possible. Sorry for any inconveniences. ##
+## This project is currently on hiatus while I'm focussing on some other work. The project is not dead, and I will return to it. I still have big plans for it. If you have any urgent bugs or issues please create an issue and I will try and get to it as soon as possible. Sorry for any inconveniences. ##
 
 **Tenma is currently in alpha. I can not claim that this application is secure to run over the internet.**
 
