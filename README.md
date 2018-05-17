@@ -1,5 +1,7 @@
 ![logo-banner](./screenshots/banner.png)
 
+## This project is currently on hiatus while I'm focussing on some other work. The project is not dead, and I will return to it. If you have any urgent bugs or issues please create an issue and I will try and get to it as soon as possible. Sorry for any inconveniences. ##
+
 **Tenma is currently in alpha. I can not claim that this application is secure to run over the internet.**
 
 Tenma is a self-hosted server that allows you to store, organize, and read DRM-free digital comic books. Tenma leverages the [ComicVine](http://comicvine.gamespot.com) [API](http://comicvine.gamespot.com/api) to retrieve metadata for your comics that will show how your different comics are related (ComicVine account required for this optional feature).
