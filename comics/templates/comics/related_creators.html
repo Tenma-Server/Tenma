@@ -8,7 +8,7 @@
 		<ul class="slides">
 			{% for roles in roles_list %}
 			<li>
-				<a href="{% url 'comics:creator' roles.creator.id %}">
+				<a href="{% url 'comics:creator' roles.creator.slug %}">
 					<div class="image">
 					{% if roles.creator.image %}
 						<img src="{{ roles.creator.image|smartcrop:"200x305"|urlencode }}" alt="{{ roles.creator.name }}" >

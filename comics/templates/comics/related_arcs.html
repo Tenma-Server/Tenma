@@ -6,7 +6,7 @@
 			<p>Story arc{{ arc_list|pluralize }}: 
 		{% endif %}
 
-		<a href="{% url 'comics:arc' arc.id %}"><i><u>{{ arc.name }}</u></i></a>
+		<a href="{% url 'comics:arc' arc.slug %}"><i><u>{{ arc.name }}</u></i></a>
 
 		{% if not forloop.last %}
 			,

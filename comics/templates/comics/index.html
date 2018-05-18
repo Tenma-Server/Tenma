@@ -17,7 +17,7 @@
 		{% for series in all_series %}
 			{% if series.issue_set.all %}
 			<li>
-				<a href="{% url 'comics:series' series.id %}">
+				<a href="{% url 'comics:series' series.slug %}">
 					<img src="{{ series.issue_numerical_order_set.first.cover|smartcrop:"1280x1950"|urlencode }}" alt = "{{ series.name }}" >
 					{% if series.unread_issue_count > 0 %}
 						<div class="unread-count">
@@ -25,7 +25,7 @@
 						</div>
 					{% endif %}
 				</a>
-				<a href="{% url 'comics:series' series.id %}"><p>{{ series.name }}</p></a>
+				<a href="{% url 'comics:series' series.slug %}"><p>{{ series.name }}</p></a>
 			</li>
 			{% endif %}
 		{% endfor %}

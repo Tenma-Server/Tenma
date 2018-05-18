@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 <div class="modal-dialog modal-lg" role="document">
-	<form action="{% url 'comics:issue-update' issue.id %}" method="post" id="issue-update" class="form">{% csrf_token %}
+	<form action="{% url 'comics:issue-update' issue.slug %}" method="post" id="issue-update" class="form">{% csrf_token %}
 		<div class="modal-content">
 			<div class="modal-header">
 				<h3 class="modal-title">Edit Issue</h3>
@@ -9,7 +9,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<a class="reprocess-issue button" href="{% url 'comics:reprocess' issue.id %}">Reprocess</a>
+				<a class="reprocess-issue button" href="{% url 'comics:reprocess' issue.slug %}">Reprocess</a>
 				<p class="helptext">Use the reprocess button to reprocess this issue's metadata from ComicVine.</p>
 				{{ form.media }}
 				{% for field in form.visible_fields %}

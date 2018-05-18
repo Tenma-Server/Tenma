@@ -97,20 +97,20 @@ class IssueDeleteView(DeleteView):
 	model = Issue
 	success_url = '/'
 
-def read(request, issue_id):
-	issue = get_object_or_404(Issue, pk=issue_id)
+def read(request, slug):
+	issue = get_object_or_404(Issue, slug=slug)
 	return render(request, 'comics/read.html', {'issue': issue})
 
 def importer(request):
 	import_comic_files_task.delay()
 	return HttpResponseRedirect('/')
 
-def reprocess(request, issue_id):
-	reprocess_issue_task.delay(issue_id)
-	return HttpResponseRedirect('/issue/' + issue_id)
+def reprocess(request, slug):
+	reprocess_issue_task.delay(slug)
+	return HttpResponseRedirect('/issue/' + slug)
 
-def update_issue_status(request, issue_id):
-	issue = Issue.objects.get(pk=issue_id)
+def update_issue_status(request, slug):
+	issue = Issue.objects.get(slug=slug)
 
 	if request.GET.get('complete', '') == '1':
 		issue.leaf = 1

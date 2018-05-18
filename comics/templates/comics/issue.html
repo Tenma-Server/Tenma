@@ -10,10 +10,10 @@
 			<img src="/{{ issue.cover|urlencode }}" >
 			{% endautoescape %}
 			<div class="issue-cover-overlay">
-				<a href="{% url 'comics:read' issue.id %}">
+				<a href="{% url 'comics:read' issue.slug %}">
 					<i class="read-button fa fa-eye"></i>
 				</a>
-				<a data-toggle="modal" data-target="#modal" href="{% url 'comics:issue-update' issue.id %}">
+				<a data-toggle="modal" data-target="#modal" href="{% url 'comics:issue-update' issue.slug %}">
 					<i class="issue-update-button fa fa-pencil"></i>
 				</a>
 			</div>
@@ -30,7 +30,7 @@
 			<p>Released: {{ issue.date }}</p>
 			{% endif %}
 			<p>{{ issue.page_count }} pages</p>
-			<form action="{% url 'comics:issue-delete' issue.id %}" method="post">{% csrf_token %}
+			<form action="{% url 'comics:issue-delete' issue.slug %}" method="post">{% csrf_token %}
 				<input type="submit" name="remove-issue" value="Remove">
 			</form>
 		</div>
@@ -61,7 +61,7 @@
     $('.issue-update-button').on('click', function (event) {
         var modal = $('#modal')
         $.ajax({
-            url: "{% url 'comics:issue-update' issue.id %}",
+            url: "{% url 'comics:issue-update' issue.slug %}",
             context: document.body
         }).done(function(response) {
             modal.html(response);

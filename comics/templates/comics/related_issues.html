@@ -8,7 +8,7 @@
 		<ul class="slides">
 			{% for issue in issue_list %}
 			<li>
-				<a href="{% url 'comics:issue' issue.id %}">
+				<a href="{% url 'comics:issue' issue.slug %}">
 					<div class="image">
 						{% if issue.cover %}
 							<img src="{{ issue.cover|smartcrop:"200x305"|urlencode }}" alt = "{{ series.name }}" >
@@ -22,7 +22,7 @@
 						{% endif %}
 					</div>
 				</a>
-				<a href="{% url 'comics:issue' issue.id %}"><p>Issue #{{ issue.number }}</p></a>
+				<a href="{% url 'comics:issue' issue.slug %}"><p>Issue #{{ issue.number }}</p></a>
 			</li>
 			{% endfor %}
 		</ul>
