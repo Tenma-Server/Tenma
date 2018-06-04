@@ -85,6 +85,12 @@ class ComicImporter(object):
 									self._process_issue_without_cvid(entry.path)
 								except Exception:
 									self.logger.exception('An error occurred while processing %s' % entry.path)
+						else:
+								# Process issue without ComicVine API Key
+								try:
+									self._process_issue_without_cvid(entry.path)
+								except Exception:
+									self.logger.exception('An error occurred while processing %s' % entry.path)
 			else:
 				self._process_dir(entry.path, excluded)
 
