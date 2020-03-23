@@ -5,7 +5,7 @@ from comics.models import Arc, Character, Creator, Team, Publisher, Series, Issu
 from .comicfilehandler import ComicFileHandler
 from . import fnameparser, utils
 
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 class ComicImporter(object):
 
