@@ -27,7 +27,6 @@ You can legally download DRM-free comics from the following sources:
 - [**Humble Bundle**](https://www.humblebundle.com/books): Humble Bundle will occasionally feature digital comics in their books section. It's definitely worth checking once in awhile.
 - [**Drive Thru Comics**](http://drivethrucomics.com/): Sells DRM-free digital comic books.
 
-**NOTE:** When purchasing, keep in mind that PDF is currently an unsupported format. This will hopefully change in the near future.
 
 # Installation and Configuration #
 
